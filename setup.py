@@ -31,7 +31,7 @@ setup(
     long_description=read_md('README.md'),
     author='Pawel Krzyzaniak',
     author_email='pawelk@arabel.la',
-    packages=['universal_notifications'],
+    packages=['universal_notifications', 'universal_notifications.backends'],
     include_package_data=True,
     install_requires=[],
     zip_safe=False,
