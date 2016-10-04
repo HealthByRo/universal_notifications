@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+    # TODO: fill readme & TODO
     # TODO (Pawel): processors filtering (email/sms) - unsubscription, etc, mail/sms history + limiters
     # TODO (Pawel): sample transformations / conditions
     # TODO (Pawel): push (gcm, etc.) - low priority
