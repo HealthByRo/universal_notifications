@@ -4,7 +4,7 @@ import io
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def read_md(f):
@@ -19,6 +19,31 @@ def get_version(package):
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
+def get_packages(package):
+    """
+    Return root package and all sub-packages.
+    """
+    return [dirpath
+            for dirpath, dirnames, filenames in os.walk(package)
+            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
+
+
+def get_package_data(package):
+    """
+    Return all files under the root package, that are not in a
+    package themselves.
+    """
+    walk = [(dirpath.replace(package + os.sep, '', 1), filenames)
+            for dirpath, dirnames, filenames in os.walk(package)
+            if not os.path.exists(os.path.join(dirpath, '__init__.py'))]
+
+    filepaths = []
+    for base, filenames in walk:
+        filepaths.extend([os.path.join(base, filename)
+                          for filename in filenames])
+    return {package: filepaths}
+
+
 version = get_version('universal_notifications')
 
 
@@ -31,8 +56,8 @@ setup(
     long_description=read_md('README.md'),
     author='Pawel Krzyzaniak',
     author_email='pawelk@arabel.la',
-    packages=find_packages(),
-    include_package_data=True,
+    packages=get_packages('universal_notifications'),
+    package_data=get_package_data('universal_notifications'),
     install_requires=[],
     zip_safe=False,
     classifiers=[
