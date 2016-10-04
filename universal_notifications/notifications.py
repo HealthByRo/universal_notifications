@@ -24,12 +24,12 @@
 from django.template import Context
 from django.template import Template
 
-from getreferd.emails.models import Unsubscribes  # TODO: decouple
-from getreferd.emails.send import send_email  # TODO: decouple
-from getreferd.twilio.utils import send_sms  # TODO: decouple
+from universal_notifications.backends.emails import UnsubscribedModel
+from universal_notifications.backends.emails import send_email
+from universal_notifications.backends.sms import send_sms
+from universal_notifications.backends.websockets import publish
 from universal_notifications.models import NotificationHistory
 from universal_notifications.tasks import process_chained_notification
-from universal_notifications.backends.websockets import publish
 
 
 class NotificationBase(object):
@@ -143,7 +143,9 @@ class EmailNotification(NotificationBase):
 
     def prepare_receivers(self):
         result = set()
-        unsubscribed_emails = Unsubscribes.objects.filter(email__in=(receiver.email for receiver in self.receivers))
+        unsubscribed_emails = UnsubscribedModel.objects.filter(
+            email__in=(receiver.email for receiver in self.receivers)
+        )
         unsubscribed_emails = set(unsubscribed_emails.values_list('email', flat=True))
         for receiver in self.receivers:
             if receiver.email not in unsubscribed_emails:
