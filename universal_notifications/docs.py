@@ -151,7 +151,7 @@ class NotificationsDocs(object):
 
         # classes
         for app_config in apps.get_app_configs():
-            if app_config.name == 'getreferd.universal_notifications':  # no self importing
+            if app_config.name == 'universal_notifications':  # no self importing
                 continue
             try:
                 module = import_module('%s.%s' % (app_config.name, 'notifications'))

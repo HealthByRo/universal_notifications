@@ -5,3 +5,5 @@ mock== 2.0.0
 Django
 djangorestframework
 django-rest-swagger
+django-websocket-redis==0.4.6
+redis==2.10.5

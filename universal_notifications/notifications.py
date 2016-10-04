@@ -29,7 +29,7 @@ from getreferd.emails.send import send_email  # TODO: decouple
 from getreferd.twilio.utils import send_sms  # TODO: decouple
 from universal_notifications.models import NotificationHistory
 from universal_notifications.tasks import process_chained_notification
-from getreferd.utils.publisher import publish  # TODO: decouple
+from universal_notifications.backends.websockets import publish
 
 
 class NotificationBase(object):

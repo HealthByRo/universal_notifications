@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-# TODO: make it somehow configurable
-from getreferd.celery import app
+from celery import Celery
+
+from django.conf import settings
+
+
+app = Celery(getattr(settings, 'CELERY_APP_NAME', 'app.universal_notifications'))
 
 
 @app.task()
