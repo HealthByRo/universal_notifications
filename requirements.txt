@@ -1,0 +1,7 @@
+# testing
+mock== 2.0.0
+
+# library
+Django
+djangorestframework
+django-rest-swagger
