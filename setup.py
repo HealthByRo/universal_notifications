@@ -23,7 +23,7 @@ version = get_version('universal_notifications')
 
 
 setup(
-    name='universal_notification',
+    name='universal_notifications',
     version=version,
     url='https://github.com/ArabellaTech/universal_notifications',
     license='Proprietary',
