@@ -6,8 +6,14 @@
 
 # app = Celery(getattr(settings, 'CELERY_APP_NAME', 'app.universal_notifications'))
 
+from django.conf import settings
+from django.utils.importlib import import_module
 
-# @app.task()
+__path, __symbol = getattr(settings, 'CELERY_APP_PATH').rsplit('.', 1)
+app = getattr(import_module(__path), __symbol)
+
+
+@app.task()
 def process_chained_notification(conf, item, receivers, context, parent_result):
     """ conf - configuration of chained notification
         item, receivers, context - parameters for creating Notification subclass
