@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-# from celery import Celery
-
-# from django.conf import settings
-
-
-# app = Celery(getattr(settings, 'CELERY_APP_NAME', 'app.universal_notifications'))
-
 from django.conf import settings
 from django.utils.importlib import import_module
 
