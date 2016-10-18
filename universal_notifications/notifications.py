@@ -161,10 +161,14 @@ class EmailNotification(NotificationBase):
     def format_receiver_for_notification_history(self, receiver):
         return receiver.email
 
+    def prepare_subject(self):
+        return Template(self.email_subject).render(Context({"item": self.item}))
+
     def send_inner(self, prepared_receivers, prepared_message):
+        prepared_subject = self.prepare_subject()
         for receiver in prepared_receivers:
             prepared_message['receiver'] = receiver
-            send_email(self.email_name, self.format_receiver(receiver), self.email_subject, prepared_message)
+            send_email(self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message)
 
     def get_notification_history_details(self):
         return self.email_name
