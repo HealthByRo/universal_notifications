@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from celery import Celery
+# from celery import Celery
 
-from django.conf import settings
-
-
-app = Celery(getattr(settings, 'CELERY_APP_NAME', 'app.universal_notifications'))
+# from django.conf import settings
 
 
-@app.task()
+# app = Celery(getattr(settings, 'CELERY_APP_NAME', 'app.universal_notifications'))
+
+
+# @app.task()
 def process_chained_notification(conf, item, receivers, context, parent_result):
     """ conf - configuration of chained notification
         item, receivers, context - parameters for creating Notification subclass
