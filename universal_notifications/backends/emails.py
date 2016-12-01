@@ -11,9 +11,11 @@ from premailer import Premailer
 
 cssutils.log.setLevel(logging.CRITICAL)
 
-
-__path, __symbol = getattr(settings, 'UNSUBSCRIBE_MODEL').rsplit('.', 1)
-UnsubscribedModel = getattr(import_module(__path), __symbol)
+if hasattr(settings, "UNSUBSCRIBE_MODEL"):
+    __path, __symbol = getattr(settings, 'UNSUBSCRIBE_MODEL').rsplit('.', 1)
+    UnsubscribedModel = getattr(import_module(__path), __symbol)
+else:
+    UnsubscribedModel = None
 
 
 def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}):

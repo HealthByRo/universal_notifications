@@ -5,7 +5,7 @@ from universal_notifications.notifications import SMSNotification
 from universal_notifications.notifications import WSNotification
 
 __title__ = 'Universal Notification'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __author__ = 'Pawel Krzyzaniak'
 __license__ = 'Proprietary'
 __copyright__ = 'Copyright 2016 Arabella'
