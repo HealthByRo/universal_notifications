@@ -9,7 +9,6 @@
         - transformations
         - conditions """
 import mock
-
 from rest_framework.test import APITestCase
 
 from universal_notifications.notifications import NotificationBase

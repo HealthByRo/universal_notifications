@@ -7,6 +7,11 @@ https://developer.android.com/google/gcm/index.html
 
 import json
 
+from push_notifications import NotificationError
+from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS as SETTINGS
+
+from universal_notifications.backends.push.utils import get_app_settings
+
 try:
     from urllib.request import Request, urlopen
     from urllib.parse import urlencode
@@ -14,11 +19,6 @@ except ImportError:
     # Python 2 support
     from urllib2 import Request, urlopen
     from urllib import urlencode
-
-from push_notifications import NotificationError
-from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS as SETTINGS
-
-from universal_notifications.backends.push.utils import get_app_settings
 
 
 class GCMError(NotificationError):

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url
 
-from universal_notifications.docs import UniversalNotificationsApiView
-from universal_notifications.docs import UniversalNotificationsResourcesView
-from universal_notifications.docs import UniversalNotificationsUIView
-
+from universal_notifications.docs import (UniversalNotificationsApiView,
+                                          UniversalNotificationsResourcesView,
+                                          UniversalNotificationsUIView)
 
 urlpatterns = [
     url(r'^$', UniversalNotificationsUIView.as_view(), name="django.swagger.base.view"),
