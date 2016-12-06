@@ -29,6 +29,7 @@ from universal_notifications.backends.emails import UnsubscribedModel
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.sms import send_sms
 from universal_notifications.backends.websockets import publish
+from universal_notifications.models import Device
 from universal_notifications.models import NotificationHistory
 from universal_notifications.tasks import process_chained_notification
 
@@ -144,10 +145,13 @@ class EmailNotification(NotificationBase):
 
     def prepare_receivers(self):
         result = set()
-        unsubscribed_emails = UnsubscribedModel.objects.filter(
-            email__in=(receiver.email for receiver in self.receivers)
-        )
-        unsubscribed_emails = set(unsubscribed_emails.values_list('email', flat=True))
+        if UnsubscribedModel:
+            unsubscribed_emails = UnsubscribedModel.objects.filter(
+                email__in=(receiver.email for receiver in self.receivers)
+            )
+            unsubscribed_emails = set(unsubscribed_emails.values_list('email', flat=True))
+        else:
+            unsubscribed_emails = set()
         for receiver in self.receivers:
             if receiver.email not in unsubscribed_emails:
                 result.add(receiver)
@@ -179,6 +183,31 @@ class EmailNotification(NotificationBase):
 
 
 class PushNotification(NotificationBase):
+    message = None  # required, django template string
+
     @classmethod
     def get_type(cls):
         return "Push"
+
+    def prepare_receivers(self):
+        return set(self.receivers)
+
+    def prepare_body(self):  # self.item & self.context can be used here
+        return {}
+
+    def prepare_message(self):
+        return {
+            'message': Template(self.message).render(Context({"item": self.item})),
+            'data': self.prepare_body()
+        }
+
+    def format_receiver_for_notification_history(self, receiver):
+        return receiver.email
+
+    def send_inner(self, prepared_receivers, prepared_message):  # TODO
+        for receiver in prepared_receivers:
+            for d in Device.objects.filter(user=receiver, is_active=True):
+                d.send_message(prepared_message["message"], **prepared_message["data"])
+
+    def get_notification_history_details(self):
+        return self.prepare_message()

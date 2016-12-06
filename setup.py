@@ -58,7 +58,10 @@ setup(
     author_email='pawelk@arabel.la',
     packages=get_packages('universal_notifications'),
     package_data=get_package_data('universal_notifications'),
-    install_requires=[],
+    install_requires=[
+        "django-push-notifications==1.4.1",
+        "pyfcm==1.1.5"
+    ],
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',
