@@ -42,7 +42,8 @@ def _apns_create_socket(address_tuple, app_id):
 
     if not certfile:
         raise ImproperlyConfigured(
-            'You need to set MOBILE_APPS[app_id]["APNS_CERTIFICATE"] to send messages through APNS.'
+            'You need to set UNIVERSAL_NOTIFICATIONS_MOBILE_APPS[app_id]["APNS_CERTIFICATE"] '
+            'to send messages through APNS.'
         )
 
     try:

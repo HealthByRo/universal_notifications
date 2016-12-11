@@ -17,7 +17,7 @@ def publish(user, item=None, additional_data=None):
     data.update(additional_data)
     data = r.render(data)
     message = RedisMessage(data)
-    if settings.TESTING:
+    if settings.UNIVERSAL_NOTIFICATIONS_TESTING:
         # Do not send in tests
         return
     redis_publisher.publish_message(message)

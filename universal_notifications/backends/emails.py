@@ -11,8 +11,8 @@ from premailer import Premailer
 
 cssutils.log.setLevel(logging.CRITICAL)
 
-if hasattr(settings, "UNSUBSCRIBE_MODEL"):
-    __path, __symbol = getattr(settings, 'UNSUBSCRIBE_MODEL').rsplit('.', 1)
+if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_UNSUBSCRIBE_MODEL"):
+    __path, __symbol = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_UNSUBSCRIBE_MODEL').rsplit('.', 1)
     UnsubscribedModel = getattr(import_module(__path), __symbol)
 else:
     UnsubscribedModel = None
@@ -21,7 +21,7 @@ else:
 def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}):
     variables['site'] = Site.objects.get_current()
     variables['STATIC_URL'] = settings.STATIC_URL
-    variables['is_secure'] = getattr(settings, 'IS_SECURE', False)
+    variables['is_secure'] = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_IS_SECURE', False)
     html = render_to_string('emails/email_%s.html' % template, variables)
     protocol = 'https://' if variables['is_secure'] else 'http://'
     replace_variables['protocol'] = protocol
@@ -40,6 +40,6 @@ def send_email(template, to, subject, variables={}, fail_silently=False, cms=Fal
                      include_star_selectors=True,
                      strip_important=False,
                      base_url=base).transform()
-    email = EmailMessage(subject, html, settings.DEFAULT_FROM_EMAIL, [to])
+    email = EmailMessage(subject, html, settings.UNIVERSAL_NOTIFICATIONS_DEFAULT_FROM_EMAIL, [to])
     email.content_subtype = "html"
     email.send(fail_silently=fail_silently)
