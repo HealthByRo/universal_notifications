@@ -1,6 +1,5 @@
 # Send to single device.
 from pyfcm import FCMNotification
-
 from universal_notifications.backends.push.utils import get_app_settings
 
 

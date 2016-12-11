@@ -1,0 +1,9 @@
+djangorestframework
+django-rest-swagger
+django-websocket-redis
+redis
+premailer
+
+# push notifications
+django-push-notifications==1.4.1
+pyfcm==1.1.5

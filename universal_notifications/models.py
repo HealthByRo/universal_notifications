@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import six
-from django.conf import settings
-from django.db import models
-
 from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
+
+from django.conf import settings
+from django.db import models
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 

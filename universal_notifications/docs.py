@@ -2,6 +2,12 @@
 import json
 from importlib import import_module
 
+from universal_notifications.notifications import (EmailNotification,
+                                                   NotificationBase,
+                                                   PushNotification,
+                                                   SMSNotification,
+                                                   WSNotification)
+
 import rest_framework_swagger as rfs
 from django.apps import apps
 from django.conf import settings
@@ -17,12 +23,6 @@ from rest_framework_swagger.apidocview import APIDocView
 from rest_framework_swagger.compat import OrderedDict, import_string
 from rest_framework_swagger.docgenerator import DocumentationGenerator
 from rest_framework_swagger.introspectors import IntrospectorHelper
-
-from universal_notifications.notifications import (EmailNotification,
-                                                   NotificationBase,
-                                                   PushNotification,
-                                                   SMSNotification,
-                                                   WSNotification)
 
 BASE_NOTIFICATIONS = (EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
 

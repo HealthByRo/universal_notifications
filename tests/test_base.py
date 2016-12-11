@@ -73,7 +73,7 @@ class BaseTest(APITestCase):
             TODO (Pawel):
                 - test receiver list preparation
                 - test message serialization """
-        with mock.patch('universal_notifications.tests.test_base.SampleA.send_inner') as mocked_send_inner:
+        with mock.patch('tests.test_base.SampleA.send_inner') as mocked_send_inner:
             mocked_send_inner.return_value = None
 
             SampleB(self.item, self.receivers, {}).send()
