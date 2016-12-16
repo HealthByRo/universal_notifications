@@ -2,3 +2,7 @@ build
 dist
 universal_notification.egg-info
 universal_notifications.egg-info
+.tox
+.cache/v/cache
+coverage.xml
+.coverage
