@@ -20,7 +20,7 @@ class SampleA(NotificationBase):
         return 'Test'
 
     def prepare_receivers(self):
-        return map(lambda x: x.strip(), self.receivers)
+        return list(map(lambda x: x.strip(), self.receivers))
 
     def prepare_message(self):
         return self.item['content']
