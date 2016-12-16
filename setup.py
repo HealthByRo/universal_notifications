@@ -4,7 +4,13 @@ import io
 import os
 import re
 
+from pkg_resources import DistributionNotFound
+from pkg_resources import require
 from setuptools import setup
+
+
+def local_open(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname))
 
 
 def read_md(f):
@@ -47,6 +53,16 @@ def get_package_data(package):
 version = get_version('universal_notifications')
 
 
+requirements = local_open('requirements/requirements-base.txt')
+required_to_install = []
+for dist in requirements.readlines():
+    dist = dist.strip()
+    try:
+        require(dist)
+    except DistributionNotFound:
+        required_to_install.append(dist)
+
+
 setup(
     name='universal_notifications',
     version=version,
@@ -58,10 +74,6 @@ setup(
     author_email='pawelk@arabel.la',
     packages=get_packages('universal_notifications'),
     package_data=get_package_data('universal_notifications'),
-    install_requires=[
-        "django-push-notifications==1.4.1",
-        "pyfcm==1.1.5"
-    ],
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',
