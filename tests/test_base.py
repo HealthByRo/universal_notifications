@@ -9,7 +9,6 @@
         - transformations
         - conditions """
 import mock
-
 from rest_framework.test import APITestCase
 
 from universal_notifications.notifications import NotificationBase
@@ -21,7 +20,7 @@ class SampleA(NotificationBase):
         return 'Test'
 
     def prepare_receivers(self):
-        return map(lambda x: x.strip(), self.receivers)
+        return list(map(lambda x: x.strip(), self.receivers))
 
     def prepare_message(self):
         return self.item['content']
@@ -74,7 +73,7 @@ class BaseTest(APITestCase):
             TODO (Pawel):
                 - test receiver list preparation
                 - test message serialization """
-        with mock.patch('universal_notifications.tests.test_base.SampleA.send_inner') as mocked_send_inner:
+        with mock.patch('tests.test_base.SampleA.send_inner') as mocked_send_inner:
             mocked_send_inner.return_value = None
 
             SampleB(self.item, self.receivers, {}).send()

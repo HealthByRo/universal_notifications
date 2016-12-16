@@ -1,14 +1,3 @@
-# testing
-mock
-
-# library
-Django
-djangorestframework
-django-rest-swagger
-django-websocket-redis
-redis
-premailer
-
-# push notifications
-django-push-notifications==1.4.1
-pyfcm==1.1.5
+-r requirements/requirements-base.txt
+-r requirements/requirements-testing.txt
+-r requirements/requirements-codestyle.txt
