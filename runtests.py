@@ -47,7 +47,7 @@ def isort_main(args):
 
 def split_class_and_function(string):
     class_string, function_string = string.split('.', 1)
-    return "%s and %s" % (class_string, function_string)
+    return "{} and {}".format(class_string, function_string)
 
 
 def is_function(string):
@@ -61,6 +61,7 @@ def is_class(string):
 
 
 if __name__ == "__main__":
+    """ test runner - to be used by tox """
     try:
         sys.argv.remove('--nolint')
     except ValueError:
