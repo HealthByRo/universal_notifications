@@ -44,6 +44,6 @@ def send_email(template, to, subject, variables={}, fail_silently=False, cms=Fal
                      include_star_selectors=True,
                      strip_important=False,
                      base_url=base).transform()
-    email = EmailMessage(subject, html, settings.UNIVERSAL_NOTIFICATIONS_DEFAULT_FROM_EMAIL, [to])
+    email = EmailMessage(subject, html, settings.DEFAULT_FROM_EMAIL, [to])
     email.content_subtype = "html"
     email.send(fail_silently=fail_silently)

@@ -35,7 +35,7 @@ def _chunks(l, n):
 
 def _gcm_send(app_id, data, content_type):
     app_settings = get_app_settings(app_id)
-    key = app_settings.get('UNIVERSAL_NOTIFICATIONS_GCM_API_KEY')
+    key = app_settings.get('GCM_API_KEY')
     if not app_settings or key:
         return
 
@@ -45,7 +45,7 @@ def _gcm_send(app_id, data, content_type):
         "Content-Length": str(len(data)),
     }
 
-    request = Request(SETTINGS["UNIVERSAL_NOTIFICATIONS_GCM_POST_URL"], data, headers)
+    request = Request(SETTINGS["GCM_POST_URL"], data, headers)
     return urlopen(request).read()
 
 

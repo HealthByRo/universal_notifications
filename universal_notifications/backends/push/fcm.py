@@ -6,7 +6,7 @@ from pyfcm import FCMNotification
 
 def fcm_send_message(device, message, data=None):
     app_settings = get_app_settings(device.app_id)
-    api_key = app_settings.get('UNIVERSAL_NOTIFICATIONS_FCM_API_KEY')
+    api_key = app_settings.get('FCM_API_KEY')
     if not app_settings or not api_key:
         return
 
