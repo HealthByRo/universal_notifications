@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.utils.importlib import import_module
+
+try:
+    from django.utils.importlib import import_module
+except ImportError:
+    from importlib import import_module
+
 
 __path, __symbol = getattr(settings, 'CELERY_APP_PATH').rsplit('.', 1)
 app = getattr(import_module(__path), __symbol)

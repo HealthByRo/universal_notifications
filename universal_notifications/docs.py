@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 import json
-import rest_framework_swagger as rfs
-
 from importlib import import_module
 
+from universal_notifications.notifications import (EmailNotification,
+                                                   NotificationBase,
+                                                   PushNotification,
+                                                   SMSNotification,
+                                                   WSNotification)
+
+import rest_framework_swagger as rfs
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -15,17 +20,9 @@ from django.views.generic import View
 from rest_framework.settings import api_settings
 from rest_framework.views import Response
 from rest_framework_swagger.apidocview import APIDocView
-from rest_framework_swagger.compat import OrderedDict
-from rest_framework_swagger.compat import import_string
+from rest_framework_swagger.compat import OrderedDict, import_string
 from rest_framework_swagger.docgenerator import DocumentationGenerator
 from rest_framework_swagger.introspectors import IntrospectorHelper
-
-from universal_notifications.notifications import EmailNotification
-from universal_notifications.notifications import NotificationBase
-from universal_notifications.notifications import PushNotification
-from universal_notifications.notifications import SMSNotification
-from universal_notifications.notifications import WSNotification
-
 
 BASE_NOTIFICATIONS = (EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
 
@@ -339,7 +336,7 @@ class UniversalNotificationsApiView(APIDocView):
             'swaggerVersion': '1.2',
             'basePath': self.api_full_uri.rstrip('/'),
             'resourcePath': '/' + path,
-            'apis':  NotificationsDocs.generate_notifications_docs(path),
+            'apis': NotificationsDocs.generate_notifications_docs(path),
             'models': NotificationsDocs.generate_models_docs(),
         })
 

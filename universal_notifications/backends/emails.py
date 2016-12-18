@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-import cssutils
 import logging
 
+import cssutils
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.utils.importlib import import_module
 from premailer import Premailer
+
+try:
+    from django.utils.importlib import import_module
+except ImportError:
+    from importlib import import_module
 
 cssutils.log.setLevel(logging.CRITICAL)
 

@@ -22,16 +22,14 @@
                 },
         )
 """
-from django.template import Context
-from django.template import Template
-
-from universal_notifications.backends.emails import UnsubscribedModel
-from universal_notifications.backends.emails import send_email
+from universal_notifications.backends.emails import (UnsubscribedModel,
+                                                     send_email)
 from universal_notifications.backends.sms import send_sms
 from universal_notifications.backends.websockets import publish
-from universal_notifications.models import Device
-from universal_notifications.models import NotificationHistory
+from universal_notifications.models import Device, NotificationHistory
 from universal_notifications.tasks import process_chained_notification
+
+from django.template import Context, Template
 
 
 class NotificationBase(object):
