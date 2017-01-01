@@ -7,10 +7,9 @@ https://developer.android.com/google/gcm/index.html
 
 import json
 
-from universal_notifications.backends.push.utils import get_app_settings
-
 from push_notifications import NotificationError
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS as SETTINGS
+from universal_notifications.backends.push.utils import get_app_settings
 
 try:
     from urllib.request import Request, urlopen

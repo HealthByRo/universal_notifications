@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from universal_notifications.models import NotificationHistory
-
 from django.contrib import admin
+from universal_notifications.models import NotificationHistory
 
 
 class NotificationHistoryAdmin(admin.ModelAdmin):

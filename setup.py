@@ -4,8 +4,7 @@ import io
 import os
 import re
 
-from pkg_resources import DistributionNotFound
-from pkg_resources import require
+from pkg_resources import DistributionNotFound, require
 from setuptools import setup
 
 
