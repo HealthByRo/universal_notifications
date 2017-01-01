@@ -75,6 +75,7 @@ setup(
     packages=get_packages('universal_notifications'),
     package_data=get_package_data('universal_notifications'),
     zip_safe=False,
+    install_requires=required_to_install,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
