@@ -66,7 +66,7 @@ setup(
     name='universal_notifications',
     version=version,
     url='https://github.com/ArabellaTech/universal_notifications',
-    license='Proprietary',
+    license='MIT',
     description='High-level framework for notifications',
     long_description=read_md('README.md'),
     author='Pawel Krzyzaniak',
