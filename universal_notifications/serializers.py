@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
-
 from universal_notifications.models import Device
 
 

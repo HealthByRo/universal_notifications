@@ -56,7 +56,7 @@ class BaseTestCase(TestCase):
             email='joe+%s@doe.com' % i,
             is_active=is_active,
             # zipcode='11111',
-            )
+        )
         user.set_password(self.password)
         user.save()
         return user
