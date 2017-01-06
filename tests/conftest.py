@@ -22,7 +22,7 @@ def pytest_configure():
         USE_I18N=True,
         USE_L10N=True,
         STATIC_URL='/static/',
-        ROOT_URLCONF='tests.urls',
+        ROOT_URLCONF='universal_notifications.urls',
         TEMPLATES=[
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -39,6 +39,7 @@ def pytest_configure():
             'django.contrib.staticfiles',
             'universal_notifications',
             'rest_framework',
+            'rest_framework.authtoken',
             'tests',
         ),
         PASSWORD_HASHERS=(
@@ -46,6 +47,13 @@ def pytest_configure():
         ),
         REST_FRAMEWORK={
             'DEFAULT_VERSION': '1',
+            'DEFAULT_PERMISSION_CLASSES': [
+                'rest_framework.permissions.IsAuthenticated',
+            ],
+            'DEFAULT_AUTHENTICATION_CLASSES': (
+                'rest_framework.authentication.TokenAuthentication',
+            )
+
         },
         CELERY_APP_PATH='tests.celery.app',
         CELERY_TASK_ALWAYS_EAGER=True,
