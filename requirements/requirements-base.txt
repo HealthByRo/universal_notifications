@@ -5,5 +5,5 @@ redis
 premailer
 
 # push notifications
-django-push-notifications
+django-push-notifications>=1.4.1
 pyfcm
