@@ -75,6 +75,9 @@ setup(
     package_data=get_package_data('universal_notifications'),
     zip_safe=False,
     install_requires=required_to_install,
+    extras_require={
+        ':python_version=="3.6"': ['pysocks'],  # https://github.com/twilio/twilio-python/pull/298
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',

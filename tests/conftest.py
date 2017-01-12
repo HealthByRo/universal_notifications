@@ -10,6 +10,7 @@ def pytest_configure():
     )
 
     settings.configure(
+        ADMINS=('foo@foo.com',),
         DEBUG_PROPAGATE_EXCEPTIONS=True,
         DATABASES={
             'default': {
@@ -22,7 +23,7 @@ def pytest_configure():
         USE_I18N=True,
         USE_L10N=True,
         STATIC_URL='/static/',
-        ROOT_URLCONF='universal_notifications.urls',
+        ROOT_URLCONF='tests.urls',
         TEMPLATES=[
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -37,6 +38,7 @@ def pytest_configure():
             'django.contrib.sessions',
             'django.contrib.sites',
             'django.contrib.staticfiles',
+            'django.contrib.admin',
             'universal_notifications',
             'rest_framework',
             'rest_framework.authtoken',
@@ -57,4 +59,5 @@ def pytest_configure():
         },
         CELERY_APP_PATH='tests.celery.app',
         CELERY_TASK_ALWAYS_EAGER=True,
+        UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT='fake',
     )
