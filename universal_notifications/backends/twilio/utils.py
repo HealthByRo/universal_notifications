@@ -53,7 +53,7 @@ def validate_mobile(value):
     Returns:
         bool -- return True if number is mobile
     """
-    if not settings.VALIDATE_MOBILE:
+    if not settings.UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE:
         return True
 
     if not isinstance(value, phonenumbers.PhoneNumber):

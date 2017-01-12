@@ -189,7 +189,7 @@ class SentTests(TwilioTestsCase):
 
 class UtilsTests(TwilioTestsCase):
 
-    @override_settings(VALIDATE_MOBILE=True)
+    @override_settings(UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE=True)
     def test_validate_mobile(self):
         self.assertFalse(validate_mobile('+1'))
         with mock.patch('universal_notifications.backends.twilio.utils.get_twilio_client') as twilio_mock:
