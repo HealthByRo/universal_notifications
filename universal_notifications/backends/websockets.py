@@ -5,7 +5,6 @@ from rest_framework.renderers import JSONRenderer
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 
-
 TESTING = ('test' in sys.argv or 'jenkins' in sys.argv)
 
 

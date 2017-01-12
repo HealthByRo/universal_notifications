@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from universal_notifications.models import (NotificationHistory, Phone,
-                                            PhoneReceived, PhoneReceivedRaw, PhoneReceiver,
-                                            PhoneSent)
+                                            PhoneReceived, PhoneReceivedRaw,
+                                            PhoneReceiver, PhoneSent)
 
 
 class NotificationHistoryAdmin(admin.ModelAdmin):

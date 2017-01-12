@@ -250,6 +250,7 @@ class PhoneReceived(models.Model):
         verbose_name = 'Received Message'
         verbose_name_plural = verbose_name + 's'
 
+
 post_save.connect(phone_received_post_save, sender=PhoneReceived)
 
 

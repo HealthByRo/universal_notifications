@@ -15,9 +15,9 @@ more information.
 from __future__ import absolute_import
 
 import json
-import six
 import warnings
 
+import six
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models

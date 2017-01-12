@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from universal_notifications.backends.twilio.tasks import send_message_task
 
 try:
     from django.utils.importlib import import_module
 except ImportError:
     from importlib import import_module
 
-from universal_notifications.backends.twilio.tasks import send_message_task
 
 try:
     __path, __symbol = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_SEND_SMS_FUNC').rsplit('.', 1)
