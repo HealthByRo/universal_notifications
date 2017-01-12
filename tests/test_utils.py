@@ -49,20 +49,20 @@ class BaseTestCase(TestCase):
     def _login(self):
         self.client.login(email='joe+1@doe.com', password=self.password)
 
-    def _new_user(self, i, is_active=True):
-        user = UserModel.objects.create(
+    def _new_user(self, i, is_active=True, **kwargs):
+        user = UserModel(
             first_name='Joe%i' % i,
             last_name='Doe',
             email='joe+%s@doe.com' % i,
             is_active=is_active,
-            # zipcode='11111',
+            **kwargs
         )
         user.set_password(self.password)
         user.save()
         return user
 
-    def _create_user(self, i=1):
-        self.user = self._new_user(i)
+    def _create_user(self, i=1, **kwargs):
+        self.user = self._new_user(i, **kwargs)
         return self.user
 
 
