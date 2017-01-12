@@ -6,7 +6,7 @@ from universal_notifications.backends.twilio.api import TwilioAPI
 
 urlpatterns = [
     url(r'^devices$', DevicesApi.as_view(), name='notifications_devices_api'),
-    url(r'^$', TwilioAPI.as_view(), name='twilio_callback_api'),
+    url(r'^twilio$', TwilioAPI.as_view(), name='twilio_callback_api'),
 ]
 
 router = DefaultRouter()
