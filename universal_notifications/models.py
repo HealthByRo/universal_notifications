@@ -194,7 +194,6 @@ class PhoneSent(models.Model):
                 self.status = PhoneSent.STATUS_FAILED
 
     def save(self, **kwargs):
-        print 14, self.status
         if self.status == PhoneSent.STATUS_PENDING:
             self.send()
         return super(PhoneSent, self).save(**kwargs)

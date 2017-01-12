@@ -4,12 +4,11 @@ import traceback
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse
+from universal_notifications.backends.twilio.utils import clean_text
 from universal_notifications.models import (Phone, PhonePendingMessages,
                                             PhoneReceived, PhoneReceivedRaw,
                                             PhoneReceiver, PhoneSent)
-
-from universal_notifications.backends.twilio.utils import clean_text
 
 try:
     from django.utils.importlib import import_module
@@ -25,7 +24,7 @@ LOCK_EXPIRE = 60 * 5  # Lock expires in 5 minutes
 
 
 def report_admins(subject, raw):
-    url = reverse_lazy('admin:universal_notifications_phonereceivedraw_change', args=[raw.id])
+    url = reverse('admin:universal_notifications_phonereceivedraw_change', args=[raw.id])
     domain = Site.objects.get_current().domain
     url = ''.join(['http://', domain])
     mail_admins(subject, 'Message admin: %s' % url)
@@ -33,23 +32,17 @@ def report_admins(subject, raw):
 
 @app.task(ignore_result=True)
 def parse_received_message_task(message_id):
-    print 1
     try:
         raw = PhoneReceivedRaw.objects.get(id=message_id, status=PhoneReceivedRaw.STATUS_PENDING)
     except PhoneReceivedRaw.DoesNotExist:
         return
-    print 2
 
     try:
-        print 21
         if raw.data.get('AccountSid') != settings.UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT:
-            print 3
             raw.status = PhoneReceivedRaw.STATUS_REJECTED
             raw.save()
             report_admins('Rejected incoming Twilio message', raw)
             return
-
-        print 4
 
         if raw.data.get('Direction') == 'inbound':
             # incoming voice call, handle only recording
@@ -61,7 +54,6 @@ def parse_received_message_task(message_id):
                 #     send_email('voice_mail', user.email, 'Patient leaved a voice mail', variables)
                 pass
         elif raw.data.get('SmsStatus') == 'received':
-            print 5
             receiver, c = PhoneReceiver.objects.get_or_create(number=raw.data.get('From'),
                                                               service_number=raw.data.get('To'))
             if raw.data.get('SmsMessageSid', ''):

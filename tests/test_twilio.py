@@ -2,11 +2,11 @@
 import mock
 from django.core import mail
 from django.core.management import call_command
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from tests.test_utils import APIBaseTestCase
 from universal_notifications.backends.sms import send_sms
 from universal_notifications.backends.twilio.utils import validate_mobile
-from tests.test_utils import APIBaseTestCase
 from universal_notifications.models import (Phone, PhonePendingMessages,
                                             PhoneReceived, PhoneReceivedRaw,
                                             PhoneReceiver, PhoneSent)
@@ -16,7 +16,7 @@ class TwilioTestsCase(APIBaseTestCase):
 
     def setUp(self):
         super(TwilioTestsCase, self).setUp()
-        self.twilio_callback_url = reverse_lazy('twilio_callback_api')
+        self.twilio_callback_url = reverse('twilio_callback_api')
 
     def create_raw_data(self, text, **kwargs):
         data = {
@@ -64,9 +64,10 @@ class ProxyTests(TwilioTestsCase):
             new_message(2, 1)
 
     def test_check_queue(self):
-        PhonePendingMessages.objects.create(from_phone="802-339-0057")
-        PhonePendingMessages.objects.create(from_phone="802-339-0057")
-        PhonePendingMessages.objects.create(from_phone="802-339-0058")
+        with mock.patch('universal_notifications.models.StrictRedis'):
+            PhonePendingMessages.objects.create(from_phone="802-339-0057")
+            PhonePendingMessages.objects.create(from_phone="802-339-0057")
+            PhonePendingMessages.objects.create(from_phone="802-339-0058")
 
         with mock.patch('universal_notifications.management.commands.check_twilio_proxy.'
                         'StrictRedis.publish') as redis_mock:

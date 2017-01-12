@@ -1,85 +1,116 @@
 # -*- coding: utf-8 -*-
-import base64
-import json
-import zlib
+"""
+From django-extensions
 
-from django.core import exceptions
+JSONField automatically serializes most Python terms to JSON data.
+Creates a TEXT field with a default value of "{}".  See test_json.py for
+more information.
+
+ from django.db import models
+ from django_extensions.db.fields import json
+
+ class LOL(models.Model):
+     extra = json.JSONField()
+"""
+from __future__ import absolute_import
+
+import json
+import six
+import warnings
+
+from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.forms import fields
-from django.forms.utils import ValidationError as FormValidationError
-from django.utils.translation import ugettext_lazy as _
-from six import string_types
+
+
+def dumps(value):
+    return DjangoJSONEncoder().encode(value)
+
+
+def loads(txt):
+    value = json.loads(
+        txt,
+        encoding=settings.DEFAULT_CHARSET
+    )
+    return value
+
+
+class JSONDict(dict):
+    """
+    Hack so repr() called by dumpdata will output JSON instead of
+    Python formatted data.  This way fixtures will work!
+    """
+    def __repr__(self):
+        return dumps(self)
+
+
+class JSONList(list):
+    """
+    As above
+    """
+    def __repr__(self):
+        return dumps(self)
 
 
 class JSONField(models.TextField):
-    """JSONField is a generic textfield that neatly serializes/unserializes JSON objects seamlessly."""
+    """JSONField is a generic textfield that neatly serializes/unserializes
+    JSON objects seamlessly.  Main thingy must be a dict object."""
 
-    # Minimum length of value before compression kicks in
-    compression_threshold = 64
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Django 1.9 features a native JsonField, this JSONField will "
+                      "be removed somewhere after Django 1.8 becomes unsupported.",
+                      DeprecationWarning)
+        kwargs['default'] = kwargs.get('default', dict)
+        models.TextField.__init__(self, *args, **kwargs)
 
-    def __init__(self, verbose_name=None, json_type=None, compress=False, *args, **kwargs):
-        self.json_type = json_type
-        self.compress = compress
-        super(JSONField, self).__init__(verbose_name, *args, **kwargs)
+    def get_default(self):
+        if self.has_default():
+            default = self.default
+
+            if callable(default):
+                default = default()
+
+            return self.to_python(default)
+        return super(JSONField, self).get_default()
+
+    def to_python(self, value):
+        """Convert our string value to JSON after we load it from the DB"""
+        if value is None or value == '':
+            return {}
+
+        if isinstance(value, six.string_types):
+            res = loads(value)
+        else:
+            res = value
+
+        if isinstance(res, dict):
+            return JSONDict(**res)
+        elif isinstance(res, list):
+            return JSONList(res)
+
+        return value
+
+    def get_prep_value(self, value):
+        if not isinstance(value, six.string_types):
+            return dumps(value)
+        return super(models.TextField, self).get_prep_value(value)
 
     def from_db_value(self, value, expression, connection, context):
         return self.to_python(value)
 
-    def to_python(self, value):
-        """Convert our string value to JSON after we load it from the DB."""
-        if isinstance(value, string_types):
-            if self.compress and value.startswith('zlib;;'):
-                value = zlib.decompress(base64.decodestring(value[6:]))
-
-            try:
-                value = json.loads(value)
-            except ValueError:
-                pass
-
-        if self.json_type and not isinstance(value, self.json_type):
-            raise exceptions.ValidationError(
-                "%r is not of type %s (error occured when trying to access "
-                "'%s.%s' field)" %
-                (value, self.json_type, self.model._meta.db_table, self.name))
-        return value
-
-    def get_db_prep_save(self, value, connection):
-        """Convert our JSON object to a string before we save."""
-        if self.json_type and not isinstance(value, self.json_type):
-            raise TypeError("%r is not of type %s" % (value, self.json_type))
-
-        try:
-            value = json.dumps(value)
-        except TypeError, e:
-            raise ValueError(e)
-
-        if self.compress and len(value) >= self.compression_threshold:
-            value = 'zlib;;' + base64.encodestring(zlib.compress(value))
-
-        return super(JSONField, self).get_db_prep_save(value, connection=connection)
-
-    def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return value
-
-    def formfield(self, **kwargs):
-        defaults = {'form_class': JSONFormField}
-        defaults.update(kwargs)
-        return super(JSONField, self).formfield(**defaults)
-
-
-class JSONFormField(fields.CharField):
-
-    def clean(self, value):
-
-        if not value and not self.required:
+    def get_db_prep_save(self, value, connection, **kwargs):
+        """Convert our JSON object to a string before we save"""
+        if value is None and self.null:
             return None
+        # default values come in as strings; only non-strings should be
+        # run through `dumps`
+        if not isinstance(value, six.string_types):
+            value = dumps(value)
 
-        value = super(JSONFormField, self).clean(value)
-
-        if isinstance(value, string_types):
-            try:
-                json.loads(value)
-            except ValueError:
-                raise FormValidationError(_("Enter valid JSON"))
         return value
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(JSONField, self).deconstruct()
+        if self.default == '{}':
+            del kwargs['default']
+        return name, path, args, kwargs
