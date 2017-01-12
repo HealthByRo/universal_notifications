@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import traceback
 
+import six
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
@@ -122,7 +123,7 @@ def send_message_task(to_number, text, media, priority):
 
     obj = PhoneSent()
     obj.receiver = receiver
-    obj.text = unicode(clean_text(text))
+    obj.text = six.text_type(clean_text(text))
     obj.media_raw = media
 
     if receiver.is_blocked:

@@ -52,7 +52,7 @@ class Queue(threading.Thread):
                 error = str(traceback.format_exception(exc_type, exc_value, exc_traceback))
                 client.capture('raven.events.Message', message='Error Sending message',
                                extra={'info': error, 'number': self.phone.number})
-            raise info[1], None, info[2]
+            raise Exception(info[1], None, info[2])
 
 
 class Command(BaseCommand):
