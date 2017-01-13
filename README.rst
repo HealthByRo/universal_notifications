@@ -52,10 +52,10 @@ E-mail notifications
 
     class OrderShippedEmail(EmailNotification):
         email_name = 'order_shipped'
-        email_subject = _('{{user.full_name}}, Your order no. {{item.pk}} has been shipped.')
+        email_subject = _('Order no. {{item.pk}} has been shipped.')
 
     # ... somewhere in a view
-    OrderShippedEmail(item=order, receivers=[user], context={'user': user}).send()
+    OrderShippedEmail(item=order, receivers=[user], context={}).send()
 
 E-mail notifications allow filtering e-mail addreses which are unsubscribed from receiving e-mails
 from your service. This can be achievied by setting the
@@ -70,25 +70,13 @@ SMS notifications
 .. code:: python
 
     class OrderShippedSMS(SMSNotification):
-        message = _('{{user.full_name}}, Your order no. {{item.pk}} has been shipped.')
+        message = _('Order no. {{item.pk}} has been shipped.')
 
         def prepare_receivers(self):
             return {x.shipping_address.phone for x in self.receivers}
 
     # ... somewhere in a view
-    OrderShippedSMS(item=order, receivers=[user], context={'user': user}).send()
-
-This feature requires setting the ``UNIVERSAL_NOTIFICATIONS_SMS_FUNC`` property in project’s settings.
-
-Sample **sms\_send** function using `SMSAPI`_:
-
-.. code:: python
-
-    def send_sms(to_number, text, media=None, priority=9999):
-        api.service('sms').action('send')
-        api.set_content(text)
-        api.set_to(to_number)
-        api.execute()
+    OrderShippedSMS(item=order, receivers=[user], context={}).send(
 
 Push notifications
 ~~~~~~~~~~~~~~~~~~
@@ -122,10 +110,10 @@ Simple example of use:
 .. code:: python
 
     class OrderShippedPush(PushNotification):
-        message = _('{{user.full_name}}, Your order no. {{item.pk}} has been shipped.')
+        message = _('Order no. {{item.pk}} has been shipped.')
 
     # ... somewhere in a view
-    OrderShippedPush(item=order, receivers=[user], context={'user': user}).send()
+    OrderShippedPush(item=order, receivers=[user], context={}).send()
 
 .. _WebSocket notifications: #websocket-notifications
 .. _E-mail notifications: #e-mail-notifications
