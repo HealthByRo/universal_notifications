@@ -12,7 +12,7 @@ def local_open(fname):
     return open(os.path.join(os.path.dirname(__file__), fname))
 
 
-def read_md(f):
+def read_file(f):
     return io.open(f, 'r', encoding='utf-8').read()
 
 
@@ -68,7 +68,7 @@ setup(
     url='https://github.com/ArabellaTech/universal_notifications',
     license='MIT',
     description='High-level framework for notifications',
-    long_description=read_md('README.md'),
+    long_description=read_file('README.rst'),
     author='Pawel Krzyzaniak',
     author_email='pawelk@arabel.la',
     packages=get_packages('universal_notifications'),
