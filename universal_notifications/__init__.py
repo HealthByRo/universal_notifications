@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-__title__ = 'Universal Notification'
-__version__ = '0.5.1'
+__title__ = 'Universal Notifications'
+__version__ = '0.6.2'
 __author__ = 'Pawel Krzyzaniak'
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2016 Arabella'
+__copyright__ = 'Copyright 2017 Arabella'
 
 # Version synonym
 VERSION = __version__

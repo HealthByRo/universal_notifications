@@ -3,7 +3,12 @@ django-rest-swagger>=0.3,<1.0
 django-websocket-redis
 redis
 premailer
+six>=1.10.0
 
 # push notifications
 django-push-notifications>=1.4.1
 pyfcm
+
+# sms/phone
+phonenumbers>=7.7.3
+twilio>=5.6.0
