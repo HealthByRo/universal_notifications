@@ -6,7 +6,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 from ws4redis.subscriber import RedisSubscriber
 
-TESTING = ('test' in sys.argv or 'jenkins' in sys.argv)
+TESTING = any(n in sys.argv for n in ('test', 'jenkins', 'runtests.py', './runtests.py'))
 
 
 def publish(user, item=None, additional_data=None):
