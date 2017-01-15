@@ -31,7 +31,7 @@ class WSTests(APITestCase):
         with mock.patch('universal_notifications.backends.websockets.RedisMessage') as mocked_message:
             # test without extra arguments
             publish(self.user)
-            mocked_message.assert_called_with('{}')
+            mocked_message.assert_called_with(JSONRenderer().render({}))
 
             mocked_message.reset_mock()
 
