@@ -2,6 +2,7 @@
 import logging
 
 import cssutils
+import six
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
@@ -31,7 +32,7 @@ def send_email(template, to, subject, variables={}, fail_silently=False, cms=Fal
     replace_variables['protocol'] = protocol
     domain = variables['site'].domain
     replace_variables['domain'] = domain
-    for key, value in replace_variables.iteritems():
+    for key, value in (replace_variables.iteritems() if six.PY2 else replace_variables.items()):
         if not value:
             value = ''
         html = html.replace('{%s}' % key.upper(), value)
