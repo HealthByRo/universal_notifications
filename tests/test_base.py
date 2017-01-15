@@ -164,11 +164,11 @@ class BaseTest(APITestCase):
                 'item': self.object_item,
             })
 
-        with mock.patch('universal_notifications.notifications.send_email') as mocked_send_inner:
+        with mock.patch('universal_notifications.notifications.send_email') as mocked_send_email:
             SampleF(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_inner.assert_called_with(
+            mocked_send_email.assert_called_with(
                 SampleF.email_name, '{first_name} {last_name} <{email}>'.format(**self.object_receiver.__dict__),
-                self.object_item.name, {
+                'subject', {
                     'item': self.object_item,
                     'receiver': self.object_receiver
                 })
