@@ -60,4 +60,5 @@ def pytest_configure():
         CELERY_APP_PATH='tests.celery.app',
         CELERY_TASK_ALWAYS_EAGER=True,
         UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT='fake',
+        TESTING=True,
     )

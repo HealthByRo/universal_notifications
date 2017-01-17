@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
-
+from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 from ws4redis.subscriber import RedisSubscriber
-
-TESTING = ('test' in sys.argv or 'jenkins' in sys.argv)
 
 
 def publish(user, item=None, additional_data=None):
@@ -21,7 +18,7 @@ def publish(user, item=None, additional_data=None):
     data.update(additional_data)
     data = r.render(data)
     message = RedisMessage(data)
-    if TESTING:
+    if getattr(settings, 'TESTING', False):
         # Do not send in tests
         return
     redis_publisher.publish_message(message)
