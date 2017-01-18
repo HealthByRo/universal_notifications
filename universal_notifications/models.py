@@ -23,6 +23,7 @@ TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6
 
 
 class NotificationHistory(models.Model):
+    # TODO: add django-safedelete? Of course update admin with safedelete-admin afterwards
     created = models.DateTimeField(auto_now_add=True)
     group = models.CharField(max_length=50)
     klass = models.CharField(max_length=255)
@@ -31,6 +32,7 @@ class NotificationHistory(models.Model):
 
 
 class Device(models.Model):
+    # TODO: add django-safedelete? Of course update admin with safedelete-admin afterwards
     user = models.ForeignKey(AUTH_USER_MODEL, related_name='devices')
     notification_token = models.TextField()
     device_id = models.CharField(max_length=255)
@@ -168,6 +170,8 @@ class PhoneSent(models.Model):
             return
 
         if not getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_API_ENABLED', False):
+            # why sent? it was not sent due to not enabled twilio
+            # IMO it should have some different, clear status - it would make debug easier
             self.status = PhoneSent.STATUS_SENT
             return
 

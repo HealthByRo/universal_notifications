@@ -1,3 +1,4 @@
+# TODO: unfreeze: use >=
 mock==2.0.0
 pytest==3.0.4
 pytest-django==3.1.2

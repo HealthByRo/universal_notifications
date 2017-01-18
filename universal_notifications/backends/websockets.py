@@ -30,7 +30,7 @@ class RedisSubscriber(RedisSubscriber):
             # custom code goes here
             # for efficiency think about using celery to do the job - has to be freaking FAST!
             print ('message received!')
-            print ('message!')
+            print (message)
         except Exception:
             # I mean it, catch everything, log it if needed but do catch everything
             pass
