@@ -13,9 +13,6 @@ class Command(BaseCommand):
     help = 'Check if message parsed'
 
     def handle(self, *args, **options):
-        # TODO: configurable? Now user needs to remember to run it every minute via cron
-        # maybe there should be some cron file created for UN by default?
-        # or maybe "ago" should be simply removed?
         ago = now() - timedelta(minutes=1)
         raws = PhoneReceivedRaw.objects.filter(status=PhoneReceivedRaw.STATUS_PENDING, created__lte=ago)
         for raw in raws:
