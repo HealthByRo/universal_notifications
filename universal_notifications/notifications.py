@@ -33,6 +33,8 @@ from universal_notifications.tasks import process_chained_notification
 
 class NotificationBase(object):
     chaining = None
+    check_subscription = True
+    category = "default"
 
     @classmethod
     def get_type(cls):
@@ -86,6 +88,7 @@ class WSNotification(NotificationBase):
     message = None  # required
     serializer_class = None  # required, DRF serializer
     serializer_many = False
+    check_subscription = False
 
     def prepare_receivers(self):
         return set(self.receivers)

@@ -61,4 +61,14 @@ def pytest_configure():
         CELERY_TASK_ALWAYS_EAGER=True,
         UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT='fake',
         TESTING=True,
+
+        # categories for notifications
+        categories={
+            "push": [
+                "default", "chat", "promotions"],
+            "email": [
+                "default", "chat", "newsletter"],
+            "sms": [
+                "default", "chat", "newsletter"],
+            }
     )
