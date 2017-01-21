@@ -1,14 +1,23 @@
 import mock
 from django.core import mail
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
+from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS
 from rest_framework.test import APITestCase
 from rest_framework.renderers import JSONRenderer
 
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.websockets import publish
 from universal_notifications.backends.push.fcm import fcm_send_message
+from universal_notifications.backends.push.gcm import gcm_send_message
 from universal_notifications.models import Device
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2 support
+    from urllib import urlencode
 
 
 class SampleUser(object):
@@ -73,7 +82,8 @@ class EmailTests(APITestCase):
 class PushTests(APITestCase):
     test_settings = {
         'app1': {
-            'FCM_API_KEY': 'secret'
+            'FCM_API_KEY': 'secret',
+            'GCM_API_KEY': 'secret'
         }
     }
 
@@ -82,6 +92,7 @@ class PushTests(APITestCase):
             username='user', email='user@example.com', password='1234')
 
         self.fcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_FCM)
+        self.gcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_GCM)
 
     @override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS=test_settings)
     def test_fcm(self):
@@ -98,3 +109,49 @@ class PushTests(APITestCase):
             fcm_send_message(**message)
             mocked_notify.assert_called_with(registration_id=message['device'].notification_token,
                                              message_body=message['message'], data_message=message['data'])
+
+    @mock.patch('universal_notifications.backends.push.gcm.urlopen')
+    def test_gcm(self, mocked_urlopen):
+        message = {
+            'device': self.fcm_device,
+            'message': 'msg',
+            'collapse_key': 'key',
+            'delay_while_idle': 1,
+            'time_to_live': '1',
+            'data': {'info': 'foo'}
+        }
+        with override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS={'app1': {}}):
+            # test sending without API key set
+            self.assertRaises(ImproperlyConfigured, gcm_send_message, **message)
+            mocked_urlopen.assert_not_called()
+
+        mocked_urlopen.reset_mock()
+
+        with override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS=self.test_settings):
+            # test regular use
+            with mock.patch('universal_notifications.backends.push.gcm.Request') as mocked_request:
+                mocked_urlopen.return_value.read.return_value = 'mocked'
+                request_data = {
+                    'registration_id': self.gcm_device.notification_token,
+                    'collapse_key': message['collapse_key'].encode('utf-8'),
+                    'delay_while_idle': message['delay_while_idle'],
+                    'time_to_live': message['time_to_live'].encode('utf-8'),
+                    'data.message': message['message'].encode('utf-8')
+                }
+                for k, v in message['data'].items():
+                    request_data['data.{}'.format(k)] = v.encode("utf-8")
+
+                data = urlencode(sorted(request_data.items())).encode("utf-8")
+                self.assertEqual(gcm_send_message(**message), mocked_urlopen.return_value.read.return_value)
+                mocked_request.assert_called_with(PUSH_NOTIFICATIONS_SETTINGS['GCM_POST_URL'], data, {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'Authorization': 'key={}'.format(self.test_settings['app1']['GCM_API_KEY']),
+                    'Content-Length': str(len(data)),
+                })
+                mocked_urlopen.assert_called()
+
+            mocked_urlopen.reset_mock()
+
+            # test fail
+            mocked_urlopen.return_value.read.return_value = 'Error=Fail'
+            self.assertFalse(gcm_send_message(**message))
