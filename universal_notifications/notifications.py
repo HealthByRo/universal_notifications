@@ -22,12 +22,14 @@
                 },
         )
 """
-from django.template import Context, Template
-from universal_notifications.backends.emails import (UnsubscribedModel,
-                                                     send_email)
+from django.template import Context
+from django.template import Template
+from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.sms import send_sms
 from universal_notifications.backends.websockets import publish
-from universal_notifications.models import Device, NotificationHistory
+from universal_notifications.models import Device
+from universal_notifications.models import NotificationHistory
+from universal_notifications.models import UnsubscribedUser
 from universal_notifications.tasks import process_chained_notification
 
 
@@ -35,6 +37,7 @@ class NotificationBase(object):
     chaining = None
     check_subscription = True
     category = "default"
+    priority_category = "system"  # this category will be always sent
 
     @classmethod
     def get_type(cls):
@@ -66,7 +69,8 @@ class NotificationBase(object):
                 group=self.get_type(),
                 klass=self.__class__.__name__,
                 receiver=self.format_receiver_for_notification_history(receiver),
-                details=self.get_notification_history_details()
+                details=self.get_notification_history_details(),
+                category=self.category
             )
 
     def send(self):
@@ -145,13 +149,21 @@ class EmailNotification(NotificationBase):
 
     def prepare_receivers(self):
         result = set()
-        if UnsubscribedModel:
-            unsubscribed_emails = UnsubscribedModel.objects.filter(
-                email__in=(receiver.email for receiver in self.receivers)
-            )
-            unsubscribed_emails = set(unsubscribed_emails.values_list('email', flat=True))
-        else:
-            unsubscribed_emails = set()
+        unsubscribed_emails = set()
+        if self.check_subscription and self.category != self.priority_category:
+            unsubscribed_from_all = UnsubscribedUser.objects.filter(unsubscribed_from_all=True).values_list(
+                'account__email', flat=True)
+
+            if unsubscribed_from_all:
+                unsubscribed_emails = set(unsubscribed_from_all)
+
+            unsubscribed_users = UnsubscribedUser.objects.exclude(unsubscribed_from_all=True)
+            for uu in unsubscribed_users:
+                unsubscribed_categories = uu.unsubscribed.get('email', [])
+
+                if self.category in unsubscribed_categories:
+                    unsubscribed_emails.add(uu.account.email)
+
         for receiver in self.receivers:
             if receiver.email not in unsubscribed_emails:
                 result.add(receiver)

@@ -70,5 +70,7 @@ def pytest_configure():
                 "default", "chat", "newsletter"],
             "sms": [
                 "default", "chat", "newsletter"],
-            }
+            },
+
+        # user_categories_mapping={}
     )

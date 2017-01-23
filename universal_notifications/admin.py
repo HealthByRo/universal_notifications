@@ -2,7 +2,7 @@
 from django.contrib import admin
 from universal_notifications.models import (NotificationHistory, Phone,
                                             PhoneReceived, PhoneReceivedRaw,
-                                            PhoneReceiver, PhoneSent)
+                                            PhoneReceiver, PhoneSent, UnsubscribedUser)
 
 
 class NotificationHistoryAdmin(admin.ModelAdmin):
@@ -42,3 +42,4 @@ admin.site.register(PhoneReceived, PhoneReceivedAdmin)
 admin.site.register(PhoneReceivedRaw, PhoneReceivedRawAdmin)
 admin.site.register(PhoneReceiver, PhoneReceiverAdmin)
 admin.site.register(Phone, PhoneAdmin)
+admin.site.register(UnsubscribedUser)

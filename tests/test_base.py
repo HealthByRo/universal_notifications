@@ -8,6 +8,11 @@
     - chaining
         - transformations
         - conditions """
+
+""" TODO: JO:
+    1. Add tests for filtering push notifications and SMS like in #commit
+    2. Make sure category of notification is displayed in Swagger (how? Ask Pawel)
+"""
 import mock
 from django.contrib.auth.models import User
 from django.db import models
@@ -16,6 +21,7 @@ from rest_framework.test import APITestCase
 
 from universal_notifications.notifications import (
     EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
+from universal_notifications.models import UnsubscribedUser
 
 
 class SampleA(NotificationBase):
@@ -93,6 +99,22 @@ class SampleG(PushNotification):
     message = '{{item.name}}'
 
 
+class SampleH(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = 'system'
+
+
+class SampleI(SampleH):
+    category = 'default'
+
+
+class SampleJ(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    check_subscription = False
+
+
 class SampleReceiver(object):
     def __init__(self, email, phone, first_name='Foo', last_name='Bar'):
         self.email = email
@@ -108,10 +130,24 @@ class BaseTest(APITestCase):
 
         self.object_item = SampleModel('sample')
         self.object_receiver = SampleReceiver('foo@bar.com', '123456789')
-        self.unsubscribed_receiver = SampleReceiver('bar@foo.com', '888777666')
+        self.all_unsubscribed_receiver = SampleReceiver('bar@foo.com', '888777666')
+        self.unsubscribed_receiver = SampleReceiver('joe@foo.com', '999777555')
 
-        User.objects.create_user(
+        self.all_unsubscribed_user = User.objects.create_user(
+            username='all_unsubscribed_user', email=self.all_unsubscribed_receiver.email, password='1234')
+
+        self.all_unsubscribed_user = UnsubscribedUser.objects.create(
+            account=self.all_unsubscribed_user,
+            unsubscribed_from_all=True
+        )
+
+        self.unsubscribed_user = User.objects.create_user(
             username='user', email=self.unsubscribed_receiver.email, password='1234')
+
+        self.unsubscribed_user = UnsubscribedUser.objects.create(
+            account=self.unsubscribed_user,
+            unsubscribed={"email": ["default"]}
+        )
 
     def test_sending(self):
         """ sending
@@ -150,17 +186,29 @@ class BaseTest(APITestCase):
 
         # test EmailNotifications
         with mock.patch('tests.test_base.SampleF.send_inner') as mocked_send_inner:
-            # test using UnsubscribedModel
-            with mock.patch('universal_notifications.notifications.UnsubscribedModel', User):
-                SampleF(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
-                mocked_send_inner.assert_called_with({self.object_receiver}, {
-                    'item': self.object_item,
-                })
+            SampleF(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver}, {
+                'item': self.object_item,
+            })
 
-            mocked_send_inner.reset_mock()
+        # test System EmailNotifications
+        with mock.patch('tests.test_base.SampleH.send_inner') as mocked_send_inner:
+            SampleH(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver, self.all_unsubscribed_receiver}, {
+                'item': self.object_item,
+            })
 
-            SampleF(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
-            mocked_send_inner.assert_called_with({self.object_receiver, self.unsubscribed_receiver}, {
+        # test EmailNotifications with default disabled
+        with mock.patch('tests.test_base.SampleI.send_inner') as mocked_send_inner:
+            SampleI(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver}, {
+                'item': self.object_item,
+            })
+
+        # test w/o test subscription
+        with mock.patch('tests.test_base.SampleJ.send_inner') as mocked_send_inner:
+            SampleJ(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver, self.all_unsubscribed_receiver}, {
                 'item': self.object_item,
             })
 

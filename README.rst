@@ -57,12 +57,6 @@ E-mail notifications
     # ... somewhere in a view
     OrderShippedEmail(item=order, receivers=[user], context={}).send()
 
-E-mail notifications allow filtering e-mail addreses which are unsubscribed from receiving e-mails
-from your service. This can be achievied by setting the
-``UNIVERSAL_NOTIFICATIONS_UNSUBSCRIBED_MODEL`` property in your project’s settings.
-
-Sample **UnsubscribedModel** should at least contain the **email** property. As result, all
-addresses existing in **UnsubscribedModel** objects will not receive any e-mails.
 
 SMS notifications
 ~~~~~~~~~~~~~~~~~
