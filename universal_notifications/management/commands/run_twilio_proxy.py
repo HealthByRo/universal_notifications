@@ -3,15 +3,13 @@ import json
 import sys
 import threading
 import traceback
-
 from time import sleep
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from raven.contrib.django import DjangoClient
 from redis import StrictRedis
-from universal_notifications.models import Phone
-from universal_notifications.models import PhonePendingMessages
+from universal_notifications.models import Phone, PhonePendingMessages
 from ws4redis import settings as private_settings
 
 
