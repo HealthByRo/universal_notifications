@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from rest_framework.reverse import reverse
-
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.models import Device
 

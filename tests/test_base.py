@@ -7,10 +7,10 @@
 
     - chaining
         - transformations
-        - conditions """
+        - conditions
 
-""" TODO: JO:
-    1. Add tests for filtering push notifications and SMS like in #commit
+    TODO: JO:
+    1. Add tests for filtering push notifications and SMS like in https://github.com/ArabellaTech/universal_notifications/commit/b2d497cb44d458e795bcff788af6e78c4b1e8f7d
     2. Make sure category of notification is displayed in Swagger (how? Ask Pawel)
 """
 import mock
@@ -18,10 +18,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from rest_framework import serializers
 from rest_framework.test import APITestCase
-
-from universal_notifications.notifications import (
-    EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
 from universal_notifications.models import UnsubscribedUser
+from universal_notifications.notifications import (EmailNotification,
+                                                   NotificationBase,
+                                                   PushNotification,
+                                                   SMSNotification,
+                                                   WSNotification)
 
 
 class SampleA(NotificationBase):

@@ -1,8 +1,7 @@
 import mock
 from django.core import mail
-from rest_framework.test import APITestCase
 from rest_framework.renderers import JSONRenderer
-
+from rest_framework.test import APITestCase
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.websockets import publish
 
