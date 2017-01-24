@@ -8,9 +8,6 @@
     - chaining
         - transformations
         - conditions
-
-    TODO: JO:
-    2. Make sure category of notification is displayed in Swagger (how? Ask Pawel)
 """
 import mock
 from random import randint
