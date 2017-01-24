@@ -10,10 +10,10 @@
         - conditions
 
     TODO: JO:
-    1. Add tests for filtering push notifications and SMS like in https://github.com/ArabellaTech/universal_notifications/commit/b2d497cb44d458e795bcff788af6e78c4b1e8f7d
     2. Make sure category of notification is displayed in Swagger (how? Ask Pawel)
 """
 import mock
+from random import randint
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.db import models
@@ -28,6 +28,8 @@ from universal_notifications.notifications import (EmailNotification,
 
 
 class SampleA(NotificationBase):
+    check_subscription = False
+
     @classmethod
     def get_type(cls):
         return 'Test'
@@ -124,6 +126,7 @@ class SampleNoCategory(SampleJ):
 
 class SampleReceiver(object):
     def __init__(self, email, phone, first_name='Foo', last_name='Bar'):
+        self.id = randint(1, 100)
         self.email = email
         self.phone = phone
         self.first_name = first_name
@@ -137,22 +140,24 @@ class BaseTest(APITestCase):
 
         self.object_item = SampleModel('sample')
         self.object_receiver = SampleReceiver('foo@bar.com', '123456789')
-        self.all_unsubscribed_receiver = SampleReceiver('bar@foo.com', '888777666')
-        self.unsubscribed_receiver = SampleReceiver('joe@foo.com', '999777555')
 
-        self.all_unsubscribed_user = User.objects.create_user(
-            username='all_unsubscribed_user', email=self.all_unsubscribed_receiver.email, password='1234')
+        self.all_unsubscribed_receiver = User.objects.create_user(
+            username='all_unsubscribed_user',
+            email='bar@foo.com',
+            password='1234')
 
         self.all_unsubscribed_user = UnsubscribedUser.objects.create(
-            account=self.all_unsubscribed_user,
+            account=self.all_unsubscribed_receiver,
             unsubscribed_from_all=True
         )
 
-        self.unsubscribed_user = User.objects.create_user(
-            username='user', email=self.unsubscribed_receiver.email, password='1234')
+        self.unsubscribed_receiver = User.objects.create_user(
+            username='user',
+            email='joe@foo.com',
+            password='1234')
 
         self.unsubscribed_user = UnsubscribedUser.objects.create(
-            account=self.unsubscribed_user,
+            account=self.unsubscribed_receiver,
             unsubscribed={"email": ["default"]}
         )
 

@@ -77,6 +77,25 @@ class NotificationBase(object):
             raise ImproperlyConfigured("No such category for Universal Notifications: %s: %s." % (
                 self.get_type(), self.category))
 
+    def verify_receivers_subscriptions(self):
+        """
+            returns new list of only receivers that are subscribed for given notification type/category
+        """
+        if not self.check_subscription or self.category == self.PRIORITY_CATEGORY:
+            return self.receivers
+
+        receivers_ids = [r.id for r in self.receivers]
+
+        unsubscribed_users = UnsubscribedUser.objects.filter(account__in=receivers_ids)
+
+        for u in unsubscribed_users:
+            if u.unsubscribed_from_all:
+                self.receivers.remove(u.account)
+            else:
+                unsubscribed_categories = u.unsubscribed.get(self.get_type().lower(), {})
+                if self.category in unsubscribed_categories:
+                    self.receivers.remove(u.account)
+
     def save_notifications(self, prepared_receivers):
         for receiver in prepared_receivers:
             NotificationHistory.objects.create(
@@ -89,6 +108,7 @@ class NotificationBase(object):
 
     def send(self):
         self.check_category()
+        self.verify_receivers_subscriptions()
         prepared_receivers = self.prepare_receivers()
         prepared_message = self.prepare_message()
         result = self.send_inner(prepared_receivers, prepared_message)
@@ -163,24 +183,7 @@ class EmailNotification(NotificationBase):
         return "%s %s <%s>" % (receiver.first_name, receiver.last_name, receiver.email)
 
     def prepare_receivers(self):
-        result = set()
-        unsubscribed_emails = set()
-        if self.check_subscription and self.category != self.PRIORITY_CATEGORY:
-            unsubscribed_users = UnsubscribedUser.objects.all().only(
-                'unsubscribed_from_all', 'unsubscribed', 'account__email')
-
-            for u in unsubscribed_users:
-                if u.unsubscribed_from_all:
-                    unsubscribed_emails.add(u.account.email)
-                else:
-                    unsubscribed_categories = u.unsubscribed.get('email', {})
-                    if self.category in unsubscribed_categories:
-                        unsubscribed_emails.add(u.account.email)
-
-        for receiver in self.receivers:
-            if receiver.email not in unsubscribed_emails:
-                result.add(receiver)
-        return result
+        return set(self.receivers)
 
     def prepare_message(self):
         return {
