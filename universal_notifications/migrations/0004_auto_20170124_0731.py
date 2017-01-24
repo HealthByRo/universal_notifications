@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import universal_notifications.backends.twilio.fields
-from django.conf import settings
 from django.db import migrations, models
+from django.conf import settings
+import universal_notifications.backends.twilio.fields
 
 
 class Migration(migrations.Migration):
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='UnsubscribedUser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
-                ('unsubscribed_from_all', models.BooleanField(db_index=True, default=False)),
+                ('unsubscribed_from_all', models.BooleanField(default=False)),
                 ('unsubscribed', universal_notifications.backends.twilio.fields.JSONField(default=dict)),
                 ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],

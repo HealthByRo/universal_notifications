@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 def pytest_configure():
     from django.conf import settings
+    from django.utils.translation import ugettext_lazy as _
 
     MIDDLEWARE = (
         'django.middleware.common.CommonMiddleware',
@@ -64,12 +65,21 @@ def pytest_configure():
 
         # categories for notifications
         categories={
-            "push": [
-                "default", "chat", "promotions"],
-            "email": [
-                "default", "chat", "newsletter"],
-            "sms": [
-                "default", "chat", "newsletter"],
+            "push": {
+                "default":  _("This is a label for default category you'll send in from to FE"),
+                "chat": _('Category for chat messages'),
+                "promotions": _('Promotions',)
+            },
+            "email": {
+                "default":  _("This is a label for default category you'll send in from to FE"),
+                "chat": _('Category for chat messages'),
+                "newsletter": _('Newsletter',)
+            },
+            "sms": {
+                "default":  _("This is a label for default category you'll send in from to FE"),
+                "chat": _('Category for chat messages'),
+                "newsletter": _('Newsletter',)
+            }
         },
 
         # user_categories_mapping={}

@@ -35,7 +35,7 @@ class NotificationBase(object):
     chaining = None
     check_subscription = True
     category = "default"
-    priority_category = "system"  # this category will be always sent
+    PRIORITY_CATEGORY = "system"  # this category will be always sent
 
     @classmethod
     def get_type(cls):
@@ -148,19 +148,19 @@ class EmailNotification(NotificationBase):
     def prepare_receivers(self):
         result = set()
         unsubscribed_emails = set()
-        if self.check_subscription and self.category != self.priority_category:
-            unsubscribed_from_all = UnsubscribedUser.objects.filter(unsubscribed_from_all=True).values_list(
-                'account__email', flat=True)
+        print ("self.category")
+        print (self.category)
+        if self.check_subscription and self.category != self.PRIORITY_CATEGORY:
+            unsubscribed_users = UnsubscribedUser.objects.all().only(
+                'unsubscribed_from_all', 'unsubscribed', 'account__email')
 
-            if unsubscribed_from_all:
-                unsubscribed_emails = set(unsubscribed_from_all)
-
-            unsubscribed_users = UnsubscribedUser.objects.exclude(unsubscribed_from_all=True)
-            for uu in unsubscribed_users:
-                unsubscribed_categories = uu.unsubscribed.get('email', [])
-
-                if self.category in unsubscribed_categories:
-                    unsubscribed_emails.add(uu.account.email)
+            for u in unsubscribed_users:
+                if u.unsubscribed_from_all:
+                    unsubscribed_emails.add(u.account.email)
+                else:
+                    unsubscribed_categories = u.unsubscribed.get('email', {})
+                    if self.category in unsubscribed_categories:
+                        unsubscribed_emails.add(u.account.email)
 
         for receiver in self.receivers:
             if receiver.email not in unsubscribed_emails:
