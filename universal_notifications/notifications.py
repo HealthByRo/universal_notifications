@@ -165,8 +165,6 @@ class EmailNotification(NotificationBase):
     def prepare_receivers(self):
         result = set()
         unsubscribed_emails = set()
-        print ("self.category")
-        print (self.category)
         if self.check_subscription and self.category != self.PRIORITY_CATEGORY:
             unsubscribed_users = UnsubscribedUser.objects.all().only(
                 'unsubscribed_from_all', 'unsubscribed', 'account__email')
