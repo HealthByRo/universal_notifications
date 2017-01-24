@@ -14,6 +14,7 @@
     2. Make sure category of notification is displayed in Swagger (how? Ask Pawel)
 """
 import mock
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.db import models
 from rest_framework import serializers
@@ -115,6 +116,10 @@ class SampleJ(EmailNotification):
     email_name = 'name'
     email_subject = 'subject'
     check_subscription = False
+
+
+class SampleNoCategory(SampleJ):
+    category = ""
 
 
 class SampleReceiver(object):
@@ -230,6 +235,11 @@ class BaseTest(APITestCase):
                 'message': self.object_item.name,
                 'data': {}
             })
+
+        # test w/o category - should fail
+        with mock.patch('tests.test_base.SampleNoCategory.send_inner') as mocked_send_inner:
+            with self.assertRaises(ImproperlyConfigured):
+                SampleNoCategory(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
 
     def test_chaining(self):
         pass

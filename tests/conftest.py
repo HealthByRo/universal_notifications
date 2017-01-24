@@ -64,7 +64,7 @@ def pytest_configure():
         TESTING=True,
 
         # categories for notifications
-        categories={
+        UNIVERSAL_NOTIFICATIONS_CATEGORIES={
             "push": {
                 "default":  _("This is a label for default category you'll send in from to FE"),
                 "chat": _('Category for chat messages'),
@@ -79,7 +79,13 @@ def pytest_configure():
                 "default":  _("This is a label for default category you'll send in from to FE"),
                 "chat": _('Category for chat messages'),
                 "newsletter": _('Newsletter',)
-            }
+            },
+            "websocket": {
+                "default":  _("This is a label for default category you'll send in from to FE"),
+            },
+            "test": {
+                "default":  _("This is a label for default category you'll send in from to FE"),
+            },
         },
 
         # user_categories_mapping={}

@@ -22,6 +22,8 @@
                 },
         )
 """
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.template import Context, Template
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.sms import send_sms
@@ -61,6 +63,20 @@ class NotificationBase(object):
     def format_receiver_for_notification_history(self, receiver):
         return receiver
 
+    def check_category(self):
+        if self.category == self.PRIORITY_CATEGORY:
+            return
+        if not self.category:
+            raise ImproperlyConfigured('Category is required', self)
+        notification_type = self.get_type().lower()
+        if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_CATEGORIES"):
+            raise ImproperlyConfigured("Please define UNIVERSAL_NOTIFICATIONS_CATEGORIES in your settings.py")
+
+        categories = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES.get(notification_type, {})
+        if self.category not in categories.keys():
+            raise ImproperlyConfigured("No such category for Universal Notifications: %s: %s." % (
+                self.get_type(), self.category))
+
     def save_notifications(self, prepared_receivers):
         for receiver in prepared_receivers:
             NotificationHistory.objects.create(
@@ -72,6 +88,7 @@ class NotificationBase(object):
             )
 
     def send(self):
+        self.check_category()
         prepared_receivers = self.prepare_receivers()
         prepared_message = self.prepare_message()
         result = self.send_inner(prepared_receivers, prepared_message)
