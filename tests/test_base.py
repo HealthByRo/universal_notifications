@@ -128,6 +128,12 @@ class SampleChatNotification(EmailNotification):
     category = "chat"
 
 
+class SampleNotExistingCategory(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = "some_weird_one"
+
+
 class SampleReceiver(object):
     def __init__(self, email, phone, first_name='Foo', last_name='Bar', is_superuser=False):
         self.id = randint(1, 100)
@@ -263,8 +269,9 @@ class BaseTest(APITestCase):
                 'item': self.object_item,
             })
 
-        self.assertFalse(1)
-        # 1. Add asseer raises for some non existent category
+        with mock.patch('tests.test_base.SampleNotExistingCategory.send_inner') as mocked_send_inner:
+            with self.assertRaises(ImproperlyConfigured):
+                SampleNotExistingCategory(self.object_item, [self.object_receiver], {}).send()
 
     def test_chaining(self):
         pass
