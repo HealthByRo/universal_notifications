@@ -26,6 +26,7 @@ from universal_notifications.notifications import (EmailNotification,
 
 class SampleA(NotificationBase):
     check_subscription = False
+    category = "system"
 
     @classmethod
     def get_type(cls):
@@ -121,13 +122,20 @@ class SampleNoCategory(SampleJ):
     category = ""
 
 
+class SampleChatNotification(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = "chat"
+
+
 class SampleReceiver(object):
-    def __init__(self, email, phone, first_name='Foo', last_name='Bar'):
+    def __init__(self, email, phone, first_name='Foo', last_name='Bar', is_superuser=False):
         self.id = randint(1, 100)
         self.email = email
         self.phone = phone
         self.first_name = first_name
         self.last_name = last_name
+        self.is_superuser = is_superuser
 
 
 class BaseTest(APITestCase):
@@ -137,6 +145,7 @@ class BaseTest(APITestCase):
 
         self.object_item = SampleModel('sample')
         self.object_receiver = SampleReceiver('foo@bar.com', '123456789')
+        self.superuser_object_receiver = SampleReceiver('super_foo@bar.com', '123456789', is_superuser=True)
 
         self.all_unsubscribed_receiver = User.objects.create_user(
             username='all_unsubscribed_user',
@@ -242,6 +251,20 @@ class BaseTest(APITestCase):
         with mock.patch('tests.test_base.SampleNoCategory.send_inner') as mocked_send_inner:
             with self.assertRaises(ImproperlyConfigured):
                 SampleNoCategory(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
+
+        # chat catgory is not allowed for "user"
+        with mock.patch('tests.test_base.SampleChatNotification.send_inner') as mocked_send_inner:
+            with self.assertRaises(ImproperlyConfigured):
+                SampleChatNotification(self.object_item, [self.object_receiver], {}).send()
+
+            # but works for super user
+            SampleChatNotification(self.object_item, [self.superuser_object_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.superuser_object_receiver}, {
+                'item': self.object_item,
+            })
+
+        self.assertFalse(1)
+        # 1. Add asseer raises for some non existent category
 
     def test_chaining(self):
         pass

@@ -60,9 +60,9 @@ def pytest_configure():
         },
         CELERY_APP_PATH='tests.celery.app',
         CELERY_TASK_ALWAYS_EAGER=True,
-        UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT='fake',
         TESTING=True,
 
+        UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT='fake',
         # categories for notifications
         UNIVERSAL_NOTIFICATIONS_CATEGORIES={
             "push": {
@@ -87,6 +87,22 @@ def pytest_configure():
                 "default":  _("This is a label for default category you'll send in from to FE"),
             },
         },
-
-        # user_categories_mapping={}
+        # not required. If defined, specific types of users will only get notifications from allowed categories.
+        # requires a bit more configuration - helper function to check if notification category is allowed for user
+        UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING={
+            "for_admin": {
+                "push": ["default", "chat", "promotions"],
+                "email": ["default", "chat", "newsletter"],
+                "websocket": ["default", "chat", "newsletter"],
+                "sms": ["default", "chat", "newsletter"]
+            },
+            "for_user": {
+                "push": ["default", "chat", "promotions"],
+                "email": ["default", "newsletter"],  # chat skipped
+                "websocket": ["default", "chat", "newsletter"],
+                "sms": ["default", "chat", "newsletter"]
+            }
+        },
+        # path to the file we will import user definitions for UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING
+        UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE='tests.user_conf'
     )
