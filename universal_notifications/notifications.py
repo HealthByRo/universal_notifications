@@ -54,20 +54,32 @@ class NotificationBase(object):
         self.receivers = receivers
         self.context = context
 
-    def get_user_categories(self, user):
+    @classmethod
+    def get_mapped_user_notifications_types_and_categories(cls, user):
+        """
+            Returns a dictionary for given user type:
+            {'notificaiton_type': [categries list]}
+            TODO: use thi sone in serializer.
+        """
+        if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
+            notifications = {}
+            for key in settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES.keys():
+                notifications[key] = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES[key].keys()
+            return notifications
+        else:
+            for user_type in settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING:
+                if getattr(user_definitions, user_type)(user):
+                    return settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING[user_type]
+
+    def get_user_categories_for_type(self, user):
         """
             Check categories available for given user type and this notification type.
             If no mapping present we assume all are allowed.
             Raises ImproperlyConfigured if no categories for given user availaible
         """
-        if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
-            categories = []
-            for c in settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES:
-                categories = categories + c.keys()
-            return set(categories)
-        for user_type in settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING:
-            if getattr(user_definitions, user_type)(user):
-                return set(settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING[user_type][self.get_type().lower()])
+        categories = self.get_mapped_user_notifications_types_and_categories(user)
+        if categories:
+            return categories[self.get_type().lower()]
 
         raise ImproperlyConfigured(
             "UNIVERSAL NOTIFICATIONS USER CATEGORIES MAPPING: No categories for given user: %s" % user)
@@ -103,7 +115,7 @@ class NotificationBase(object):
                 self.get_type(), self.category))
         # check if user is allowed to get notifications from this category
         for user in self.receivers:
-            if self.category not in self.get_user_categories(user):
+            if self.category not in self.get_user_categories_for_type(user):
                 raise ImproperlyConfigured(
                     "User is not allowed to receive notifications from '%s:%s' category"
                     % (self.get_type(), self.category))
