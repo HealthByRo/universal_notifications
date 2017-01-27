@@ -5,7 +5,6 @@ import six
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
-from django.core.urlresolvers import reverse
 from universal_notifications.backends.twilio.utils import clean_text
 from universal_notifications.models import (Phone, PhonePendingMessages,
                                             PhoneReceived, PhoneReceivedRaw,
@@ -15,6 +14,12 @@ try:
     from django.utils.importlib import import_module
 except ImportError:
     from importlib import import_module
+
+try:
+    from django.urls import reverse
+except ImportError:
+    # Django < 2.0
+    from django.core.urlresolvers import reverse
 
 
 __path, __symbol = getattr(settings, 'CELERY_APP_PATH').rsplit('.', 1)
