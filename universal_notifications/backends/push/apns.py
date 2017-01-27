@@ -36,9 +36,10 @@ class APNSDataOverflow(APNSError):
 def _apns_create_socket(address_tuple, app_id):
     app_settings = get_app_settings(app_id)
     if not app_settings:
-        return
-    certfile = app_settings.get("APNS_CERTIFICATE")
+        raise ImproperlyConfigured('You need to set UNIVERSAL_NOTIFICATIONS_MOBILE_APPS[app_id]'
+                                   ' to send messages through APNS')
 
+    certfile = app_settings.get("APNS_CERTIFICATE")
     if not certfile:
         raise ImproperlyConfigured(
             'You need to set UNIVERSAL_NOTIFICATIONS_MOBILE_APPS[app_id]["APNS_CERTIFICATE"] '
@@ -60,10 +61,6 @@ def _apns_create_socket(address_tuple, app_id):
 
 def _apns_create_socket_to_push(app_id):
     return _apns_create_socket((SETTINGS["APNS_HOST"], SETTINGS["APNS_PORT"]), app_id)
-
-
-def _apns_create_socket_to_feedback(app_id):
-    return _apns_create_socket((SETTINGS["APNS_FEEDBACK_HOST"], SETTINGS["APNS_FEEDBACK_PORT"]), app_id)
 
 
 def _apns_pack_frame(token_hex, payload, identifier, expiration, priority):
@@ -161,45 +158,6 @@ def _apns_send(app_id, token, alert, badge=None, sound=None, category=None, cont
             _apns_check_errors(socket)
 
 
-def _apns_read_and_unpack(socket, data_format):
-    length = struct.calcsize(data_format)
-    data = socket.recv(length)
-    if data:
-        return struct.unpack_from(data_format, data, 0)
-    else:
-        return None
-
-
-def _apns_receive_feedback(socket):
-    expired_token_list = []
-
-    # read a timestamp (4 bytes) and device token length (2 bytes)
-    header_format = '!LH'
-    has_data = True
-    while has_data:
-        try:
-            # read the header tuple
-            header_data = _apns_read_and_unpack(socket, header_format)
-            if header_data is not None:
-                timestamp, token_length = header_data
-                # Unpack format for a single value of length bytes
-                token_format = '%ss' % token_length
-                device_token = _apns_read_and_unpack(socket, token_format)
-                if device_token is not None:
-                    # _apns_read_and_unpack returns a tuple, but
-                    # it's just one item, so get the first.
-                    expired_token_list.append((timestamp, device_token[0]))
-            else:
-                has_data = False
-        except socket.timeout:  # py3, see http://bugs.python.org/issue10272
-            pass
-        except ssl.SSLError as e:  # py2
-            if "timed out" not in e.message:
-                raise
-
-    return expired_token_list
-
-
 def apns_send_message(device, message=None, data=None):
     """
     Sends an APNS notification to a single registration_id.
@@ -210,17 +168,3 @@ def apns_send_message(device, message=None, data=None):
     to this for silent notifications.
     """
     _apns_send(device.app_id, device.notification_token, message, **data)
-
-
-def apns_fetch_inactive_ids(app_id):
-    """
-    Queries the APNS server for id's that are no longer active since
-    the last fetch
-    """
-    with closing(_apns_create_socket_to_feedback(app_id)) as socket:
-        inactive_ids = []
-        # Maybe we should have a flag to return the timestamp?
-        # It doesn't seem that useful right now, though.
-        for tStamp, registration_id in _apns_receive_feedback(socket):
-            inactive_ids.append(registration_id.encode('hex'))
-        return inactive_ids

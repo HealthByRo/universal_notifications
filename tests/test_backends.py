@@ -1,4 +1,5 @@
 import mock
+import os
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
@@ -9,6 +10,7 @@ from rest_framework.renderers import JSONRenderer
 
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.websockets import publish
+from universal_notifications.backends.push.apns import apns_send_message, APNSDataOverflow
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
 from universal_notifications.models import Device
@@ -83,7 +85,8 @@ class PushTests(APITestCase):
     test_settings = {
         'app1': {
             'FCM_API_KEY': 'secret',
-            'GCM_API_KEY': 'secret'
+            'GCM_API_KEY': 'secret',
+            'APNS_CERTIFICATE': os.path.join(os.path.dirname(__file__), 'test_data', 'certificate.pem')
         }
     }
 
@@ -93,6 +96,7 @@ class PushTests(APITestCase):
 
         self.fcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_FCM)
         self.gcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_GCM)
+        self.apns_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_IOS)
 
     @override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS=test_settings)
     def test_fcm(self):
@@ -155,3 +159,69 @@ class PushTests(APITestCase):
             # test fail
             mocked_urlopen.return_value.read.return_value = 'Error=Fail'
             self.assertFalse(gcm_send_message(**message))
+
+    def test_apns_config(self):
+        message = {
+            'device': self.apns_device,
+            'message': 'msg',
+            'data': {}
+        }
+
+        # test with no settings
+        self.assertRaises(ImproperlyConfigured, apns_send_message, **message)
+
+        # test without certificate set
+        with override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS={'app1': {'GCM_API_KEY': 'key'}}):
+            self.assertRaises(ImproperlyConfigured, apns_send_message, **message)
+
+        # test unreadable certificate
+        with override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS={'app1': {'APNS_CERTIFICATE': '123d'}}):
+            self.assertRaises(ImproperlyConfigured, apns_send_message, **message)
+
+    def test_apns(self):
+        message = {
+            'device': self.apns_device,
+            'message': 'msg',
+            'data': {}
+        }
+
+        with mock.patch('ssl.wrap_socket') as ws:
+            with mock.patch('socket.socket') as socket:
+                with override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS=self.test_settings):
+                    socket.return_value = 123
+                    apns_send_message(**message)
+                    ws.assert_called_once_with(
+                        123, certfile=self.test_settings['app1']['APNS_CERTIFICATE'], ssl_version=3)
+
+    @override_settings(UNIVERSAL_NOTIFICATIONS_MOBILE_APPS=test_settings)
+    @mock.patch('universal_notifications.backends.push.apns._apns_pack_frame')
+    def test_apns_payload(self, mock_pack_frame):
+        message = {
+            'device': self.apns_device,
+            'message': 'msg',
+            'data': {
+                'category': 'info',
+                'content_available': True,
+                'sound': 'chime',
+                'badge': 1,
+                'socket': mock.MagicMock(),
+                'identifier': 10,
+                'expiration': 30,
+                'priority': 20,
+                'action_loc_key': 'key',
+                'loc_key': 'TEST_LOCK_KEY',
+                'loc_args': 'args',
+                'extra': {'custom_data': 12345}
+            }
+        }
+        # test rich payload
+        apns_send_message(**message)
+        mock_pack_frame.assert_called_with(
+            self.apns_device.notification_token,
+            '{"aps":{"alert":{"action-loc-key":"key","body":"msg","loc-args":"args","loc-key":"TEST_LOCK_KEY"},'
+            '"badge":1,"category":"info","content-available":1,"sound":"chime"},"custom_data":12345}',
+            message['data']['identifier'], message['data']['expiration'], message['data']['priority']
+        )
+
+        # test oversizing
+        self.assertRaises(APNSDataOverflow, apns_send_message, self.apns_device, '_' * 2049, {})
