@@ -59,7 +59,7 @@ class NotificationBase(object):
         """
             Returns a dictionary for given user type:
             {'notificaiton_type': [categries list]}
-            TODO: use thi sone in serializer.
+            TODO: use this one in serializer.
         """
         if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
             notifications = {}

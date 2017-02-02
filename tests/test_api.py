@@ -41,3 +41,37 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertEqual(devices[0].notification_token, 'foo')
         self.assertEqual(devices[0].device_id, 'bar')
         self.assertTrue(devices[0].is_active)
+
+    def test_notifications_categories_api(self):
+        self.assertEqual(1, 0)
+        """
+            Create api to store user unsubcriptions
+            - /unsubscribed-user
+            - allowed method - get/post/put/patch by the owner?
+            - get works as get_or_create - if user exists in db in AUTH_USER_MODEL then create
+                and return UnsubscribedUser with categories described below and unsubsribed from all = False. 
+                IMPORTANT: UNSUBSCRIBED MODEL JSON FIELD IS NEVER RETURNED BY API.
+            user object should look like:
+            - UnsubscribedUserId
+            - account_id (authuser)
+            - categories
+            -- a list of categories for given user type. Expected is json like:
+                {'email': [default (with Human readable help text), etc ]}
+            - unsubscribed - just JSON value of unsubscribed field
+            
+
+        Examples from pawel:
+        CategorySerializer
+
+        [15:25]  
+        UnsubscribedSerializer:
+         to_representation:
+           dla kazdej kategorii CategorySerializer().data
+
+        [15:25]  
+        to_representation:
+
+        [15:26]  
+        category_name =   BoolField(value=is_unsubscribed, label=category_label)
+        Issues - save and init from unsubscribed field.
+        """
