@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     # TODO: fill readme & TODO
-    # TODO (Pawel): processors filtering (email/sms) - unsubscription, etc, mail/sms history + limiters
+    # TODO (Pawel): processors filtering (email/sms) - mail/sms history + limiters
     # TODO (Pawel): sample transformations / conditions
     # TODO (Pawel): push (gcm, etc.) - low priority
 
@@ -127,17 +127,23 @@ class NotificationBase(object):
         if not self.check_subscription or self.category == self.PRIORITY_CATEGORY:
             return self.receivers
 
-        receivers_ids = [r.id for r in self.receivers]
+        receivers_ids = (x.id for x in self.receivers)
+        unsubscribed_map = {}
+        for unsubscribed_user in UnsubscribedUser.objects.filter(user__in=receivers_ids):
+            unsubscribed_map[unsubscribed_user.user_id] = unsubscribed_user
 
-        unsubscribed_users = UnsubscribedUser.objects.filter(account__in=receivers_ids)
-
-        for u in unsubscribed_users:
-            if u.unsubscribed_from_all:
-                self.receivers.remove(u.account)
-            else:
-                unsubscribed_categories = u.unsubscribed.get(self.get_type().lower(), {})
-                if self.category in unsubscribed_categories:
-                    self.receivers.remove(u.account)
+        filtered_receivers = []
+        ntype = self.get_type().lower()
+        for receiver in self.receivers:
+            unsubscribed_user = unsubscribed_map.get(receiver.id, None)
+            if unsubscribed_user:
+                if unsubscribed_user.unsubscribed_from_all:
+                    continue
+                unsubscribed = unsubscribed_user.unsubscribed.get(ntype, {})
+                if "all" in unsubscribed or self.category in unsubscribed:
+                    continue
+            filtered_receivers.append(receiver)
+        self.receivers = filtered_receivers
 
     def save_notifications(self, prepared_receivers):
         for receiver in prepared_receivers:

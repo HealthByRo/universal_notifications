@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 
+import django.db.models.deletion
 import universal_notifications.backends.twilio.fields
 
 
@@ -20,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
                 ('unsubscribed_from_all', models.BooleanField(default=False)),
                 ('unsubscribed', universal_notifications.backends.twilio.fields.JSONField(default=dict)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddField(

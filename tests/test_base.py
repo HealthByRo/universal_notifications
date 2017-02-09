@@ -159,7 +159,7 @@ class BaseTest(APITestCase):
             password='1234')
 
         self.all_unsubscribed_user = UnsubscribedUser.objects.create(
-            account=self.all_unsubscribed_receiver,
+            user=self.all_unsubscribed_receiver,
             unsubscribed_from_all=True
         )
 
@@ -169,7 +169,7 @@ class BaseTest(APITestCase):
             password='1234')
 
         self.unsubscribed_user = UnsubscribedUser.objects.create(
-            account=self.unsubscribed_receiver,
+            user=self.unsubscribed_receiver,
             unsubscribed={"email": ["default"]}
         )
 

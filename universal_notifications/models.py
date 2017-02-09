@@ -275,6 +275,6 @@ class PhonePendingMessages(models.Model):
 
 
 class UnsubscribedUser(models.Model):
-    account = models.ForeignKey(AUTH_USER_MODEL)
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     unsubscribed_from_all = models.BooleanField(default=False)
     unsubscribed = JSONField(default=dict)
