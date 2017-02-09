@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO: run isort --recursive -- travis test complains
 from datetime import timedelta
-
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 from universal_notifications.backends.twilio.tasks import parse_received_message_task
