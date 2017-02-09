@@ -2,6 +2,8 @@
 from django.contrib import admin
 from universal_notifications.models import (NotificationHistory, Phone, PhoneReceived, PhoneReceivedRaw, PhoneReceiver,
                                             PhoneSent)
+
+
 # TODO: think about adding django-safedelete
 
 
