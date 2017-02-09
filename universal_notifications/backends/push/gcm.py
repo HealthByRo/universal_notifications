@@ -5,11 +5,11 @@ Documentation is available on the Android Developer website:
 https://developer.android.com/google/gcm/index.html
 """
 
-import json
-
 from push_notifications import NotificationError
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS as SETTINGS
 from universal_notifications.backends.push.utils import get_app_settings
+
+import json
 
 try:
     from urllib.request import Request, urlopen
