@@ -2,7 +2,6 @@
 import mock
 from django.core import mail
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.backends.sms import send_sms
@@ -10,6 +9,12 @@ from universal_notifications.backends.twilio.utils import validate_mobile
 from universal_notifications.models import (Phone, PhonePendingMessages,
                                             PhoneReceived, PhoneReceivedRaw,
                                             PhoneReceiver, PhoneSent)
+
+try:
+    from django.urls import reverse
+except ImportError:
+    # Django < 2.0
+    from django.core.urlresolvers import reverse
 
 
 class TwilioTestsCase(APIBaseTestCase):
