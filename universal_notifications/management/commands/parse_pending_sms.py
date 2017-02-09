@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
-from universal_notifications.backends.twilio.tasks import \
-    parse_received_message_task
+from universal_notifications.backends.twilio.tasks import parse_received_message_task
 from universal_notifications.models import PhoneReceivedRaw
 
 
