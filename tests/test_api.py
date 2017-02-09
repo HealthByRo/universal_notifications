@@ -49,7 +49,7 @@ class NotificationApiTestCase(APIBaseTestCase):
             - /unsubscribed-user
             - allowed method - get/post/put/patch by the owner?
             - get works as get_or_create - if user exists in db in AUTH_USER_MODEL then create
-                and return UnsubscribedUser with categories described below and unsubsribed from all = False. 
+                and return UnsubscribedUser with categories described below and unsubsribed from all = False.
                 IMPORTANT: UNSUBSCRIBED MODEL JSON FIELD IS NEVER RETURNED BY API.
             user object should look like:
             - UnsubscribedUserId
@@ -58,20 +58,20 @@ class NotificationApiTestCase(APIBaseTestCase):
             -- a list of categories for given user type. Expected is json like:
                 {'email': [default (with Human readable help text), etc ]}
             - unsubscribed - just JSON value of unsubscribed field
-            
+
 
         Examples from pawel:
         CategorySerializer
 
-        [15:25]  
+        [15:25]
         UnsubscribedSerializer:
          to_representation:
            dla kazdej kategorii CategorySerializer().data
 
-        [15:25]  
+        [15:25]
         to_representation:
 
-        [15:26]  
+        [15:26]
         category_name =   BoolField(value=is_unsubscribed, label=category_label)
         Issues - save and init from unsubscribed field.
         """
