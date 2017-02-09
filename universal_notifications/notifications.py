@@ -23,8 +23,7 @@
         )
 """
 from django.template import Context, Template
-from universal_notifications.backends.emails import (UnsubscribedModel,
-                                                     send_email)
+from universal_notifications.backends.emails import send_email, UnsubscribedModel
 from universal_notifications.backends.sms import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory
