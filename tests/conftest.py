@@ -80,9 +80,6 @@ def pytest_configure():
                 "chat": _('Category for chat messages'),
                 "newsletter": _('Newsletter',)
             },
-            "websocket": {
-                "default": _("This is a label for default category you'll send in from to FE"),
-            },
             "test": {
                 "default": _("This is a label for default category you'll send in from to FE"),
             },
@@ -93,13 +90,11 @@ def pytest_configure():
             "for_admin": {
                 "push": ["default", "chat", "promotions"],
                 "email": ["default", "chat", "newsletter"],
-                "websocket": ["default", "chat", "newsletter"],
                 "sms": ["default", "chat", "newsletter"]
             },
             "for_user": {
                 "push": ["default", "chat", "promotions"],
                 "email": ["default", "newsletter"],  # chat skipped
-                "websocket": ["default", "chat", "newsletter"],
                 "sms": ["default", "chat", "newsletter"]
             }
         },

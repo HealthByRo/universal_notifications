@@ -2,6 +2,7 @@
 from rest_framework.reverse import reverse
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.models import Device
+from django.utils.translation import ugettext_lazy as _
 
 
 class NotificationApiTestCase(APIBaseTestCase):
@@ -43,36 +44,118 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertTrue(devices[0].is_active)
 
     def test_notifications_categories_api(self):
-        pass
-        # self.assertEqual(1, 0)
-        """
-            Create api to store user unsubcriptions
-            - /unsubscribed-user
-            - allowed method - get/post/put/patch by the owner?
-            - get works as get_or_create - if user exists in db in AUTH_USER_MODEL then create
-                and return UnsubscribedUser with categories described below and unsubsribed from all = False.
-                IMPORTANT: UNSUBSCRIBED MODEL JSON FIELD IS NEVER RETURNED BY API.
-            user object should look like:
-            - UnsubscribedUserId
-            - account_id (authuser)
-            - categories
-            -- a list of categories for given user type. Expected is json like:
-                {'email': [default (with Human readable help text), etc ]}
-            - unsubscribed - just JSON value of unsubscribed field
+        self._create_user()
+        url = reverse("notifications-subscriptions")
 
+        # must be authenticated
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
 
-        Examples from pawel:
-        CategorySerializer
+        # labels
+        labels_dict = {
+            "push": {
+                "default": _("This is a label for default category you'll send in from to FE"),
+                "chat": _("Category for chat messages"),
+                "promotions": _("Promotions")
+            },
+            "email": {
+                "default": _("This is a label for default category you'll send in from to FE"),
+                "newsletter": _("Newsletter")
+            },
+            "sms": {
+                "default": _("This is a label for default category you'll send in from to FE"),
+                "chat": _("Category for chat messages"),
+                "newsletter": _("Newsletter")
+            }
+        }
 
-        [15:25]
-        UnsubscribedSerializer:
-         to_representation:
-           dla kazdej kategorii CategorySerializer().data
+        # get
+        self._login()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["unsubscribed_from_all"])
+        self.assertEqual(response.data["push"], {
+            "default": False,
+            "chat": False,
+            "promotions": False,
+            "all": False
+        })
+        self.assertEqual(response.data["email"], {
+            "default": False,
+            "newsletter": False,
+            "all": False
+        })
+        self.assertEqual(response.data["sms"], {
+            "default": False,
+            "chat": False,
+            "newsletter": False,
+            "all": False
+        })
+        self.assertEqual(response.data["labels"], labels_dict)
 
-        [15:25]
-        to_representation:
+        # patch is disabled
+        response = self.client.patch(url, {}, format="json")
+        self.assertEqual(response.status_code, 405)
 
-        [15:26]
-        category_name =   BoolField(value=is_unsubscribed, label=category_label)
-        Issues - save and init from unsubscribed field.
-        """
+        # put
+        data = {
+            "push": {"default": True},
+            "email": {"all": True},
+            "sms": {
+                "default": False,
+                "chat": True,
+                "newsletter": True,
+                "all": False
+            }
+        }
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["unsubscribed_from_all"])
+        self.assertEqual(response.data["push"], {
+            "default": True,
+            "chat": False,
+            "promotions": False,
+            "all": False
+        })
+        self.assertEqual(response.data["email"], {
+            "default": False,
+            "newsletter": False,
+            "all": True
+        })
+        self.assertEqual(response.data["sms"], {
+            "default": False,
+            "chat": True,
+            "newsletter": True,
+            "all": False
+        })
+
+        data = {
+            "email": {"all": True},
+            "sms": {
+                "default": False,
+                "chat": True,
+                "newsletter": True,
+                "all": False
+            },
+            "unsubscribed_from_all": True
+        }
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["unsubscribed_from_all"])
+        self.assertEqual(response.data["push"], {
+            "default": False,
+            "chat": False,
+            "promotions": False,
+            "all": False
+        })
+        self.assertEqual(response.data["email"], {
+            "default": False,
+            "newsletter": False,
+            "all": True
+        })
+        self.assertEqual(response.data["sms"], {
+            "default": False,
+            "chat": True,
+            "newsletter": True,
+            "all": False
+        })

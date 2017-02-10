@@ -100,7 +100,7 @@ class NotificationBase(object):
         return receiver
 
     def check_category(self):
-        if self.category == self.PRIORITY_CATEGORY:
+        if self.category == self.PRIORITY_CATEGORY or not self.check_subscription:
             return
         if not self.category:
             raise ImproperlyConfigured('Category is required', self)

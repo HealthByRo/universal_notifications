@@ -118,7 +118,9 @@ class SampleJ(EmailNotification):
     check_subscription = False
 
 
-class SampleNoCategory(SampleJ):
+class SampleNoCategory(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
     category = ""
 
 

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from rest_framework import serializers
+from rest_framework.compat import is_authenticated
 from universal_notifications.models import Device
+from universal_notifications.notifications import NotificationBase
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -12,3 +15,55 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ['platform', 'notification_token', 'device_id', 'app_id']
+
+
+class UnsubscribedSerializer(serializers.Serializer):
+    unsubscribed_from_all = serializers.BooleanField(required=False)
+
+    def get_configuration(self):
+        request = self.context.get("request", None)
+        if request and is_authenticated(request.user):
+            return NotificationBase.get_mapped_user_notifications_types_and_categories(request.user)
+        return None
+
+    def to_representation(self, obj):
+        result = {
+            "unsubscribed_from_all": obj.unsubscribed_from_all,
+            "labels": {}
+        }
+
+        configuration = self.get_configuration()
+        if configuration:
+            for ntype in configuration.keys():
+                type_unsubscribed = set(obj.unsubscribed.get(ntype, []))
+                result["labels"][ntype] = {}
+                result[ntype] = {
+                    "all": "all" in type_unsubscribed
+                }
+                for key in configuration[ntype]:
+                    result[ntype][key] = key in type_unsubscribed
+                    result["labels"][ntype][key] = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES[ntype][key]
+
+        return result
+
+    def validate(self, data):
+        """ validation actually maps categories data & adds them to validated data"""
+        request = self.context.get("request", None)
+        unsubscribed = {}
+        data["unsubscribed"] = unsubscribed
+
+        configuration = self.get_configuration()
+        if configuration:
+            for ntype in configuration.keys():
+                unsubscribed[ntype] = []
+                if ntype in request.data:
+                    for key in list(configuration[ntype]) + ["all"]:  # map to list in case it is tuble
+                        if request.data[ntype].get(key, False):
+                            unsubscribed[ntype].append(key)
+
+        return data
+
+    def update(self, instance, data):
+        for key, value in data.items():
+            setattr(instance, key, value)
+        return instance
