@@ -66,22 +66,22 @@ def pytest_configure():
         # categories for notifications
         UNIVERSAL_NOTIFICATIONS_CATEGORIES={
             "push": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "chat": _('Category for chat messages'),
                 "promotions": _('Promotions',)
             },
             "email": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "chat": _('Category for chat messages'),
                 "newsletter": _('Newsletter',)
             },
             "sms": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "chat": _('Category for chat messages'),
                 "newsletter": _('Newsletter',)
             },
             "test": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
             },
         },
         # not required. If defined, specific types of users will only get notifications from allowed categories.

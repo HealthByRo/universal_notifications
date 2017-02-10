@@ -54,16 +54,16 @@ class NotificationApiTestCase(APIBaseTestCase):
         # labels
         labels_dict = {
             "push": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "chat": _("Category for chat messages"),
                 "promotions": _("Promotions")
             },
             "email": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "newsletter": _("Newsletter")
             },
             "sms": {
-                "default": _("This is a label for default category you'll send in from to FE"),
+                "default": _("This is a label for default category you'll send to FE"),
                 "chat": _("Category for chat messages"),
                 "newsletter": _("Newsletter")
             }
