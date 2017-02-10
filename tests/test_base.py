@@ -138,7 +138,7 @@ class SampleNotExistingCategory(EmailNotification):
 
 class SampleReceiver(object):
     def __init__(self, email, phone, first_name='Foo', last_name='Bar', is_superuser=False):
-        self.id = randint(1, 100)
+        self.id = 100000 + randint(1, 100)
         self.email = email
         self.phone = phone
         self.first_name = first_name
