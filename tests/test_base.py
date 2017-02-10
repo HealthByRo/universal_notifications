@@ -261,11 +261,11 @@ class BaseTest(APITestCase):
                 SampleNoCategory(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
 
         # chat catgory is not allowed for "user"
-        with mock.patch('tests.test_base.SampleChatNotification.send_inner') as mocked_send_inner:
-            with self.assertRaises(ImproperlyConfigured):
-                SampleChatNotification(self.object_item, [self.object_receiver], {}).send()
+        with self.assertRaises(ImproperlyConfigured):
+            SampleChatNotification(self.object_item, [self.object_receiver], {}).send()
 
-            # but works for super user
+        # but works for super user
+        with mock.patch('tests.test_base.SampleChatNotification.send_inner') as mocked_send_inner:
             SampleChatNotification(self.object_item, [self.superuser_object_receiver], {}).send()
             mocked_send_inner.assert_called_with({self.superuser_object_receiver}, {
                 'item': self.object_item,

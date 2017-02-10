@@ -26,6 +26,7 @@ Basic usage
 -  `SMS notifications`_
 -  `Push notifications`_
 -  `Unsubscriber`_
+-  `Unsubscriber API`_
 
 WebSocket notifications
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -128,7 +129,7 @@ Simple example of use:
 .. _codecov: http://codecov.io/github/ArabellaTech/universal_notifications?branch=master
 
 Unsubscriber
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 
 This section refers to all notifications except WebSockets, which by default are not prone to unsubscriptions
 (however this can be changed by setting check_subscription to True).
@@ -203,3 +204,25 @@ In the example above, functions "for_admin" & "for_user" should be defined in fi
 function takes user as a parameter, and should return either True or False.
 
 If given notification type is not present for given user, user will neither be able to receive it nor unsubscribe it.
+
+Unsubscriber API
+~~~~~~~~~~~~~~~~
+
+.. code::
+    GET /subscriptions
+
+    returns {
+        "unsubscribe_from_all": bool,
+        "each_type_for_given_user": {
+            "each_category_for_given_type_for_given_user": bool,
+            "all": bool
+        }
+        "labels": {
+            "each_type_for_given_user": {
+                "each_category_for_given_type_for_given_user": string,
+            }
+        }
+    }
+
+.. code::
+    PUT /subscriptions
