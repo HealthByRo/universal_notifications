@@ -211,6 +211,7 @@ Unsubscriber API
 The current subscriptions can be obtained with a API described below. Please note, that API does not provide label for "unsubscribe_from_all", since is always present and can be hardcoded in FE module. Categories however may vary, that's why labels for them must be returned from BE.
 
 .. code:: python
+
         # GET /subscriptions
 
         return {
@@ -229,6 +230,7 @@ The current subscriptions can be obtained with a API described below. Please not
 Unsubscriptions may be edited using following API:
 
 .. code:: python
+
         # PUT /subscriptions
 
         data = {
