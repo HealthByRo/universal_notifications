@@ -75,21 +75,21 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["unsubscribed_from_all"])
         self.assertEqual(response.data["push"], {
-            "default": False,
-            "chat": False,
-            "promotions": False,
-            "all": False
+            "default": True,
+            "chat": True,
+            "promotions": True,
+            "unsubscribed_from_all": False
         })
         self.assertEqual(response.data["email"], {
-            "default": False,
-            "newsletter": False,
-            "all": False
+            "default": True,
+            "newsletter": True,
+            "unsubscribed_from_all": False
         })
         self.assertEqual(response.data["sms"], {
-            "default": False,
-            "chat": False,
-            "newsletter": False,
-            "all": False
+            "default": True,
+            "chat": True,
+            "newsletter": True,
+            "unsubscribed_from_all": False
         })
         self.assertEqual(response.data["labels"], labels_dict)
 
@@ -99,43 +99,43 @@ class NotificationApiTestCase(APIBaseTestCase):
 
         # put
         data = {
-            "push": {"default": True},
-            "email": {"all": True},
+            "push": {"default": False},
+            "email": {"unsubscribed_from_all": True},
             "sms": {
                 "default": False,
                 "chat": True,
                 "newsletter": True,
-                "all": False
+                "unsubscribed_from_all": False
             }
         }
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["unsubscribed_from_all"])
         self.assertEqual(response.data["push"], {
-            "default": True,
-            "chat": False,
-            "promotions": False,
-            "all": False
+            "default": False,
+            "chat": True,
+            "promotions": True,
+            "unsubscribed_from_all": False
         })
         self.assertEqual(response.data["email"], {
-            "default": False,
-            "newsletter": False,
-            "all": True
+            "default": True,
+            "newsletter": True,
+            "unsubscribed_from_all": True
         })
         self.assertEqual(response.data["sms"], {
             "default": False,
             "chat": True,
             "newsletter": True,
-            "all": False
+            "unsubscribed_from_all": False
         })
 
         data = {
-            "email": {"all": True},
+            "email": {"unsubscribed_from_all": True},
             "sms": {
                 "default": False,
                 "chat": True,
                 "newsletter": True,
-                "all": False
+                "unsubscribed_from_all": False
             },
             "unsubscribed_from_all": True
         }
@@ -143,19 +143,19 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["unsubscribed_from_all"])
         self.assertEqual(response.data["push"], {
-            "default": False,
-            "chat": False,
-            "promotions": False,
-            "all": False
+            "default": True,
+            "chat": True,
+            "promotions": True,
+            "unsubscribed_from_all": False
         })
         self.assertEqual(response.data["email"], {
-            "default": False,
-            "newsletter": False,
-            "all": True
+            "default": True,
+            "newsletter": True,
+            "unsubscribed_from_all": True
         })
         self.assertEqual(response.data["sms"], {
             "default": False,
             "chat": True,
             "newsletter": True,
-            "all": False
+            "unsubscribed_from_all": False
         })
