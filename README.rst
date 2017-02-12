@@ -208,6 +208,8 @@ If given notification type is not present for given user, user will neither be a
 Unsubscriber API
 ~~~~~~~~~~~~~~~~
 
+The current subscriptions can be obtained with a API described below. Please note, that API does not provide label for "unsubscribe_from_all", since is always present and can be hardcoded in FE module. Categories however may vary, that's why labels for them must be returned from BE.
+
 .. code:: python
         # GET /subscriptions
 
@@ -223,6 +225,8 @@ Unsubscriber API
                 }
             }
         }
+
+Unsubscriptions may be edited using following API:
 
 .. code:: python
         # PUT /subscriptions
