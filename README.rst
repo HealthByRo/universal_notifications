@@ -209,30 +209,30 @@ Unsubscriber API
 ~~~~~~~~~~~~~~~~
 
 .. code:: python
-    # GET /subscriptions
+        # GET /subscriptions
 
-    return {
-        "unsubscribe_from_all": bool,  # False by default
-        "each_type_for_given_user": {
-            "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
-            "unsubscribe_from_all": bool  # False by default
-        }
-        "labels": {
+        return {
+            "unsubscribe_from_all": bool,  # False by default
             "each_type_for_given_user": {
-                "each_category_for_given_type_for_given_user": string,
+                "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
+                "unsubscribe_from_all": bool  # False by default
+            }
+            "labels": {
+                "each_type_for_given_user": {
+                    "each_category_for_given_type_for_given_user": string,
+                }
             }
         }
-    }
 
 .. code:: python
-    # PUT /subscriptions
+        # PUT /subscriptions
 
-    data = {
-        "unsubscribe_from_all": bool,  # False by default
-        "each_type_for_given_user": {
-            "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
-            "unsubscribe_from_all": bool  # False by default
+        data = {
+            "unsubscribe_from_all": bool,  # False by default
+            "each_type_for_given_user": {
+                "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
+                "unsubscribe_from_all": bool  # False by default
+            }
         }
-    }
 
 Please note, that if any type/category for type is ommited, it is reseted to default value.
