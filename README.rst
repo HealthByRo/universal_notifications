@@ -208,14 +208,14 @@ If given notification type is not present for given user, user will neither be a
 Unsubscriber API
 ~~~~~~~~~~~~~~~~
 
-.. code::
-    GET /subscriptions
+.. code:: python
+    # GET /subscriptions
 
-    returns {
-        "unsubscribe_from_all": bool,
+    return {
+        "unsubscribe_from_all": bool,  # False by default
         "each_type_for_given_user": {
-            "each_category_for_given_type_for_given_user": bool,
-            "all": bool
+            "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
+            "unsubscribe_from_all": bool  # False by default
         }
         "labels": {
             "each_type_for_given_user": {
@@ -224,5 +224,15 @@ Unsubscriber API
         }
     }
 
-.. code::
-    PUT /subscriptions
+.. code:: python
+    # PUT /subscriptions
+
+    data = {
+        "unsubscribe_from_all": bool,  # False by default
+        "each_type_for_given_user": {
+            "each_category_for_given_type_for_given_user": bool,  # True(default) if subscribed, False if unsubscribed
+            "unsubscribe_from_all": bool  # False by default
+        }
+    }
+
+Please note, that if any type/category for type is ommited, it is reseted to default value.
