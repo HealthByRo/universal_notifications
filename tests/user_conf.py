@@ -1,6 +1,6 @@
 """
     Helper file. Contains user configuration for user categories mapping.
-    This file has to be imported with * (sadly)
+    Usage: settings.UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE
 """
 
 
