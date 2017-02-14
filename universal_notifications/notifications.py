@@ -120,7 +120,7 @@ class NotificationBase(object):
                     "User is not allowed to receive notifications from '%s:%s' category"
                     % (self.get_type(), self.category))
 
-    def verify_receivers_subscriptions(self):
+    def verify_and_filter_receivers_subscriptions(self):
         """
             returns new list of only receivers that are subscribed for given notification type/category
         """
@@ -157,7 +157,7 @@ class NotificationBase(object):
 
     def send(self):
         self.check_category()
-        self.verify_receivers_subscriptions()
+        self.verify_and_filter_receivers_subscriptions()
         prepared_receivers = self.prepare_receivers()
         prepared_message = self.prepare_message()
         result = self.send_inner(prepared_receivers, prepared_message)

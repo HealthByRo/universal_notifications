@@ -6,7 +6,7 @@ from universal_notifications.models import UnsubscribedUser
 from universal_notifications.serializers import DeviceSerializer, UnsubscribedSerializer
 
 
-class DevicesApi(CreateAPIView):
+class DevicesAPI(CreateAPIView):
     serializer_class = DeviceSerializer
 
 

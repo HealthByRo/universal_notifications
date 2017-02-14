@@ -196,7 +196,6 @@ do it with configuration:
         def for_admin(user):
             return user.is_superuser
 
-
         def for_user(user):
             return not user.is_superuser
 

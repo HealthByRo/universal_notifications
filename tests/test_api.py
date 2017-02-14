@@ -9,7 +9,7 @@ class NotificationApiTestCase(APIBaseTestCase):
 
     def test_device_api(self):
         self._create_user()
-        url = reverse('notifications_devices_api')
+        url = reverse('notifications-devices')
 
         response = self.client.post(url, {})
         self.assertEqual(response.status_code, 401)  # login required - 403 worked

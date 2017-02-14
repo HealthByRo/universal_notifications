@@ -34,13 +34,13 @@ class UnsubscribedSerializer(serializers.Serializer):
 
         configuration = self.get_configuration()
         if configuration:
-            for ntype in configuration.keys():
+            for ntype, ntype_configuration in configuration.items():
                 type_unsubscribed = set(obj.unsubscribed.get(ntype, []))
                 result["labels"][ntype] = {}
                 result[ntype] = {
                     "unsubscribed_from_all": "all" in type_unsubscribed
                 }
-                for key in configuration[ntype]:
+                for key in ntype_configuration:
                     result[ntype][key] = key not in type_unsubscribed
                     result["labels"][ntype][key] = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES[ntype][key]
 
@@ -54,10 +54,10 @@ class UnsubscribedSerializer(serializers.Serializer):
 
         configuration = self.get_configuration()
         if configuration:
-            for ntype in configuration.keys():
+            for ntype, ntype_configuration in configuration.items():
                 unsubscribed[ntype] = []
                 if ntype in request.data:
-                    for key in configuration[ntype]:
+                    for key in ntype_configuration:
                         if not request.data[ntype].get(key, True):
                             unsubscribed[ntype].append(key)
                         if request.data[ntype].get("unsubscribed_from_all", False):

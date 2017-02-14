@@ -1,6 +1,5 @@
 """
     Helper file. Contains user configuration for user categories mapping.
-    This file has to be imported with * (sadly)
 """
 
 
