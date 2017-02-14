@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
-
-from collections import OrderedDict
-
-
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 

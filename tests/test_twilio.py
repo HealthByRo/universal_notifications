@@ -21,7 +21,7 @@ class TwilioTestsCase(APIBaseTestCase):
 
     def setUp(self):
         super(TwilioTestsCase, self).setUp()
-        self.twilio_callback_url = reverse('twilio_callback_api')
+        self.twilio_callback_url = reverse('twilio-callback')
 
     def create_raw_data(self, text, **kwargs):
         data = {

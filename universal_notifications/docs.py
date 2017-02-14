@@ -28,6 +28,9 @@ class BaseGenerator(object):
         super(BaseGenerator, self).__init__(*args, **kwargs)
         self._obj = obj
 
+    def get_category(self):
+        return self._obj.category
+
     def get_summary(self):
         return "TODO: summary"
 
@@ -196,6 +199,7 @@ class NotificationsDocs(object):
                     'notes': generator.get_notes(),
                     'summary': generator.get_summary(),
                     'type': generator.get_type(),
+                    'category': generator.get_category(),
                     'method': 'GET'
                 }],
                 'path': value['path'],

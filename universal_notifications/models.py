@@ -27,6 +27,7 @@ class NotificationHistory(models.Model):
     klass = models.CharField(max_length=255)
     receiver = models.CharField(max_length=255)
     details = models.TextField()
+    category = models.CharField(max_length=255)
 
 
 class Device(models.Model):
@@ -271,3 +272,9 @@ class PhonePendingMessages(models.Model):
             connection.publish(channel, RedisMessage(json_data))
 
         return ret
+
+
+class UnsubscribedUser(models.Model):
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    unsubscribed_from_all = models.BooleanField(default=False)
+    unsubscribed = JSONField(default=dict)

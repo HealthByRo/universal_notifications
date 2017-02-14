@@ -7,7 +7,6 @@ from django.test.utils import override_settings
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS
 from rest_framework.test import APITestCase
 from rest_framework.renderers import JSONRenderer
-
 from universal_notifications.backends.emails import send_email
 from universal_notifications.backends.websockets import publish
 from universal_notifications.backends.push.apns import apns_send_message, APNSDataOverflow

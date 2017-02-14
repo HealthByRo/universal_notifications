@@ -5,22 +5,6 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from premailer import Premailer
 
-import cssutils
-import logging
-
-try:
-    from django.utils.importlib import import_module
-except ImportError:
-    from importlib import import_module
-
-cssutils.log.setLevel(logging.CRITICAL)
-
-if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_UNSUBSCRIBE_MODEL"):
-    __path, __symbol = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_UNSUBSCRIBE_MODEL').rsplit('.', 1)
-    UnsubscribedModel = getattr(import_module(__path), __symbol)
-else:
-    UnsubscribedModel = None
-
 
 def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}):
     variables['site'] = Site.objects.get_current()

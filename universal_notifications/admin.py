@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from universal_notifications.models import (NotificationHistory, Phone, PhoneReceived, PhoneReceivedRaw, PhoneReceiver,
-                                            PhoneSent)
+                                            PhoneSent, UnsubscribedUser)
 
 
 # TODO: think about adding django-safedelete
@@ -10,9 +10,6 @@ from universal_notifications.models import (NotificationHistory, Phone, PhoneRec
 class NotificationHistoryAdmin(admin.ModelAdmin):
     list_display = ('receiver', 'created', 'group', 'klass', 'details')
     readonly_fields = ('receiver', 'created', 'group', 'klass', 'details')
-
-
-admin.site.register(NotificationHistory, NotificationHistoryAdmin)
 
 
 class PhoneSentAdmin(admin.ModelAdmin):
@@ -44,3 +41,5 @@ admin.site.register(PhoneReceived, PhoneReceivedAdmin)
 admin.site.register(PhoneReceivedRaw, PhoneReceivedRawAdmin)
 admin.site.register(PhoneReceiver, PhoneReceiverAdmin)
 admin.site.register(Phone, PhoneAdmin)
+admin.site.register(UnsubscribedUser)
+admin.site.register(NotificationHistory, NotificationHistoryAdmin)
