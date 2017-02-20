@@ -28,9 +28,6 @@ class BaseGenerator(object):
         super(BaseGenerator, self).__init__(*args, **kwargs)
         self._obj = obj
 
-    def get_category(self):
-        return self._obj.category
-
     def get_summary(self):
         return "TODO: summary"
 
@@ -38,6 +35,13 @@ class BaseGenerator(object):
         return "TODO: type"
 
     def get_notes(self):
+        parts = [self._obj.__doc__]
+        if self._obj.check_subscription:
+            parts.append("<b>Subscription Category:</b> %s" % self._obj.category)
+        parts.append(self.get_class_specific_notes())
+        return "<br/><br/>".join(part for part in parts if part and part.strip())  # display only non empty parts
+
+    def get_class_specific_notes(self):
         return "TODO: notes"
 
     def get_serializer(self):
@@ -54,7 +58,7 @@ class WSDocGenerator(BaseGenerator):
     def get_type(self):
         return self._obj.serializer_class.__name__
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         data = self._obj.serializer_class.__name__
         if self._obj.serializer_many:
             data = "[%s*]" % data
@@ -74,7 +78,7 @@ class SMSDocGenerator(BaseGenerator):
     def get_type(self):
         return None
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         return "<b>Template:</b><br/>%s" % self._obj.message
 
     def skip(self):
@@ -111,7 +115,7 @@ class EmailDocGenerator(BaseGenerator):
     def get_type(self):
         return None
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         notes = "<b>Subject:</b><br/>%s<br/><br/><b>Preview:</b><br/>%s" % (
             self._obj.email_subject,
             self.get_template('emails/email_%s.html' % self._obj.email_name)
@@ -199,7 +203,6 @@ class NotificationsDocs(object):
                     'notes': generator.get_notes(),
                     'summary': generator.get_summary(),
                     'type': generator.get_type(),
-                    'category': generator.get_category(),
                     'method': 'GET'
                 }],
                 'path': value['path'],
