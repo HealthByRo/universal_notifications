@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.conf import settings
+from django.db import migrations, models
 
 import django.db.models.deletion
 import universal_notifications.backends.twilio.fields
-from django.conf import settings
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

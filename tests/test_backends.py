@@ -1,19 +1,17 @@
-import os
-
 import mock
-from django.contrib.auth.models import User
+import os
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS
-from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APITestCase
+from rest_framework.renderers import JSONRenderer
 from universal_notifications.backends.emails import send_email
-from universal_notifications.backends.push.apns import (APNSDataOverflow,
-                                                        apns_send_message)
+from universal_notifications.backends.websockets import publish
+from universal_notifications.backends.push.apns import apns_send_message, APNSDataOverflow
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
-from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device
 
 try:

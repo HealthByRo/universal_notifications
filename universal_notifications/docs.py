@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-from importlib import import_module
-
-import rest_framework_swagger as rfs
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -11,17 +7,18 @@ from django.template import RequestContext
 from django.utils import six
 from django.utils.safestring import mark_safe
 from django.views.generic import View
+from importlib import import_module
 from rest_framework.settings import api_settings
 from rest_framework.views import Response
 from rest_framework_swagger.apidocview import APIDocView
-from rest_framework_swagger.compat import OrderedDict, import_string
+from rest_framework_swagger.compat import import_string, OrderedDict
 from rest_framework_swagger.docgenerator import DocumentationGenerator
 from rest_framework_swagger.introspectors import IntrospectorHelper
-from universal_notifications.notifications import (EmailNotification,
-                                                   NotificationBase,
-                                                   PushNotification,
-                                                   SMSNotification,
-                                                   WSNotification)
+from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
+                                                   SMSNotification, WSNotification)
+
+import json
+import rest_framework_swagger as rfs
 
 BASE_NOTIFICATIONS = (EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
 

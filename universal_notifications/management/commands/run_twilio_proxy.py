@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-import json
-import sys
-import threading
-import traceback
-from time import sleep
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from raven.contrib.django import DjangoClient
 from redis import StrictRedis
+from time import sleep
 from universal_notifications.models import Phone, PhonePendingMessages
 from ws4redis import settings as private_settings
+
+import json
+import sys
+import threading
+import traceback
 
 
 class Queue(threading.Thread):

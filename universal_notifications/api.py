@@ -3,8 +3,7 @@ from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from universal_notifications.models import UnsubscribedUser
-from universal_notifications.serializers import (DeviceSerializer,
-                                                 UnsubscribedSerializer)
+from universal_notifications.serializers import DeviceSerializer, UnsubscribedSerializer
 
 
 class DevicesAPI(CreateAPIView):
