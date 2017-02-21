@@ -3,7 +3,6 @@
     # TODO: fill readme & TODO
     # TODO (Pawel): processors filtering (email/sms) - mail/sms history + limiters
     # TODO (Pawel): sample transformations / conditions
-    # TODO (Pawel): push (gcm, etc.) - low priority
 
     Sample usage:
         WSNotification(item, receivers, context).send()

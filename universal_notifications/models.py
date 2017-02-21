@@ -221,7 +221,7 @@ class PhoneReceivedRaw(models.Model):
     exception = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
-        from universal_notifications.backends.twilio.tasks import parse_received_message_task
+        from universal_notifications.tasks import parse_received_message_task
 
         super(PhoneReceivedRaw, self).save(*args, **kwargs)
         if self.status == PhoneReceivedRaw.STATUS_PENDING:
