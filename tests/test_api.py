@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.reverse import reverse
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.models import Device
-from django.utils.translation import ugettext_lazy as _
 
 
 class NotificationApiTestCase(APIBaseTestCase):

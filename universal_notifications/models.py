@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -10,12 +11,12 @@ from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
 from universal_notifications.backends.twilio.fields import JSONField
-from universal_notifications.backends.twilio.signals import phone_received_post_save
-from universal_notifications.backends.twilio.utils import format_phone, get_twilio_client
+from universal_notifications.backends.twilio.signals import \
+    phone_received_post_save
+from universal_notifications.backends.twilio.utils import (format_phone,
+                                                           get_twilio_client)
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
-
-import six
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6)

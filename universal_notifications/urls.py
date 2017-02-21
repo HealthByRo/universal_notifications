@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
-from universal_notifications.docs import (UniversalNotificationsApiView, UniversalNotificationsResourcesView,
+from universal_notifications.docs import (UniversalNotificationsApiView,
+                                          UniversalNotificationsResourcesView,
                                           UniversalNotificationsUIView)
 
 urlpatterns = [

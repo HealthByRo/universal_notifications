@@ -1,8 +1,8 @@
-from django.conf import settings
-from twilio.rest import TwilioLookupsClient, TwilioRestClient
+import re
 
 import phonenumbers
-import re
+from django.conf import settings
+from twilio.rest import TwilioLookupsClient, TwilioRestClient
 
 try:
     # Wide UCS-4 build

@@ -9,10 +9,11 @@
         - transformations
         - conditions
 """
-import mock
 from random import randint
-from django.core.exceptions import ImproperlyConfigured
+
+import mock
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from rest_framework import serializers
 from rest_framework.test import APITestCase
