@@ -2,10 +2,10 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
-from universal_notifications.signals import ws_received
 from universal_notifications.backends.twilio.utils import clean_text
 from universal_notifications.models import (Phone, PhonePendingMessages, PhoneReceived, PhoneReceivedRaw, PhoneReceiver,
                                             PhoneSent)
+from universal_notifications.signals import ws_received
 
 import six
 import traceback

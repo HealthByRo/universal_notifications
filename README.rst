@@ -38,8 +38,16 @@ add to your settings.py:
 
     WS4REDIS_SUBSCRIBER = 'universal_notifications.backends.websockets.RedisSignalSubscriber'
 
-Upon receiving a WS, signal will be emitted with json data received in the message, and all emails subscribed to
-that channel.
+Upon receiving a WS, "ws_received" signal will be emitted with json data received in the message, and all emails
+subscribed to that channel. Sample usage:
+
+.. code:: python
+
+    from universal_notifications.signals import ws_received
+
+    def your_handler(sender, message_data, channel_emails, **kwargs):
+        pass
+    ws_received.connect(your_handler)
 
 Simple example of using WS notifications:
 
