@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.7.4] - 2017-02-22
+### Fixed
+- distribution fixed
+
 ## [0.7.3] - 2017-02-22
 ### Changed
 - WS Receiver now emits "ws_received" signal (through celery task)
