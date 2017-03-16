@@ -7,18 +7,27 @@
 
     - chaining
         - transformations
-        - conditions """
+        - conditions
+"""
 import mock
+from random import randint
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.db import models
 from rest_framework import serializers
 from rest_framework.test import APITestCase
-
-from universal_notifications.notifications import (
-    EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
+from universal_notifications.models import UnsubscribedUser
+from universal_notifications.notifications import (EmailNotification,
+                                                   NotificationBase,
+                                                   PushNotification,
+                                                   SMSNotification,
+                                                   WSNotification)
 
 
 class SampleA(NotificationBase):
+    check_subscription = False
+    category = "system"
+
     @classmethod
     def get_type(cls):
         return 'Test'
@@ -93,12 +102,48 @@ class SampleG(PushNotification):
     message = '{{item.name}}'
 
 
+class SampleH(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = 'system'
+
+
+class SampleI(SampleH):
+    category = 'default'
+
+
+class SampleJ(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    check_subscription = False
+
+
+class SampleNoCategory(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = ""
+
+
+class SampleChatNotification(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = "chat"
+
+
+class SampleNotExistingCategory(EmailNotification):
+    email_name = 'name'
+    email_subject = 'subject'
+    category = "some_weird_one"
+
+
 class SampleReceiver(object):
-    def __init__(self, email, phone, first_name='Foo', last_name='Bar'):
+    def __init__(self, email, phone, first_name='Foo', last_name='Bar', is_superuser=False):
+        self.id = 100000 + randint(1, 100)
         self.email = email
         self.phone = phone
         self.first_name = first_name
         self.last_name = last_name
+        self.is_superuser = is_superuser
 
 
 class BaseTest(APITestCase):
@@ -108,10 +153,27 @@ class BaseTest(APITestCase):
 
         self.object_item = SampleModel('sample')
         self.object_receiver = SampleReceiver('foo@bar.com', '123456789')
-        self.unsubscribed_receiver = SampleReceiver('bar@foo.com', '888777666')
+        self.superuser_object_receiver = SampleReceiver('super_foo@bar.com', '123456789', is_superuser=True)
 
-        User.objects.create_user(
-            username='user', email=self.unsubscribed_receiver.email, password='1234')
+        self.all_unsubscribed_receiver = User.objects.create_user(
+            username='all_unsubscribed_user',
+            email='bar@foo.com',
+            password='1234')
+
+        self.all_unsubscribed_user = UnsubscribedUser.objects.create(
+            user=self.all_unsubscribed_receiver,
+            unsubscribed_from_all=True
+        )
+
+        self.unsubscribed_receiver = User.objects.create_user(
+            username='user',
+            email='joe@foo.com',
+            password='1234')
+
+        self.unsubscribed_user = UnsubscribedUser.objects.create(
+            user=self.unsubscribed_receiver,
+            unsubscribed={"email": ["default"]}
+        )
 
     def test_sending(self):
         """ sending
@@ -150,17 +212,29 @@ class BaseTest(APITestCase):
 
         # test EmailNotifications
         with mock.patch('tests.test_base.SampleF.send_inner') as mocked_send_inner:
-            # test using UnsubscribedModel
-            with mock.patch('universal_notifications.notifications.UnsubscribedModel', User):
-                SampleF(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
-                mocked_send_inner.assert_called_with({self.object_receiver}, {
-                    'item': self.object_item,
-                })
+            SampleF(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver}, {
+                'item': self.object_item,
+            })
 
-            mocked_send_inner.reset_mock()
+        # test System EmailNotifications
+        with mock.patch('tests.test_base.SampleH.send_inner') as mocked_send_inner:
+            SampleH(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver, self.all_unsubscribed_receiver}, {
+                'item': self.object_item,
+            })
 
-            SampleF(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
-            mocked_send_inner.assert_called_with({self.object_receiver, self.unsubscribed_receiver}, {
+        # test EmailNotifications with default disabled
+        with mock.patch('tests.test_base.SampleI.send_inner') as mocked_send_inner:
+            SampleI(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver}, {
+                'item': self.object_item,
+            })
+
+        # test w/o test subscription
+        with mock.patch('tests.test_base.SampleJ.send_inner') as mocked_send_inner:
+            SampleJ(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.object_receiver, self.all_unsubscribed_receiver}, {
                 'item': self.object_item,
             })
 
@@ -180,6 +254,26 @@ class BaseTest(APITestCase):
                 'message': self.object_item.name,
                 'data': {}
             })
+
+        # test w/o category - should fail
+        with mock.patch('tests.test_base.SampleNoCategory.send_inner') as mocked_send_inner:
+            with self.assertRaises(ImproperlyConfigured):
+                SampleNoCategory(self.object_item, [self.object_receiver, self.unsubscribed_receiver], {}).send()
+
+        # chat catgory is not allowed for "user"
+        with self.assertRaises(ImproperlyConfigured):
+            SampleChatNotification(self.object_item, [self.object_receiver], {}).send()
+
+        # but works for super user
+        with mock.patch('tests.test_base.SampleChatNotification.send_inner') as mocked_send_inner:
+            SampleChatNotification(self.object_item, [self.superuser_object_receiver], {}).send()
+            mocked_send_inner.assert_called_with({self.superuser_object_receiver}, {
+                'item': self.object_item,
+            })
+
+        with mock.patch('tests.test_base.SampleNotExistingCategory.send_inner') as mocked_send_inner:
+            with self.assertRaises(ImproperlyConfigured):
+                SampleNotExistingCategory(self.object_item, [self.object_receiver], {}).send()
 
     def test_chaining(self):
         pass

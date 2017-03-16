@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-from importlib import import_module
-
-import rest_framework_swagger as rfs
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -11,17 +7,18 @@ from django.template import RequestContext
 from django.utils import six
 from django.utils.safestring import mark_safe
 from django.views.generic import View
+from importlib import import_module
 from rest_framework.settings import api_settings
 from rest_framework.views import Response
 from rest_framework_swagger.apidocview import APIDocView
-from rest_framework_swagger.compat import OrderedDict, import_string
+from rest_framework_swagger.compat import import_string, OrderedDict
 from rest_framework_swagger.docgenerator import DocumentationGenerator
 from rest_framework_swagger.introspectors import IntrospectorHelper
-from universal_notifications.notifications import (EmailNotification,
-                                                   NotificationBase,
-                                                   PushNotification,
-                                                   SMSNotification,
-                                                   WSNotification)
+from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
+                                                   SMSNotification, WSNotification)
+
+import json
+import rest_framework_swagger as rfs
 
 BASE_NOTIFICATIONS = (EmailNotification, NotificationBase, PushNotification, SMSNotification, WSNotification)
 
@@ -38,6 +35,13 @@ class BaseGenerator(object):
         return "TODO: type"
 
     def get_notes(self):
+        parts = [self._obj.__doc__]
+        if self._obj.check_subscription:
+            parts.append("<b>Subscription Category:</b> %s" % self._obj.category)
+        parts.append(self.get_class_specific_notes())
+        return "<br/><br/>".join(part for part in parts if part and part.strip())  # display only non empty parts
+
+    def get_class_specific_notes(self):
         return "TODO: notes"
 
     def get_serializer(self):
@@ -54,7 +58,7 @@ class WSDocGenerator(BaseGenerator):
     def get_type(self):
         return self._obj.serializer_class.__name__
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         data = self._obj.serializer_class.__name__
         if self._obj.serializer_many:
             data = "[%s*]" % data
@@ -74,7 +78,7 @@ class SMSDocGenerator(BaseGenerator):
     def get_type(self):
         return None
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         return "<b>Template:</b><br/>%s" % self._obj.message
 
     def skip(self):
@@ -111,7 +115,7 @@ class EmailDocGenerator(BaseGenerator):
     def get_type(self):
         return None
 
-    def get_notes(self):
+    def get_class_specific_notes(self):
         notes = "<b>Subject:</b><br/>%s<br/><br/><b>Preview:</b><br/>%s" % (
             self._obj.email_subject,
             self.get_template('emails/email_%s.html' % self._obj.email_name)

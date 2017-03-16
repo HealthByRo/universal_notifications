@@ -4,7 +4,6 @@ import io
 import os
 import re
 
-from pkg_resources import DistributionNotFound, require
 from setuptools import setup
 
 
@@ -53,13 +52,7 @@ version = get_version('universal_notifications')
 
 
 requirements = local_open('requirements/requirements-base.txt')
-required_to_install = []
-for dist in requirements.readlines():
-    dist = dist.strip()
-    try:
-        require(dist)
-    except DistributionNotFound:
-        required_to_install.append(dist)
+required_to_install = [dist.strip() for dist in requirements.readlines()]
 
 
 setup(
