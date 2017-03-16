@@ -1,0 +1,23 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+
+## [0.7.4] - 2017-02-22
+### Fixed
+- distribution fixed
+
+## [0.7.3] - 2017-02-22
+### Changed
+- WS Receiver now emits "ws_received" signal (through celery task)
+
+## [0.7.2] - 2017-02-21
+### Fixed
+- Twilio Celery tasks
+
+## [0.7.1] - 2017-02-20
+### Added
+- changelog
+- notifications docstrings and categories are now visible in notifications-docs
+
+## [0.7.0] - 2017-02-14
+### Added
+- generic unsubscription API

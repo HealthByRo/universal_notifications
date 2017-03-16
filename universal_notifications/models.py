@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import six
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -11,12 +10,12 @@ from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
 from universal_notifications.backends.twilio.fields import JSONField
-from universal_notifications.backends.twilio.signals import \
-    phone_received_post_save
-from universal_notifications.backends.twilio.utils import (format_phone,
-                                                           get_twilio_client)
+from universal_notifications.backends.twilio.signals import phone_received_post_save
+from universal_notifications.backends.twilio.utils import format_phone, get_twilio_client
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
+
+import six
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6)
@@ -28,10 +27,11 @@ class NotificationHistory(models.Model):
     klass = models.CharField(max_length=255)
     receiver = models.CharField(max_length=255)
     details = models.TextField()
+    category = models.CharField(max_length=255)
 
 
 class Device(models.Model):
-    user = models.ForeignKey(AUTH_USER_MODEL, related_name='devices')
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name='devices', on_delete=models.CASCADE)
     notification_token = models.TextField()
     device_id = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True, help_text="Inactive devices will not be sent notifications")
@@ -141,7 +141,7 @@ class PhoneReceiver(models.Model):
 
 
 class PhoneSent(models.Model):
-    receiver = models.ForeignKey(PhoneReceiver)
+    receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
     sms_id = models.CharField(max_length=34, blank=True)
     STATUS_PENDING = 'pending'
@@ -226,7 +226,7 @@ class PhoneReceivedRaw(models.Model):
     exception = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
-        from universal_notifications.backends.twilio.tasks import parse_received_message_task
+        from universal_notifications.tasks import parse_received_message_task
 
         super(PhoneReceivedRaw, self).save(*args, **kwargs)
         if self.status == PhoneReceivedRaw.STATUS_PENDING:
@@ -240,7 +240,7 @@ class PhoneReceived(models.Model):
         (TYPE_VOICE, 'voice'),
         (TYPE_TEXT, 'Text'),
     )
-    receiver = models.ForeignKey(PhoneReceiver)
+    receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
     media = models.CharField(max_length=255, blank=True, null=True)
     sms_id = models.CharField(max_length=34)
@@ -263,7 +263,7 @@ class PhonePendingMessages(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     from_phone = models.CharField(max_length=30, db_index=True)
     priority = models.IntegerField(default=9999)
-    message = models.ForeignKey(PhoneSent, blank=True, null=True)
+    message = models.ForeignKey(PhoneSent, blank=True, null=True, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         created = not self.id
@@ -277,3 +277,9 @@ class PhonePendingMessages(models.Model):
             connection.publish(channel, RedisMessage(json_data))
 
         return ret
+
+
+class UnsubscribedUser(models.Model):
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    unsubscribed_from_all = models.BooleanField(default=False)
+    unsubscribed = JSONField(default=dict)
