@@ -1,9 +1,9 @@
-import re
-
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
+
 import phonenumbers
-from django.conf import settings
+import re
 
 try:
     from django.utils.importlib import import_module

@@ -1,7 +1,8 @@
-import boto3
 from django.conf import settings
 from universal_notifications.backends.sms.abstract import SMSEngineAbtract
 from universal_notifications.models import PhoneSent
+
+import boto3
 
 
 def get_sns_client(lookups=False):

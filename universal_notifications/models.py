@@ -3,13 +3,12 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from phonenumbers import NumberParseException
-
 from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
-from universal_notifications.backends.twilio.fields import JSONField
 from universal_notifications.backends.sms.signals import phone_received_post_save
 from universal_notifications.backends.sms.utils import format_phone
+from universal_notifications.backends.twilio.fields import JSONField
 
 import six
 
