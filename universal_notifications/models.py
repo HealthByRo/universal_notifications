@@ -64,7 +64,12 @@ class Device(models.Model):
             return False
 
         if not isinstance(message, six.string_types):
-            message = unicode(message)
+            try:
+                message = unicode(message)
+            except NameError:
+                # Python3
+                message = str(message)
+
         args = self, message, data
 
         if self.platform == Device.PLATFORM_GCM:

@@ -1,5 +1,6 @@
 import mock
 import os
+import six
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
@@ -218,8 +219,8 @@ class PushTests(APITestCase):
         apns_send_message(**message)
         mock_pack_frame.assert_called_with(
             self.apns_device.notification_token,
-            '{"aps":{"alert":{"action-loc-key":"key","body":"msg","loc-args":"args","loc-key":"TEST_LOCK_KEY"},'
-            '"badge":1,"category":"info","content-available":1,"sound":"chime"},"custom_data":12345}',
+            six.b('{"aps":{"alert":{"action-loc-key":"key","body":"msg","loc-args":"args","loc-key":"TEST_LOCK_KEY"},'
+                  '"badge":1,"category":"info","content-available":1,"sound":"chime"},"custom_data":12345}'),
             message['data']['identifier'], message['data']['expiration'], message['data']['priority']
         )
 
