@@ -59,7 +59,7 @@ class Device(models.Model):
             return False
 
         if not isinstance(message, six.string_types):
-            message = unicode(message)
+            message = six.u(message)
         args = self, message, data
 
         if self.platform == Device.PLATFORM_GCM:
