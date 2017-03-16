@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.7.5] - 2017-03-17
+### Added
+- Amazon SNS SMS support
+
 ## [0.7.4] - 2017-02-22
 ### Fixed
 - distribution fixed

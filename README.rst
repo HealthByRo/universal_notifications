@@ -76,6 +76,30 @@ E-mail notifications
 SMS notifications
 ~~~~~~~~~~~~~~~~~
 
+Supported platforms:
+ * `Twilio <https://www.twilio.com/>`_ - default engine
+ * `AmazonSNS <https://aws.amazon.com/sns/>`_
+
+Settings
+    * UNIVERSAL_NOTIFICATIONS_SMS_ENGINE - set engine
+    * UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE (bool)
+
+Engine settinsgs:
+    * Twilio
+        * UNIVERSAL_NOTIFICATIONS_TWILIO_API_ENABLED (bool)
+        * UNIVERSAL_NOTIFICATIONS_TWILIO_ENABLE_PROXY (bool)
+        * UNIVERSAL_NOTIFICATIONS_TWILIO_ACCOUNT (string)
+        * UNIVERSAL_NOTIFICATIONS_TWILIO_TOKEN (string)
+        * UNIVERSAL_NOTIFICATIONS_TWILIO_REPORT_ERRORS (list of integers)
+    * Amazon SNS
+        * UNIVERSAL_NOTIFICATIONS_AMAZON_SNS_API_ENABLED (bool)
+        * AWS_ACCESS_KEY_ID (string)
+        * AWS_SECRET_ACCESS_KEY (string)
+        * AWS_DEFAULT_REGION (string) - default us-east-1
+
+
+Simple example of use:
+
 .. code:: python
 
     class OrderShippedSMS(SMSNotification):

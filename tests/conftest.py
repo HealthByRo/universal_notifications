@@ -31,6 +31,8 @@ def pytest_configure():
                 'APP_DIRS': True,
             },
         ],
+        AWS_ACCESS_KEY_ID = 'AKIAIMYZBPOWR23B3BLQ',
+        AWS_SECRET_ACCESS_KEY = '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',
         MIDDLEWARE=MIDDLEWARE,
         MIDDLEWARE_CLASSES=MIDDLEWARE,
         INSTALLED_APPS=(

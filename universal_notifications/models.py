@@ -3,17 +3,13 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from phonenumbers import NumberParseException
-from redis import StrictRedis
-from rest_framework.renderers import JSONRenderer
-from twilio.rest.exceptions import TwilioRestException
+
 from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
 from universal_notifications.backends.push.gcm import gcm_send_message
 from universal_notifications.backends.twilio.fields import JSONField
-from universal_notifications.backends.twilio.signals import phone_received_post_save
-from universal_notifications.backends.twilio.utils import format_phone, get_twilio_client
-from ws4redis import settings as private_settings
-from ws4redis.redis_store import RedisMessage
+from universal_notifications.backends.sms.signals import phone_received_post_save
+from universal_notifications.backends.sms.utils import format_phone
 
 import six
 
@@ -115,7 +111,7 @@ class PhoneReceiverManager(models.Manager):
 
 class PhoneReceiver(models.Model):
     number = models.CharField(max_length=20, db_index=True)
-    service_number = models.CharField(max_length=20)
+    service_number = models.CharField(max_length=20, blank=True)
     is_blocked = models.BooleanField(default=False)
 
     objects = PhoneReceiverManager()
@@ -156,8 +152,8 @@ class PhoneSent(models.Model):
         (STATUS_UNDELIVERED, 'undelivered'),
     )
     status = models.CharField(max_length=35, choices=STATUS_CHOICES, default='pending')
-    twilio_error_code = models.CharField(max_length=100, blank=True, null=True)
-    twilio_error_message = models.TextField(blank=True, null=True)
+    error_code = models.CharField(max_length=100, blank=True, null=True)
+    error_message = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     media_raw = models.CharField(max_length=255, blank=True, null=True)
@@ -167,36 +163,9 @@ class PhoneSent(models.Model):
         if self.status not in [PhoneSent.STATUS_QUEUED, PhoneSent.STATUS_PENDING]:
             return
 
-        if not getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_API_ENABLED', False):
-            self.status = PhoneSent.STATUS_SENT
-            return
-
-        if not self.sms_id:
-            try:
-                self.status = PhoneSent.STATUS_SENT
-                if not self.text:
-                    self.text = '.'  # hack for MMS
-                twilio_client = get_twilio_client()
-                params = {
-                    'body': self.text,
-                    'to': self.receiver.number,
-                    'from_': self.receiver.service_number,
-                }
-                if self.media:
-                    if self.media.startswith(('http://', 'https://')):
-                        params['media_url'] = self.media
-                    else:
-                        params['media_url'] = "%s%s" % (settings.MEDIA_URL, self.media_raw)
-                message = twilio_client.messages.create(**params)
-                self.sms_id = message.sid
-            except TwilioRestException as e:
-                self.twilio_error_message = e
-                self.status = PhoneSent.STATUS_FAILED
-
-    def save(self, **kwargs):
-        if self.status == PhoneSent.STATUS_PENDING:
-            self.send()
-        return super(PhoneSent, self).save(**kwargs)
+        from universal_notifications.backends.sms.base import SMS
+        sms = SMS()
+        sms.send(self)
 
     class Meta:
         verbose_name = 'Sent Message'
@@ -265,12 +234,9 @@ class PhonePendingMessages(models.Model):
         self.from_phone = format_phone(self.from_phone)
         ret = super(PhonePendingMessages, self).save(*args, **kwargs)
         if created:
-            connection = StrictRedis(**private_settings.WS4REDIS_CONNECTION)
-            r = JSONRenderer()
-            json_data = r.render({'number': self.from_phone})
-            channel = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_DISPATCHER_CHANNEL', '__un_twilio_dispatcher')
-            connection.publish(channel, RedisMessage(json_data))
-
+            from universal_notifications.backends.sms.base import SMS
+            sms = SMS()
+            sms.add_to_queue(self)
         return ret
 
 

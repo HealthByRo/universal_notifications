@@ -13,7 +13,7 @@ class NotificationHistoryAdmin(admin.ModelAdmin):
 
 
 class PhoneSentAdmin(admin.ModelAdmin):
-    list_display = ('created', 'sms_id', 'status', 'updated', 'twilio_error_message')
+    list_display = ('created', 'sms_id', 'status', 'updated', 'error_message')
     raw_id_fields = ('receiver',)
     search_fields = ('receiver__number',)
 
