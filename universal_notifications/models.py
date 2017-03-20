@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.text import force_text
 from phonenumbers import NumberParseException
 from redis import StrictRedis
 from rest_framework.renderers import JSONRenderer
@@ -15,7 +16,6 @@ from universal_notifications.backends.twilio.utils import format_phone, get_twil
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
 
-import six
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6)
@@ -63,13 +63,7 @@ class Device(models.Model):
         if not self.is_active:
             return False
 
-        if not isinstance(message, six.string_types):
-            try:
-                message = unicode(message)
-            except NameError:
-                # Python3
-                message = str(message)
-
+        message = force_text(message)
         args = self, message, data
 
         if self.platform == Device.PLATFORM_GCM:
