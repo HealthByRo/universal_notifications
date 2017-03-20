@@ -15,7 +15,7 @@ except:
     def send_sms(to_number, text, media=None, priority=9999):
         """Send SMS/MMS
 
-        Send SMS/MMS using Twilio
+        Send SMS/MMS
 
         Arguments:
             to_number {string} -- phone number

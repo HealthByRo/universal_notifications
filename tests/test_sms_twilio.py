@@ -4,8 +4,8 @@ from django.core import mail
 from django.core.management import call_command
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
-from universal_notifications.backends.sms import send_sms
-from universal_notifications.backends.twilio.utils import validate_mobile
+from universal_notifications.backends.sms.utils import send_sms
+from universal_notifications.backends.sms.engines.twilio import Engine as SMS  # NOQA
 from universal_notifications.models import (Phone, PhonePendingMessages,
                                             PhoneReceived, PhoneReceivedRaw,
                                             PhoneReceiver, PhoneSent)
@@ -61,7 +61,7 @@ class ProxyTests(TwilioTestsCase):
             self.assertEqual(m[0].priority, priority)
             self.assertEqual(redis_mock.call_count, i)
 
-        with mock.patch('universal_notifications.models.StrictRedis') as redis_mock:
+        with mock.patch('universal_notifications.backends.sms.engines.twilio.StrictRedis') as redis_mock:
             send_sms('+18023390051', 'foo')
             new_message(1, 9999)
 
@@ -69,7 +69,7 @@ class ProxyTests(TwilioTestsCase):
             new_message(2, 1)
 
     def test_check_queue(self):
-        with mock.patch('universal_notifications.models.StrictRedis'):
+        with mock.patch('universal_notifications.backends.sms.engines.twilio.StrictRedis'):
             PhonePendingMessages.objects.create(from_phone="802-339-0057")
             PhonePendingMessages.objects.create(from_phone="802-339-0057")
             PhonePendingMessages.objects.create(from_phone="802-339-0058")
@@ -161,7 +161,7 @@ class SentTests(TwilioTestsCase):
 
     @override_settings(UNIVERSAL_NOTIFICATIONS_TWILIO_API_ENABLED=True)
     def test_send(self):
-        with mock.patch('universal_notifications.models.get_twilio_client') as call_mock:
+        with mock.patch('universal_notifications.backends.sms.engines.twilio.get_twilio_client') as call_mock:
             call_mock.return_value.messages.create.return_value.sid = 123
             send_sms('+18023390056', u'foo😄')
 
@@ -181,7 +181,7 @@ class SentTests(TwilioTestsCase):
     @override_settings(UNIVERSAL_NOTIFICATIONS_TWILIO_API_ENABLED=True)
     def test_send_blocked(self):
         r = PhoneReceiver.objects.create(number='+18023390056', service_number='+18023390056', is_blocked=True)
-        with mock.patch('universal_notifications.models.get_twilio_client') as call_mock:
+        with mock.patch('universal_notifications.backends.sms.engines.twilio.get_twilio_client') as call_mock:
             call_mock.return_value.messages.create.return_value.sid = 123
             send_sms('+18023390056', u'foo😄')
 
@@ -196,16 +196,18 @@ class UtilsTests(TwilioTestsCase):
 
     @override_settings(UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE=True)
     def test_validate_mobile(self):
-        self.assertFalse(validate_mobile('+1'))
-        with mock.patch('universal_notifications.backends.twilio.utils.get_twilio_client') as twilio_mock:
+        sms = SMS()
+
+        self.assertFalse(sms.validate_mobile('+1'))
+        with mock.patch('universal_notifications.backends.sms.engines.twilio.get_twilio_client') as twilio_mock:
             twilio_mock.return_value.phone_numbers.get.return_value.carrier = {'type': 'foo'}
-            self.assertFalse(validate_mobile('+18023390050'))
+            self.assertFalse(sms.validate_mobile('+18023390050'))
             self.assertEqual(twilio_mock.return_value.phone_numbers.get.call_args[0], ('+18023390050',))
             self.assertEqual(twilio_mock.return_value.phone_numbers.get.call_args[1], {'include_carrier_info': True})
 
             # twilio_mock.return_value.phone_numbers.get.return_value.carrier.type = 'mobile'
             twilio_mock.return_value.phone_numbers.get.return_value.carrier = {'type': 'mobile'}
-            self.assertTrue(validate_mobile('+18023390050'))
+            self.assertTrue(sms.validate_mobile('+18023390050'))
 
             twilio_mock.return_value.phone_numbers.get.return_value.carrier = {'type': 'voip'}
-            self.assertTrue(validate_mobile('+18023390050'))
+            self.assertTrue(sms.validate_mobile('+18023390050'))
