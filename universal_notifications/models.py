@@ -109,7 +109,7 @@ class PhoneReceiverManager(models.Manager):
 
 
 class PhoneReceiver(models.Model):
-    number = models.CharField(max_length=20, db_index=True)
+    number = models.CharField(max_length=20, db_index=True, unique=True)
     service_number = models.CharField(max_length=20, blank=True)
     is_blocked = models.BooleanField(default=False)
 
