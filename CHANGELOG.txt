@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.7.7] - 2017-03-23
+### Fixed
+- removed doubled sms_id field in PhoneReceiver
+- altered sms_id in PhoneSent to match this in PhoneReceiver
+
 ## [0.7.6] - 2017-03-23
 ### Fixed
 - number in PhoneReceiver should be unique

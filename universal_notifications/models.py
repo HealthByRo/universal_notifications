@@ -133,7 +133,7 @@ class PhoneReceiver(models.Model):
 class PhoneSent(models.Model):
     receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
-    sms_id = models.CharField(max_length=34, blank=True)
+    sms_id = models.CharField(max_length=50, blank=True)
     STATUS_PENDING = 'pending'
     STATUS_QUEUED = 'queued'
     STATUS_FAILED = 'failed'
@@ -206,11 +206,10 @@ class PhoneReceived(models.Model):
     receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
     media = models.CharField(max_length=255, blank=True, null=True)
-    sms_id = models.CharField(max_length=34)
+    sms_id = models.CharField(max_length=50, blank=True)
     type = models.CharField(max_length=35, choices=Type_choices, default=TYPE_TEXT)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    sms_id = models.CharField(blank=True, max_length=50)
     raw = models.ForeignKey(PhoneReceivedRaw, null=True, blank=True, editable=False, on_delete=models.SET_NULL)
     is_opt_out = models.BooleanField(default=False)
 
