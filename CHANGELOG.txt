@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.7.8] - 2017-03-25
+### Fixed
+- context passed properly to email
+
 ## [0.7.7] - 2017-03-23
 ### Fixed
 - removed doubled sms_id field in PhoneReceiver
