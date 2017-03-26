@@ -1,14 +1,12 @@
 import mock
-from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
 
-from universal_notifications.models import Device
+from universal_notifications.models import Device, PhoneReceiver, PhoneSent
+from .test_utils import APIBaseTestCase
 
 
-class DeviceTest(APITestCase):
+class DeviceTest(APIBaseTestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='user', email='user@example.com', password='1234')
+        self.user = self._create_user()
 
         self.fcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_FCM)
         self.gcm_device = Device(user=self.user, app_id='app1', platform=Device.PLATFORM_GCM)
@@ -47,3 +45,37 @@ class DeviceTest(APITestCase):
             self.apns_device.send_message(**message)
             mocked_send_message.assert_called_with(self.apns_device, message['message'],
                                                    {'field': message['field']})
+
+
+class PhoneSentTest(APIBaseTestCase):
+    def setUp(self):
+        self.receiver = PhoneReceiver.objects.create(number='+18023390056', service_number='+18023390056')
+
+    def test_send(self):
+        with mock.patch('universal_notifications.backends.sms.base.SMS') as mocked_sms:
+            # test sending a message with status different than PENDING or QUEUED
+            message = PhoneSent.objects.create(receiver=self.receiver, text='123', status=PhoneSent.STATUS_FAILED)
+            message.send()
+            mocked_sms.assert_not_called()
+
+            mocked_sms.reset_mock()
+
+            # test sending a queued message
+            message = PhoneSent.objects.create(receiver=self.receiver, text='123', status=PhoneSent.STATUS_QUEUED)
+            message.send()
+            mocked_sms.return_value.send.assert_called_with(message)
+
+
+class PhoneReceiverTest(APIBaseTestCase):
+    def setUp(self):
+        self.receiver = PhoneReceiver.objects.create(number='+18023390056', service_number='+18023390056')
+
+    def test_filter(self):
+        # test filtering with an incorrect number
+        with self.assertRaises(PhoneReceiver.DoesNotExist):
+            PhoneReceiver.objects.filter(number='random')
+
+        # test filter
+        qs = PhoneReceiver.objects.filter(number=self.receiver.number)
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first().pk, self.receiver.pk)
