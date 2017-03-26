@@ -11,9 +11,11 @@
 """
 import mock
 from random import randint
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.db import models
+from django.test import override_settings
 from rest_framework import serializers
 from rest_framework.test import APITestCase
 from universal_notifications.models import Device, UnsubscribedUser
@@ -293,6 +295,15 @@ class BaseTest(APITestCase):
         with mock.patch('tests.test_base.SampleNotExistingCategory.send_inner') as mocked_send_inner:
             with self.assertRaises(ImproperlyConfigured):
                 SampleNotExistingCategory(self.object_item, [self.object_receiver], {}).send()
+
+    @override_settings()
+    def test_mapping(self):
+        del settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING
+        result = SampleD.get_mapped_user_notifications_types_and_categories(self.regular_user)
+        expected_result = {}
+        for key in settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES.keys():
+            expected_result[key] = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES[key].keys()
+        self.assertDictEqual(result, expected_result)
 
     def test_chaining(self):
         pass
