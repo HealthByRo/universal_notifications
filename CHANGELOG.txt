@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.7.9] - 2017-04-05
+### Added
+- support for Django 1.11
+
+### Fixed
+- Twilio lib 6.x support
+
 ## [0.7.8] - 2017-03-25
 ### Fixed
 - context passed properly to email
