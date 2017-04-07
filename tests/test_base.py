@@ -245,7 +245,18 @@ class BaseTest(APITestCase):
                 'subject', {
                     'item': self.object_item,
                     'receiver': self.object_receiver
-                })
+                }, sender=None)
+
+        with mock.patch('universal_notifications.notifications.send_email') as mocked_send_email:
+            notification = SampleF(self.object_item, [self.object_receiver], {})
+            notification.sender = "Overriden Sender <overriden@sender.com>"
+            notification.send()
+            mocked_send_email.assert_called_with(
+                SampleF.email_name, '{first_name} {last_name} <{email}>'.format(**self.object_receiver.__dict__),
+                'subject', {
+                    'item': self.object_item,
+                    'receiver': self.object_receiver
+                }, sender="Overriden Sender <overriden@sender.com>")
 
         # test PushNotifications
         with mock.patch('tests.test_base.SampleG.send_inner') as mocked_send_inner:

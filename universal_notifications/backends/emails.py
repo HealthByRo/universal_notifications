@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from premailer import Premailer
 
 
-def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}):
+def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}, sender=None):
     variables['site'] = Site.objects.get_current()
     variables['STATIC_URL'] = settings.STATIC_URL
     variables['is_secure'] = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_IS_SECURE', False)
@@ -21,6 +21,8 @@ def send_email(template, to, subject, variables={}, fail_silently=False, cms=Fal
         html = html.replace('{%s}' % key.upper(), value)
     # Update path to have domains
     base = protocol + domain
+    if sender is None:
+        sender = settings.DEFAULT_FROM_EMAIL
     html = Premailer(html,
                      remove_classes=False,
                      exclude_pseudoclasses=False,
@@ -28,6 +30,6 @@ def send_email(template, to, subject, variables={}, fail_silently=False, cms=Fal
                      include_star_selectors=True,
                      strip_important=False,
                      base_url=base).transform()
-    email = EmailMessage(subject, html, settings.DEFAULT_FROM_EMAIL, [to])
+    email = EmailMessage(subject, html, sender, [to])
     email.content_subtype = "html"
     email.send(fail_silently=fail_silently)

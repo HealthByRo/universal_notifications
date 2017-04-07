@@ -225,6 +225,7 @@ class SMSNotification(NotificationBase):
 class EmailNotification(NotificationBase):
     email_name = None  # required
     email_subject = None  # required
+    sender = None  # optional
 
     @classmethod
     def format_receiver(cls, receiver):
@@ -252,7 +253,9 @@ class EmailNotification(NotificationBase):
         prepared_subject = self.prepare_subject()
         for receiver in prepared_receivers:
             prepared_message['receiver'] = receiver
-            send_email(self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message)
+            send_email(
+                self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message, sender=self.sender
+            )
 
     def get_notification_history_details(self):
         return self.email_name
