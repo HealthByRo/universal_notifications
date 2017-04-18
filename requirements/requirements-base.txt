@@ -6,7 +6,7 @@ premailer
 six>=1.10.0
 
 # push notifications
-django-push-notifications>=1.4.1
+django-push-notifications>=1.4.1 # need new django (1.10+) rq.filter: >=1.4.0,<1.5.0
 pyfcm
 
 # sms/phone
