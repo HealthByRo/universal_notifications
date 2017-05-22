@@ -24,7 +24,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Context, Template
-from universal_notifications.backends.emails import send_email
+from universal_notifications.backends.emails.send import send_email
 from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser

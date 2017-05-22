@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS
 from rest_framework.test import APITestCase
 from rest_framework.renderers import JSONRenderer
-from universal_notifications.backends.emails import send_email
+from universal_notifications.backends.emails.send import send_email
 from universal_notifications.backends.websockets import publish
 from universal_notifications.backends.push.apns import apns_send_message, APNSDataOverflow
 from universal_notifications.backends.push.fcm import fcm_send_message
@@ -71,7 +71,7 @@ class EmailTests(APITestCase):
             'subject': 'subject',
             'message': 'template'
         }
-        with mock.patch('universal_notifications.backends.emails.render_to_string',
+        with mock.patch('universal_notifications.backends.emails.send.render_to_string',
                         lambda x, y: sample_email['message']):
             send_email('email', sample_email['to'], sample_email['subject'], {})
             self.assertEqual(len(mail.outbox), 1)

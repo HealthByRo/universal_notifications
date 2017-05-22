@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^api-docs/$', UniversalNotificationsResourcesView.as_view(), name="django.swagger.resources.view"),
     url(r'^api-docs/(?P<path>.*)/?$', UniversalNotificationsApiView.as_view(), name='django.swagger.api.view'),
 
+    url(r'^emails/', include('universal_notifications.backends.emails.urls')),
     url(r'api/', include('universal_notifications.api_urls')),
 ]
 
