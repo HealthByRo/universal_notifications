@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.text import force_text
 from phonenumbers import NumberParseException
 from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
@@ -10,7 +11,6 @@ from universal_notifications.backends.sms.signals import phone_received_post_sav
 from universal_notifications.backends.sms.utils import format_phone
 from universal_notifications.backends.twilio.fields import JSONField
 
-import six
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6)
@@ -58,8 +58,7 @@ class Device(models.Model):
         if not self.is_active:
             return False
 
-        if not isinstance(message, six.string_types):
-            message = six.u(message)
+        message = force_text(message)
         args = self, message, data
 
         if self.platform == Device.PLATFORM_GCM:
