@@ -1,6 +1,6 @@
 universal\_notifications
 ========================
-|travis|_ |pypi|_ |codecov|_
+|travis|_ |pypi|_ |codecov|_ |requiresio|_
 
 **High-level framework for notifications**
 
@@ -162,6 +162,9 @@ Simple example of use:
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/ArabellaTech/universal_notifications/master.svg
 .. _codecov: http://codecov.io/github/ArabellaTech/universal_notifications?branch=master
+
+.. |requiresio| image:: https://requires.io/github/ArabellaTech/universal_notifications/requirements.svg?branch=requires-io-master
+.. _requiresio: https://requires.io/github/ArabellaTech/universal_notifications/requirements/?branch=requires-io-master
 
 Unsubscriber
 ~~~~~~~~~~~~
