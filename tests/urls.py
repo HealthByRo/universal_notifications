@@ -5,6 +5,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'', include('universal_notifications.urls')),
+    url(r"", include("universal_notifications.urls")),
     url(r"^admin/", admin.site.urls),
 ]

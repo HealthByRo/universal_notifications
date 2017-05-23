@@ -44,19 +44,19 @@ class Queue(threading.Thread):
             self.check_messages()
         except Exception:
             info = sys.exc_info()
-            raven_conf = getattr(settings, 'RAVEN_CONFIG', False)
-            if raven_conf and raven_conf.get('dsn'):
-                client = DjangoClient(raven_conf.get('dsn'))
+            raven_conf = getattr(settings, "RAVEN_CONFIG", False)
+            if raven_conf and raven_conf.get("dsn"):
+                client = DjangoClient(raven_conf.get("dsn"))
                 exc_type, exc_value, exc_traceback = info
                 error = str(traceback.format_exception(exc_type, exc_value, exc_traceback))
-                client.capture('raven.events.Message', message='Error Sending message',
-                               extra={'info': error, 'number': self.phone.number})
+                client.capture("raven.events.Message", message="Error Sending message",
+                               extra={"info": error, "number": self.phone.number})
             raise Exception(info[1], None, info[2])
 
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Run twilio proxy'
+    args = ""
+    help = "Run twilio proxy"
     queues = []
 
     def create_queue(self, phone):
@@ -68,7 +68,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         r = StrictRedis(**private_settings.WS4REDIS_CONNECTION)
         p = r.pubsub()
-        channel = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_DISPATCHER_CHANNEL', '__un_twilio_dispatcher')
+        channel = getattr(settings, "UNIVERSAL_NOTIFICATIONS_TWILIO_DISPATCHER_CHANNEL", "__un_twilio_dispatcher")
         p.subscribe(channel)
 
         phones = Phone.objects.all()
@@ -79,10 +79,10 @@ class Command(BaseCommand):
             message = p.get_message()
             if message:
                 try:
-                    m = json.loads(message['data'])
-                    if m.get('number'):
+                    m = json.loads(message["data"])
+                    if m.get("number"):
                         try:
-                            phone = Phone.objects.get(number=m['number'])
+                            phone = Phone.objects.get(number=m["number"])
                             self.create_queue(phone)
                         except Phone.DoesNotExist:
                             pass

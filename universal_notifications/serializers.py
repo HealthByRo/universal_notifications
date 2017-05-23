@@ -9,12 +9,12 @@ from universal_notifications.notifications import NotificationBase
 class DeviceSerializer(serializers.ModelSerializer):
 
     def create(self, data):
-        data['user'] = self.context['request'].user
+        data["user"] = self.context["request"].user
         return super(DeviceSerializer, self).create(data)
 
     class Meta:
         model = Device
-        fields = ['platform', 'notification_token', 'device_id', 'app_id']
+        fields = ["platform", "notification_token", "device_id", "app_id"]
 
 
 class UnsubscribedSerializer(serializers.Serializer):

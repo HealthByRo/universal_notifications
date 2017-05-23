@@ -13,7 +13,7 @@ try:
 except ImportError:
     from importlib import import_module
 
-__path, __symbol = getattr(settings, 'CELERY_APP_PATH').rsplit('.', 1)
+__path, __symbol = getattr(settings, "CELERY_APP_PATH").rsplit(".", 1)
 app = getattr(import_module(__path), __symbol)
 
 
@@ -23,9 +23,9 @@ def process_chained_notification(conf, item, receivers, context, parent_result):
         item, receivers, context - parameters for creating Notification subclass
         parent result - result of sending parent notification """
 
-    notification_class = conf['class']
-    transform_func = conf.get('transform_func', None)
-    condition_func = conf.get('condition_func', None)
+    notification_class = conf["class"]
+    transform_func = conf.get("transform_func", None)
+    condition_func = conf.get("condition_func", None)
 
     # parameters transformation
     if transform_func:
@@ -40,7 +40,7 @@ def process_chained_notification(conf, item, receivers, context, parent_result):
     notification_class(item, receivers, context).send()
 
 
-__path, __symbol = getattr(settings, 'CELERY_APP_PATH').rsplit('.', 1)
+__path, __symbol = getattr(settings, "CELERY_APP_PATH").rsplit(".", 1)
 app = getattr(import_module(__path), __symbol)
 
 
@@ -89,9 +89,9 @@ def send_message_task(to_number, text, media, priority):
     obj.save()
 
     data = {
-        'from_phone': obj.receiver.service_number,
-        'priority': priority,
-        'message': obj,
+        "from_phone": obj.receiver.service_number,
+        "priority": priority,
+        "message": obj,
     }
     PhonePendingMessages.objects.create(**data)
 

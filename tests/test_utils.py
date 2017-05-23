@@ -40,18 +40,18 @@ class BaseTestCase(TestCase):
         request = HttpRequest()
         request.user = user
         context = {
-            'request': request
+            "request": request
         }
         return context
 
     def _login(self):
-        self.client.login(email='joe+1@doe.com', password=self.password)
+        self.client.login(email="joe+1@doe.com", password=self.password)
 
     def _new_user(self, i, is_active=True, **kwargs):
         user = UserModel(
-            first_name='Joe%i' % i,
-            last_name='Doe',
-            email='joe+%s@doe.com' % i,
+            first_name="Joe%i" % i,
+            last_name="Doe",
+            email="joe+%s@doe.com" % i,
             is_active=is_active,
             **kwargs
         )
@@ -67,8 +67,8 @@ class BaseTestCase(TestCase):
 class APIBaseTestCase(BaseTestCase, APITestCase):
 
     def _login(self):
-        email = 'joe+1@doe.com'
+        email = "joe+1@doe.com"
         user = UserModel.objects.get(email=email)
         token = Token.objects.create(user=user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         return self.client.login(email=email, password=self.password)

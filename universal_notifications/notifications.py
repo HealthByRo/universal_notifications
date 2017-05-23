@@ -10,12 +10,12 @@
     Chaining example:
         chaining = (
             {
-                'class': PushNotification,  # required, must be a subclass of NotificationBase
-                'delay': 0,  # required, [in seconds]
-                'transform_func': None,  # optional, should take as parameters (item, receivers, context)
+                "class": PushNotification,  # required, must be a subclass of NotificationBase
+                "delay": 0,  # required, [in seconds]
+                "transform_func": None,  # optional, should take as parameters (item, receivers, context)
                                          # and return transformed item, receivers, context - see Transformations
                                          # if empty or missing - no transformation is applied
-                'condition_func': None,  # optional, should take as parameters (item, receivers, context, parent_result)
+                "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
                                          # and returns True if notification should be send and False if not
                                          # if function is None,
                 },
@@ -57,7 +57,7 @@ class NotificationBase(object):
     def get_mapped_user_notifications_types_and_categories(cls, user):
         """
             Returns a dictionary for given user type:
-            {'notificaiton_type': [categries list]}
+            {"notificaiton_type": [categries list]}
             TODO: use this one in serializer.
         """
         if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
@@ -102,7 +102,7 @@ class NotificationBase(object):
         if self.category == self.PRIORITY_CATEGORY or not self.check_subscription:
             return
         if not self.category:
-            raise ImproperlyConfigured('Category is required', self)
+            raise ImproperlyConfigured("Category is required", self)
 
         notification_type = self.get_type().lower()
         if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_CATEGORIES"):
@@ -164,8 +164,8 @@ class NotificationBase(object):
         if self.chaining:
             for conf in self.chaining:
                 args = [conf, self.item, self.receivers, self.context, result]
-                if conf['delay'] > 0:
-                    process_chained_notification.apply_async(args, countdown=conf['delay'])
+                if conf["delay"] > 0:
+                    process_chained_notification.apply_async(args, countdown=conf["delay"])
                 else:  # no delay, so execute function directly, not as task
                     process_chained_notification(*args)
         return result
@@ -182,8 +182,8 @@ class WSNotification(NotificationBase):
 
     def prepare_message(self):
         return {
-            'message': self.message,
-            'data': self.serializer_class(self.item, context=self.context, many=self.serializer_many).data
+            "message": self.message,
+            "data": self.serializer_class(self.item, context=self.context, many=self.serializer_many).data
         }
 
     def format_receiver_for_notification_history(self, receiver):
@@ -252,7 +252,7 @@ class EmailNotification(NotificationBase):
     def send_inner(self, prepared_receivers, prepared_message):
         prepared_subject = self.prepare_subject()
         for receiver in prepared_receivers:
-            prepared_message['receiver'] = receiver
+            prepared_message["receiver"] = receiver
             send_email(
                 self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message, sender=self.sender
             )
@@ -280,8 +280,8 @@ class PushNotification(NotificationBase):
 
     def prepare_message(self):
         return {
-            'message': Template(self.message).render(Context({"item": self.item})),
-            'data': self.prepare_body()
+            "message": Template(self.message).render(Context({"item": self.item})),
+            "data": self.prepare_body()
         }
 
     def format_receiver_for_notification_history(self, receiver):
