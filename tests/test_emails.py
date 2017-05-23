@@ -43,7 +43,7 @@ class EmailTests(TestCase):
         self.client.login(username="admin", password="1234")
         data = {
             "template": "password_recovery",
-            "email": settings.FAKE_EMAIL_TO,
+            "email": settings.UNIVERSAL_NOTIFICATIONS_FAKE_EMAIL_TO,
             "message": "Fake email!"
         }
         with mock.patch("universal_notifications.backends.emails.views.send_email") as mocked_send_email:

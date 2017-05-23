@@ -10,7 +10,7 @@ class FakeEmailSend(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(FakeEmailSend, self).get_context_data(*args, **kwargs)
         context['template'] = self.request.GET.get('template')
-        context['email'] = getattr(settings, 'FAKE_EMAIL_TO', None)
+        context['email'] = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_FAKE_EMAIL_TO', None)
         if context['template'] and context['email']:
             try:
                 send_email(context['template'], context['email'], 'Fake email!')

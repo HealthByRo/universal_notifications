@@ -100,5 +100,5 @@ def pytest_configure():
         },
         # path to the file we will import user definitions for UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING
         UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE="tests.user_conf",
-        FAKE_EMAIL_TO="test@example.com"
+        UNIVERSAL_NOTIFICATIONS_FAKE_EMAIL_TO="test@example.com"
     )
