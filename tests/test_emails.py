@@ -3,19 +3,23 @@ import mock
 from django.conf import settings
 from django.core import mail
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
 
 from universal_notifications.backends.emails.send import send_email
 
+try:
+    from django.urls import reverse_lazy
+except ImportError:
+    # Django < 2.0
+    from django.core.urlresolvers import reverse_lazy  # noqa: F401
+
 
 class EmailTests(TestCase):
     def setUp(self):
-        User.objects.create_user(
+        User.objects.create_superuser(
             username="admin",
             email="ad@m.in",
-            password="1234",
-            is_staff=True
+            password="1234"
         )
 
     def test_send_email(self):
@@ -44,12 +48,12 @@ class EmailTests(TestCase):
         }
         with mock.patch("universal_notifications.backends.emails.views.send_email") as mocked_send_email:
             response = self.client.get("{}?template={}".format(
-                reverse("backends.emails.fake_view"), data["template"]))
+                reverse_lazy("backends.emails.fake_view"), data["template"]))
             self.assertEqual(response.status_code, 200)
             mocked_send_email.assert_called_with(data["template"], data["email"], data["message"])
 
         # test catching non existing templates
         response = self.client.get("{}?template={}".format(
-            reverse("backends.emails.fake_view"), data["template"]))
+            reverse_lazy("backends.emails.fake_view"), data["template"]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["template_does_not_exist"], True)
