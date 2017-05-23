@@ -1,14 +1,12 @@
 import mock
 import os
 import six
-from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from push_notifications.settings import PUSH_NOTIFICATIONS_SETTINGS
 from rest_framework.test import APITestCase
 from rest_framework.renderers import JSONRenderer
-from universal_notifications.backends.emails.send import send_email
 from universal_notifications.backends.websockets import publish
 from universal_notifications.backends.push.apns import apns_send_message, APNSDataOverflow
 from universal_notifications.backends.push.fcm import fcm_send_message
@@ -62,23 +60,6 @@ class WSTests(APITestCase):
             result = self.item.as_dict()
             result.update(additional_data)
             mocked_message.assert_called_with(JSONRenderer().render(result))
-
-
-class EmailTests(APITestCase):
-    def test_send_email(self):
-        sample_email = {
-            "to": "Foo Bar <foo@bar.com>",
-            "subject": "subject",
-            "message": "template"
-        }
-        with mock.patch("universal_notifications.backends.emails.send.render_to_string",
-                        lambda x, y: sample_email["message"]):
-            send_email("email", sample_email["to"], sample_email["subject"], {})
-            self.assertEqual(len(mail.outbox), 1)
-            sent_email = mail.outbox[0]
-            self.assertEqual(sent_email.subject, sample_email["subject"])
-            self.assertEqual(sent_email.to, [sample_email["to"]])
-            self.assertIn(sample_email["message"], sent_email.body)
 
 
 class PushTests(APITestCase):
