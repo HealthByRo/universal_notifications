@@ -285,7 +285,7 @@ FakeEmailSend view
 ~~~~~~~~~~~~~~~~~~
 **universal_notifications.backends.emails.views.FakeEmailSend** is a view that helps testing email templates.
 To start using it, add ``url(r'^emails/', include('universal_notifications.backends.emails.urls'))``
-to your urls.py.
+to your urls.py, and specify receiver email address using ``UNIVERSAL_NOTIFICATIONS_FAKE_EMAIL_TO``.
 
 After that you can make a request to the new url with **template** parameter, for instance:
 ``http://localhost:8000/emails/?template=reset_password``, which  will send an email using
