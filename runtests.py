@@ -57,7 +57,7 @@ def is_function(string):
 
 
 def is_class(string):
-    # `True` if first character is uppercase - assume it"s a class name.
+    # `True` if first character is uppercase - assume it's a class name.
     return string[0] == string[0].upper()
 
 

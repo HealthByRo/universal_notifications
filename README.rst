@@ -27,6 +27,7 @@ Basic usage
 -  `Push notifications`_
 -  `Unsubscriber`_
 -  `Unsubscriber API`_
+-  `FakeEmailSend view`_
 
 WebSocket notifications
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -279,3 +280,13 @@ Unsubscriptions may be edited using following API:
         }
 
 Please note, that if any type/category for type is ommited, it is reseted to default value.
+
+FakeEmailSend view
+~~~~~~~~~~~~~~~~~~
+**universal_notifications.backends.emails.views.FakeEmailSend** is a view that helps testing email templates.
+To start using it, add ``url(r'^emails/', include('universal_notifications.backends.emails.urls'))``
+to your urls.py.
+
+After that you can make a request to the new url with **template** parameter, for instance:
+``http://localhost:8000/emails/?template=reset_password``, which  will send an email using
+``emails/email_reset_password.html`` as the template.
