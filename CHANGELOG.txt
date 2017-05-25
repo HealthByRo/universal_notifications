@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2017-05-25
+### Changed
+- moved universal_notifications.backends.emails to universal_notifications.backends.emails.send
+### Added
+- FakeEmailSend view
+
 ## [0.7.11] - 2017-04-18
 ### Fixed
 - Frozen django-push-notification

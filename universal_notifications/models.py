@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
-from django.utils.text import force_text
+from django.utils.encoding import force_text
 from phonenumbers import NumberParseException
 from universal_notifications.backends.push.apns import apns_send_message
 from universal_notifications.backends.push.fcm import fcm_send_message
@@ -11,9 +11,8 @@ from universal_notifications.backends.sms.signals import phone_received_post_sav
 from universal_notifications.backends.sms.utils import format_phone
 from universal_notifications.backends.twilio.fields import JSONField
 
-
-AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
-TWILIO_MAX_RATE = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE', 6)
+AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+TWILIO_MAX_RATE = getattr(settings, "UNIVERSAL_NOTIFICATIONS_TWILIO_MAX_RATE", 6)
 
 
 class NotificationHistory(models.Model):
@@ -26,18 +25,18 @@ class NotificationHistory(models.Model):
 
 
 class Device(models.Model):
-    user = models.ForeignKey(AUTH_USER_MODEL, related_name='devices', on_delete=models.CASCADE)
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name="devices", on_delete=models.CASCADE)
     notification_token = models.TextField()
     device_id = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True, help_text="Inactive devices will not be sent notifications")
     created = models.DateTimeField(auto_now_add=True)
-    PLATFORM_IOS = 'ios'
-    PLATFORM_GCM = 'gcm'
-    PLATFORM_FCM = 'fcm'
+    PLATFORM_IOS = "ios"
+    PLATFORM_GCM = "gcm"
+    PLATFORM_FCM = "fcm"
     PLATFORM_CHOICES = (
-        (PLATFORM_IOS, 'iOS'),
-        (PLATFORM_GCM, 'Google Cloud Messagging (deprecated)'),
-        (PLATFORM_FCM, 'Firebase Cloud Messaging'),
+        (PLATFORM_IOS, "iOS"),
+        (PLATFORM_GCM, "Google Cloud Messagging (deprecated)"),
+        (PLATFORM_FCM, "Firebase Cloud Messaging"),
     )
     app_id = models.CharField(max_length=100)
     platform = models.CharField(max_length=10, choices=PLATFORM_CHOICES)
@@ -73,11 +72,11 @@ class Device(models.Model):
 
 class Phone(models.Model):
     number = models.CharField(max_length=20, unique=True)
-    rate = models.IntegerField('Messages rate', default=TWILIO_MAX_RATE)
+    rate = models.IntegerField("Messages rate", default=TWILIO_MAX_RATE)
     used_count = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['number']
+        ordering = ["number"]
 
     def __unicode__(self):
         return self.number
@@ -90,7 +89,7 @@ class Phone(models.Model):
 class PhoneReceiverManager(models.Manager):
 
     def format_fields(self, filters):
-        for field in ['number', 'service_number']:
+        for field in ["number", "service_number"]:
             if field in filters:
                 try:
                     filters[field] = format_phone(filters[field])
@@ -115,9 +114,9 @@ class PhoneReceiver(models.Model):
     objects = PhoneReceiverManager()
 
     class Meta:
-        ordering = ['number']
+        ordering = ["number"]
         index_together = (
-            ('number', 'service_number'),
+            ("number", "service_number"),
         )
 
     def __unicode__(self):
@@ -133,23 +132,23 @@ class PhoneSent(models.Model):
     receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
     sms_id = models.CharField(max_length=50, blank=True)
-    STATUS_PENDING = 'pending'
-    STATUS_QUEUED = 'queued'
-    STATUS_FAILED = 'failed'
-    STATUS_SENT = 'sent'
-    STATUS_DELIVERED = 'delivered'
-    STATUS_UNDELIVERED = 'undelivered'
-    STATUS_NO_ANSWER = 'no_answer'
+    STATUS_PENDING = "pending"
+    STATUS_QUEUED = "queued"
+    STATUS_FAILED = "failed"
+    STATUS_SENT = "sent"
+    STATUS_DELIVERED = "delivered"
+    STATUS_UNDELIVERED = "undelivered"
+    STATUS_NO_ANSWER = "no_answer"
     STATUS_CHOICES = (
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_QUEUED, 'Queued'),
-        (STATUS_FAILED, 'failed'),
-        (STATUS_SENT, 'sent'),
-        (STATUS_NO_ANSWER, 'no answer from twilio'),
-        (STATUS_DELIVERED, 'delivered'),
-        (STATUS_UNDELIVERED, 'undelivered'),
+        (STATUS_PENDING, "Pending"),
+        (STATUS_QUEUED, "Queued"),
+        (STATUS_FAILED, "failed"),
+        (STATUS_SENT, "sent"),
+        (STATUS_NO_ANSWER, "no answer from twilio"),
+        (STATUS_DELIVERED, "delivered"),
+        (STATUS_UNDELIVERED, "undelivered"),
     )
-    status = models.CharField(max_length=35, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=35, choices=STATUS_CHOICES, default="pending")
     error_code = models.CharField(max_length=100, blank=True, null=True)
     error_message = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -166,20 +165,20 @@ class PhoneSent(models.Model):
         sms.send(self)
 
     class Meta:
-        verbose_name = 'Sent Message'
-        verbose_name_plural = verbose_name + 's'
+        verbose_name = "Sent Message"
+        verbose_name_plural = verbose_name + "s"
 
 
 class PhoneReceivedRaw(models.Model):
-    STATUS_PENDING = 'pending'
-    STATUS_PASS = 'pass'
-    STATUS_FAIL = 'fail'
-    STATUS_REJECTED = 'rejected'
+    STATUS_PENDING = "pending"
+    STATUS_PASS = "pass"
+    STATUS_FAIL = "fail"
+    STATUS_REJECTED = "rejected"
     STATUS_CHOICES = (
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_PASS, 'Pass'),
-        (STATUS_FAIL, 'Fail'),
-        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_PENDING, "Pending"),
+        (STATUS_PASS, "Pass"),
+        (STATUS_FAIL, "Fail"),
+        (STATUS_REJECTED, "Rejected"),
     )
     status = models.CharField(max_length=35, choices=STATUS_CHOICES, default=STATUS_PENDING, db_index=True)
     data = JSONField()
@@ -196,11 +195,11 @@ class PhoneReceivedRaw(models.Model):
 
 
 class PhoneReceived(models.Model):
-    TYPE_TEXT = 'text'
-    TYPE_VOICE = 'voice'
+    TYPE_TEXT = "text"
+    TYPE_VOICE = "voice"
     Type_choices = (
-        (TYPE_VOICE, 'voice'),
-        (TYPE_TEXT, 'Text'),
+        (TYPE_VOICE, "voice"),
+        (TYPE_TEXT, "Text"),
     )
     receiver = models.ForeignKey(PhoneReceiver, on_delete=models.CASCADE)
     text = models.TextField()
@@ -213,8 +212,8 @@ class PhoneReceived(models.Model):
     is_opt_out = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'Received Message'
-        verbose_name_plural = verbose_name + 's'
+        verbose_name = "Received Message"
+        verbose_name_plural = verbose_name + "s"
 
 
 post_save.connect(phone_received_post_save, sender=PhoneReceived)

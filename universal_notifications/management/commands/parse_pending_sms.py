@@ -7,8 +7,8 @@ from universal_notifications.tasks import parse_received_message_task
 
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Check if message parsed'
+    args = ""
+    help = "Check if message parsed"
 
     def handle(self, *args, **options):
         ago = now() - timedelta(minutes=1)

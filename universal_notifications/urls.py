@@ -5,11 +5,12 @@ from universal_notifications.docs import (UniversalNotificationsApiView, Univers
                                           UniversalNotificationsUIView)
 
 urlpatterns = [
-    url(r'^$', UniversalNotificationsUIView.as_view(), name="django.swagger.base.view"),
-    url(r'^api-docs/$', UniversalNotificationsResourcesView.as_view(), name="django.swagger.resources.view"),
-    url(r'^api-docs/(?P<path>.*)/?$', UniversalNotificationsApiView.as_view(), name='django.swagger.api.view'),
+    url(r"^$", UniversalNotificationsUIView.as_view(), name="django.swagger.base.view"),
+    url(r"^api-docs/$", UniversalNotificationsResourcesView.as_view(), name="django.swagger.resources.view"),
+    url(r"^api-docs/(?P<path>.*)/?$", UniversalNotificationsApiView.as_view(), name="django.swagger.api.view"),
 
-    url(r'api/', include('universal_notifications.api_urls')),
+    url(r"^emails/", include("universal_notifications.backends.emails.urls")),
+    url(r"api/", include("universal_notifications.api_urls")),
 ]
 
 router = DefaultRouter()

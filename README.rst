@@ -1,6 +1,6 @@
 universal\_notifications
 ========================
-|travis|_ |pypi|_ |codecov|_
+|travis|_ |pypi|_ |codecov|_ |requiresio|_
 
 **High-level framework for notifications**
 
@@ -27,6 +27,7 @@ Basic usage
 -  `Push notifications`_
 -  `Unsubscriber`_
 -  `Unsubscriber API`_
+-  `FakeEmailSend view`_
 
 WebSocket notifications
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,6 +164,9 @@ Simple example of use:
 .. |codecov| image:: https://img.shields.io/codecov/c/github/ArabellaTech/universal_notifications/master.svg
 .. _codecov: http://codecov.io/github/ArabellaTech/universal_notifications?branch=master
 
+.. |requiresio| image:: https://requires.io/github/ArabellaTech/universal_notifications/requirements.svg?branch=requires-io-master
+.. _requiresio: https://requires.io/github/ArabellaTech/universal_notifications/requirements/?branch=requires-io-master
+
 Unsubscriber
 ~~~~~~~~~~~~
 
@@ -276,3 +280,13 @@ Unsubscriptions may be edited using following API:
         }
 
 Please note, that if any type/category for type is ommited, it is reseted to default value.
+
+FakeEmailSend view
+~~~~~~~~~~~~~~~~~~
+**universal_notifications.backends.emails.views.FakeEmailSend** is a view that helps testing email templates.
+To start using it, add ``url(r'^emails/', include('universal_notifications.backends.emails.urls'))``
+to your urls.py, and specify receiver email address using ``UNIVERSAL_NOTIFICATIONS_FAKE_EMAIL_TO``.
+
+After that you can make a request to the new url with **template** parameter, for instance:
+``http://localhost:8000/emails/?template=reset_password``, which  will send an email using
+``emails/email_reset_password.html`` as the template.

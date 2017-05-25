@@ -1,0 +1,14 @@
+{% if template and email %}
+    {% if template_does_not_exist %}
+        <p>Template "emails/email_{{template}}.html" does not exist!</p>
+    {% else %}
+        Sent email "{{ template }}" to: {{ email }}
+    {% endif %}
+{% else %}
+    {% if not template %}
+        <p>GET param "template" is required. eg. for emails/email_reset_password_content.html set ?template=reset_password_content</p>
+    {% endif %}
+    {% if not email %}
+        <p>Please set email in settings variable FAKE_EMAIL_TO</p>
+    {% endif %}
+{% endif %}

@@ -106,7 +106,7 @@ class EmailDocGenerator(BaseGenerator):
             source, dummy = template_loader.load_template_source(template_name)
             return source
         except:
-            return ''
+            return ""
     # --
 
     def get_summary(self):
@@ -118,7 +118,7 @@ class EmailDocGenerator(BaseGenerator):
     def get_class_specific_notes(self):
         notes = "<b>Subject:</b><br/>%s<br/><br/><b>Preview:</b><br/>%s" % (
             self._obj.email_subject,
-            self.get_template('emails/email_%s.html' % self._obj.email_name)
+            self.get_template("emails/email_%s.html" % self._obj.email_name)
         )
         return mark_safe(notes)
 
@@ -151,10 +151,10 @@ class NotificationsDocs(object):
 
         # classes
         for app_config in apps.get_app_configs():
-            if app_config.name == 'universal_notifications':  # no self importing
+            if app_config.name == "universal_notifications":  # no self importing
                 continue
             try:
-                module = import_module('%s.%s' % (app_config.name, 'notifications'))
+                module = import_module("%s.%s" % (app_config.name, "notifications"))
                 for key in dir(module):
                     item = getattr(module, key)
                     if issubclass(item, NotificationBase) and item not in BASE_NOTIFICATIONS:
@@ -195,18 +195,18 @@ class NotificationsDocs(object):
     def generate_notifications_docs(cls, notification_type):
         notifications_docs = []
         for key, value in cls.get_notifications(notification_type):
-            generator = cls.get_generator(value['cls'])
+            generator = cls.get_generator(value["cls"])
             notifications_docs.append({
-                'operations': [{
-                    'parameters': [],
-                    'nickname': key,
-                    'notes': generator.get_notes(),
-                    'summary': generator.get_summary(),
-                    'type': generator.get_type(),
-                    'method': 'GET'
+                "operations": [{
+                    "parameters": [],
+                    "nickname": key,
+                    "notes": generator.get_notes(),
+                    "summary": generator.get_summary(),
+                    "type": generator.get_type(),
+                    "method": "GET"
                 }],
-                'path': value['path'],
-                'description': ''
+                "path": value["path"],
+                "description": ""
             })
 
         return notifications_docs
@@ -222,11 +222,11 @@ class NotificationsDocs(object):
 
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
             r_name = serializer_name
-            r_properties = OrderedDict((k, v) for k, v in data['fields'].items() if k not in data['write_only'])
+            r_properties = OrderedDict((k, v) for k, v in data["fields"].items() if k not in data["write_only"])
             models_docs[r_name] = {
-                'id': r_name,
-                'required': [i for i in r_properties.keys()],
-                'properties': r_properties,
+                "id": r_name,
+                "required": [i for i in r_properties.keys()],
+                "properties": r_properties,
             }
 
         return models_docs
@@ -237,7 +237,7 @@ class NotificationsDocs(object):
 
 try:
     JSONRenderer = list(filter(
-        lambda item: item.format == 'json',
+        lambda item: item.format == "json",
         api_settings.DEFAULT_RENDERER_CLASSES,
     ))[0]
 except IndexError:
@@ -246,12 +246,12 @@ except IndexError:
 
 def get_full_base_path(request):
     try:
-        base_path = rfs.SWAGGER_SETTINGS['base_path']
+        base_path = rfs.SWAGGER_SETTINGS["base_path"]
     except KeyError:
-        return request.build_absolute_uri(request.path).rstrip('/')
+        return request.build_absolute_uri(request.path).rstrip("/")
     else:
-        protocol = 'https' if request.is_secure() else 'http'
-        return '{0}://{1}'.format(protocol, base_path.rstrip('/'))
+        protocol = "https" if request.is_secure() else "http"
+        return "{0}://{1}".format(protocol, base_path.rstrip("/"))
 
 
 class UniversalNotificationsUIView(View):
@@ -259,34 +259,34 @@ class UniversalNotificationsUIView(View):
         if not self.has_permission(request):
             return self.handle_permission_denied(request)
 
-        template_name = rfs.SWAGGER_SETTINGS.get('template_path')
+        template_name = rfs.SWAGGER_SETTINGS.get("template_path")
         data = {
-            'swagger_settings': {
-                'discovery_url': "%s/api-docs/" % get_full_base_path(request),
-                'api_key': rfs.SWAGGER_SETTINGS.get('api_key', ''),
-                'api_version': rfs.SWAGGER_SETTINGS.get('api_version', ''),
-                'token_type': rfs.SWAGGER_SETTINGS.get('token_type'),
-                'enabled_methods': [],
-                'doc_expansion': rfs.SWAGGER_SETTINGS.get('doc_expansion', ''),
+            "swagger_settings": {
+                "discovery_url": "%s/api-docs/" % get_full_base_path(request),
+                "api_key": rfs.SWAGGER_SETTINGS.get("api_key", ""),
+                "api_version": rfs.SWAGGER_SETTINGS.get("api_version", ""),
+                "token_type": rfs.SWAGGER_SETTINGS.get("token_type"),
+                "enabled_methods": [],
+                "doc_expansion": rfs.SWAGGER_SETTINGS.get("doc_expansion", ""),
             },
-            'django_settings': {
-                'CSRF_COOKIE_NAME': mark_safe(
-                    json.dumps(getattr(settings, 'CSRF_COOKIE_NAME', 'csrftoken'))),
+            "django_settings": {
+                "CSRF_COOKIE_NAME": mark_safe(
+                    json.dumps(getattr(settings, "CSRF_COOKIE_NAME", "csrftoken"))),
             }
         }
         return render_to_response(template_name, RequestContext(request, data))
 
     def has_permission(self, request):
-        if rfs.SWAGGER_SETTINGS.get('is_superuser') and not request.user.is_superuser:
+        if rfs.SWAGGER_SETTINGS.get("is_superuser") and not request.user.is_superuser:
             return False
 
-        if rfs.SWAGGER_SETTINGS.get('is_authenticated') and not request.user.is_authenticated():
+        if rfs.SWAGGER_SETTINGS.get("is_authenticated") and not request.user.is_authenticated():
             return False
 
         return True
 
     def handle_permission_denied(self, request):
-        permission_denied_handler = rfs.SWAGGER_SETTINGS.get('permission_denied_handler')
+        permission_denied_handler = rfs.SWAGGER_SETTINGS.get("permission_denied_handler")
         if isinstance(permission_denied_handler, six.string_types):
             permission_denied_handler = import_string(permission_denied_handler)
 
@@ -300,31 +300,31 @@ class UniversalNotificationsResourcesView(APIDocView):
     renderer_classes = (JSONRenderer, )
 
     def get(self, request, *args, **kwargs):
-        apis = [{'path': '/' + path} for path in self.get_resources()]
+        apis = [{"path": "/" + path} for path in self.get_resources()]
         return Response({
-            'apiVersion': rfs.SWAGGER_SETTINGS.get('api_version', ''),
-            'swaggerVersion': '1.2',
-            'basePath': self.get_base_path(),
-            'apis': apis,
-            'info': rfs.SWAGGER_SETTINGS.get('info', {
-                'contact': '',
-                'description': '',
-                'license': '',
-                'licenseUrl': '',
-                'termsOfServiceUrl': '',
-                'title': '',
+            "apiVersion": rfs.SWAGGER_SETTINGS.get("api_version", ""),
+            "swaggerVersion": "1.2",
+            "basePath": self.get_base_path(),
+            "apis": apis,
+            "info": rfs.SWAGGER_SETTINGS.get("info", {
+                "contact": "",
+                "description": "",
+                "license": "",
+                "licenseUrl": "",
+                "termsOfServiceUrl": "",
+                "title": "",
             }),
         })
 
     def get_base_path(self):
         try:
-            base_path = rfs.SWAGGER_SETTINGS['base_path']
+            base_path = rfs.SWAGGER_SETTINGS["base_path"]
         except KeyError:
             return self.request.build_absolute_uri(
-                self.request.path).rstrip('/')
+                self.request.path).rstrip("/")
         else:
-            protocol = 'https' if self.request.is_secure() else 'http'
-            return '{0}://{1}/{2}'.format(protocol, base_path, 'api-docs')
+            protocol = "https" if self.request.is_secure() else "http"
+            return "{0}://{1}/{2}".format(protocol, base_path, "api-docs")
 
     def get_resources(self):
         return NotificationsDocs.get_types()
@@ -335,12 +335,12 @@ class UniversalNotificationsApiView(APIDocView):
 
     def get(self, request, path, *args, **kwargs):
         result = Response({
-            'apiVersion': rfs.SWAGGER_SETTINGS.get('api_version', ''),
-            'swaggerVersion': '1.2',
-            'basePath': self.api_full_uri.rstrip('/'),
-            'resourcePath': '/' + path,
-            'apis': NotificationsDocs.generate_notifications_docs(path),
-            'models': NotificationsDocs.generate_models_docs(),
+            "apiVersion": rfs.SWAGGER_SETTINGS.get("api_version", ""),
+            "swaggerVersion": "1.2",
+            "basePath": self.api_full_uri.rstrip("/"),
+            "resourcePath": "/" + path,
+            "apis": NotificationsDocs.generate_notifications_docs(path),
+            "models": NotificationsDocs.generate_models_docs(),
         })
 
         return result

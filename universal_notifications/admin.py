@@ -8,32 +8,32 @@ from universal_notifications.models import (NotificationHistory, Phone, PhoneRec
 
 
 class NotificationHistoryAdmin(admin.ModelAdmin):
-    list_display = ('receiver', 'created', 'group', 'klass', 'details')
-    readonly_fields = ('receiver', 'created', 'group', 'klass', 'details')
+    list_display = ("receiver", "created", "group", "klass", "details")
+    readonly_fields = ("receiver", "created", "group", "klass", "details")
 
 
 class PhoneSentAdmin(admin.ModelAdmin):
-    list_display = ('created', 'sms_id', 'status', 'updated', 'error_message')
-    raw_id_fields = ('receiver',)
-    search_fields = ('receiver__number',)
+    list_display = ("created", "sms_id", "status", "updated", "error_message")
+    raw_id_fields = ("receiver",)
+    search_fields = ("receiver__number",)
 
 
 class PhoneReceivedAdmin(admin.ModelAdmin):
-    list_display = ('sms_id', 'created', 'updated')
-    raw_id_fields = ('receiver', 'raw')
+    list_display = ("sms_id", "created", "updated")
+    raw_id_fields = ("receiver", "raw")
 
 
 class PhoneReceivedRawAdmin(admin.ModelAdmin):
-    list_display = ('created', 'status',)
+    list_display = ("created", "status",)
 
 
 class PhoneReceiverAdmin(admin.ModelAdmin):
-    list_display = ('number', 'service_number', 'is_blocked')
+    list_display = ("number", "service_number", "is_blocked")
 
 
 class PhoneAdmin(admin.ModelAdmin):
-    list_display = ('number', 'used_count')
-    readonly_fields = ('used_count',)
+    list_display = ("number", "used_count")
+    readonly_fields = ("used_count",)
 
 
 admin.site.register(PhoneSent, PhoneSentAdmin)

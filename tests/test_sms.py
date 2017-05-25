@@ -11,7 +11,7 @@ class SNSTestsCase(APIBaseTestCase):
         self.engine = SMSEngineAbtract()
 
     def test_get_service_number(self):
-        self.assertEqual(self.engine.get_service_number(), '')
+        self.assertEqual(self.engine.get_service_number(), "")
 
     def test_add_to_queue(self):
         with self.assertRaises(NotImplementedError):
@@ -31,8 +31,8 @@ class SNSTestsCase(APIBaseTestCase):
     def test_validate_mobile(self):
         # disabled so allow all
         with override_settings(UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE=False):
-            self.assertTrue(self.engine.validate_mobile('fooo'))
+            self.assertTrue(self.engine.validate_mobile("fooo"))
 
         with override_settings(UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE=True):
-            self.assertFalse(self.engine.validate_mobile('+1'))
-            self.assertTrue(self.engine.validate_mobile('+18023390050'))
+            self.assertFalse(self.engine.validate_mobile("+1"))
+            self.assertTrue(self.engine.validate_mobile("+18023390050"))
