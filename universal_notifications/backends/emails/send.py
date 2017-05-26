@@ -5,23 +5,32 @@ from django.template.loader import render_to_string
 from premailer import Premailer
 
 
-def send_email(template, to, subject, variables={}, fail_silently=False, cms=False, replace_variables={}, sender=None):
-    variables['site'] = Site.objects.get_current()
-    variables['STATIC_URL'] = settings.STATIC_URL
-    variables['is_secure'] = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_IS_SECURE', False)
-    html = render_to_string('emails/email_%s.html' % template, variables)
-    protocol = 'https://' if variables['is_secure'] else 'http://'
+def send_email(template, to, subject, variables=None, fail_silently=False, cms=False, replace_variables=None,
+               sender=None):
+    if variables is None:
+        variables = {}
+    if replace_variables is None:
+        replace_variables = {}
+    variables["site"] = Site.objects.get_current()
+    variables["STATIC_URL"] = settings.STATIC_URL
+    variables["is_secure"] = getattr(settings, "UNIVERSAL_NOTIFICATIONS_IS_SECURE", False)
+    protocol = "https://" if variables["is_secure"] else "http://"
+    variables["protocol"] = protocol
     replace_variables['protocol'] = protocol
-    domain = variables['site'].domain
-    replace_variables['domain'] = domain
+    domain = variables["site"].domain
+    variables["domain"] = domain
+    replace_variables["domain"] = domain
+    html = render_to_string('emails/email_%s.html' % template, variables)
     for key, value in replace_variables.items():
         if not value:
-            value = ''
-        html = html.replace('{%s}' % key.upper(), value)
+            value = ""
+        html = html.replace("{%s}" % key.upper(), value)
     # Update path to have domains
     base = protocol + domain
     if sender is None:
         sender = settings.DEFAULT_FROM_EMAIL
+    html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
+                        "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
     html = Premailer(html,
                      remove_classes=False,
                      exclude_pseudoclasses=False,
