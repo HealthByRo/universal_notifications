@@ -4,6 +4,8 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from premailer import Premailer
 
+import logging
+
 
 def send_email(template, to, subject, variables=None, fail_silently=False, cms=False, replace_variables=None,
                sender=None):
@@ -37,6 +39,7 @@ def send_email(template, to, subject, variables=None, fail_silently=False, cms=F
                      keep_style_tags=True,
                      include_star_selectors=True,
                      strip_important=False,
+                     cssutils_logging_level=logging.CRITICAL,
                      base_url=base).transform()
     email = EmailMessage(subject, html, sender, [to])
     email.content_subtype = "html"

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2017-05-29
+### Changed
+- Ignore cssutils logging errors
+
 ## [0.8.1] - 2017-05-26
 ### Changed
 - Replace static CACHE files to local (fix compress)
