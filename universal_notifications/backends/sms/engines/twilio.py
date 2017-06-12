@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+
+import phonenumbers
 from django.conf import settings
 from redis import StrictRedis
 from rest_framework.renderers import JSONRenderer
@@ -10,8 +12,6 @@ from universal_notifications.backends.sms.utils import report_admins
 from universal_notifications.models import Phone, PhoneReceived, PhoneReceivedRaw, PhoneReceiver, PhoneSent
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
-
-import phonenumbers
 
 
 def get_twilio_client(lookups=False):

@@ -16,8 +16,8 @@ PYTEST_ARGS = {
 
 FLAKE8_ARGS = ["universal_notifications", "tests", "--ignore=E501"]
 
-ISORT_ARGS = ["--recursive", "--check-only", "-p", "tests", "universal_notifications", "-m", "0",
-              "-w", "120", "-fas", "-ds"]
+ISORT_ARGS = ["--recursive", "--check-only", "-p", "tests", "universal_notifications", "-sd", "THIRDPARTY", "-m", "0",
+              "-w", "120"]
 
 sys.path.append(os.path.dirname(__file__))
 

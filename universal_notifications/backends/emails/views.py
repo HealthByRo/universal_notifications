@@ -1,7 +1,7 @@
-from .send import send_email
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.views.generic import TemplateView
+from universal_notifications.backends.emails.send import send_email
 
 
 class FakeEmailSend(TemplateView):
