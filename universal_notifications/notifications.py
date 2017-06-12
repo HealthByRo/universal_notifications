@@ -21,6 +21,8 @@
                 },
         )
 """
+import importlib
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Context, Template
@@ -29,8 +31,6 @@ from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
 from universal_notifications.tasks import process_chained_notification
-
-import importlib
 
 user_definitions = None
 if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE") and \

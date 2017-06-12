@@ -1,6 +1,5 @@
-from django.conf import settings
-
 import phonenumbers
+from django.conf import settings
 
 
 class SMSEngineAbtract(object):

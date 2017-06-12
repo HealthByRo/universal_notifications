@@ -1,1 +1,1 @@
-isort --recursive -p tests universal_notifications -m 0 -w 120 -fas -ds
+isort --recursive -p tests universal_notifications -sd THIRDPARTY -m 0 -w 120 -y

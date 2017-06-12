@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+import traceback
+
+import six
 from django.conf import settings
 from universal_notifications.backends.sms.base import SMS
 from universal_notifications.backends.sms.utils import clean_text
 from universal_notifications.models import PhonePendingMessages, PhoneReceivedRaw, PhoneReceiver, PhoneSent
 from universal_notifications.signals import ws_received
-
-import six
-import traceback
 
 try:
     from django.utils.importlib import import_module
