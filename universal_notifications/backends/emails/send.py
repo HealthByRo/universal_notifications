@@ -31,16 +31,17 @@ def send_email(template, to, subject, variables=None, fail_silently=False, cms=F
     base = protocol + domain
     if sender is None:
         sender = settings.DEFAULT_FROM_EMAIL
-    html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
-                        "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
-    html = Premailer(html,
-                     remove_classes=False,
-                     exclude_pseudoclasses=False,
-                     keep_style_tags=True,
-                     include_star_selectors=True,
-                     strip_important=False,
-                     cssutils_logging_level=logging.CRITICAL,
-                     base_url=base).transform()
+    if getattr(settings, "UNIVERSAL_NOTIFICATIONS_USE_PREMAILER", True):
+        html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
+                            "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
+        html = Premailer(html,
+                         remove_classes=False,
+                         exclude_pseudoclasses=False,
+                         keep_style_tags=True,
+                         include_star_selectors=True,
+                         strip_important=False,
+                         cssutils_logging_level=logging.CRITICAL,
+                         base_url=base).transform()
     email = EmailMessage(subject, html, sender, [to])
     email.content_subtype = "html"
     email.send(fail_silently=fail_silently)
