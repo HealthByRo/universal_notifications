@@ -75,7 +75,7 @@ E-mail notifications
 
 Settings
     * UNIVERSAL_NOTIFICATIONS_IS_SECURE (bool, default: False) - set https protocol and `is_secure` variable
-    * UNIVERSAL_NOTIFICATIONS_USE_PREMAILER (bool, default: True) - use premailer to append CSS styles inline (speedup tests a lot)
+    * UNIVERSAL_NOTIFICATIONS_USE_PREMAILER (bool, default: True) - use premailer to append CSS styles inline (speedup tests a lot when False)
 
 
 SMS notifications
