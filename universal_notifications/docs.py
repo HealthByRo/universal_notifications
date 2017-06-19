@@ -274,7 +274,11 @@ class UniversalNotificationsUIView(View):
                     json.dumps(getattr(settings, "CSRF_COOKIE_NAME", "csrftoken"))),
             }
         }
-        return render_to_response(template_name, RequestContext(request, data))
+        try:
+            return render_to_response(template_name, RequestContext(request, data))
+        except TypeError:
+            # fix for a bug in django 1.11
+            return render_to_response(template_name, data)
 
     def has_permission(self, request):
         if rfs.SWAGGER_SETTINGS.get("is_superuser") and not request.user.is_superuser:
