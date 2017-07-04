@@ -24,6 +24,7 @@
 import importlib
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Context, Template
 from universal_notifications.backends.emails.send import send_email
@@ -146,13 +147,21 @@ class NotificationBase(object):
 
     def save_notifications(self, prepared_receivers):
         for receiver in prepared_receivers:
-            NotificationHistory.objects.create(
-                group=self.get_type(),
-                klass=self.__class__.__name__,
-                receiver=self.format_receiver_for_notification_history(receiver),
-                details=self.get_notification_history_details(),
-                category=self.category
-            )
+            data = {
+                "group": self.get_type(),
+                "klass": self.__class__.__name__,
+                "receiver": self.format_receiver_for_notification_history(receiver),
+                "details": self.get_notification_history_details(),
+                "category": self.category,
+            }
+
+            if hasattr(self.item, "id"):
+                if type(self.item.id) == int:
+                    content_type = ContentType.objects.get_for_model(self.item)
+                    data["content_type"] = content_type
+                    data["object_id"] = self.item.id
+
+            NotificationHistory.objects.create(**data)
 
     def send(self):
         self.check_category()
