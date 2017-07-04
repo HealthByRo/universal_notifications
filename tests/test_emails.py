@@ -1,10 +1,8 @@
 import mock
-
 from django.conf import settings
-from django.core import mail
 from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase
-
 from universal_notifications.backends.emails.send import send_email
 
 try:

@@ -4,11 +4,10 @@ from django.core import mail
 from django.core.management import call_command
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
-from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.sms.engines.twilio import Engine as SMS  # NOQA
-from universal_notifications.models import (Phone, PhonePendingMessages,
-                                            PhoneReceived, PhoneReceivedRaw,
-                                            PhoneReceiver, PhoneSent)
+from universal_notifications.backends.sms.utils import send_sms
+from universal_notifications.models import (Phone, PhonePendingMessages, PhoneReceived, PhoneReceivedRaw, PhoneReceiver,
+                                            PhoneSent)
 
 try:
     from django.urls import reverse
