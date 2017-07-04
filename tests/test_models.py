@@ -1,6 +1,6 @@
 import mock
-from universal_notifications.models import Device, PhoneReceiver, PhoneSent
 
+from universal_notifications.models import Device, PhoneReceiver, PhoneSent
 from .test_utils import APIBaseTestCase
 
 

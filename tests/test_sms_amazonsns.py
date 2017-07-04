@@ -3,7 +3,7 @@ import mock
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.backends.sms.utils import send_sms
-from universal_notifications.models import PhoneReceiver, PhoneSent
+from universal_notifications.models import (PhoneReceiver, PhoneSent)
 
 
 @override_settings(UNIVERSAL_NOTIFICATIONS_SMS_ENGINE="amazonsns")

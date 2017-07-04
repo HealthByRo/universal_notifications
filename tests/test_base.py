@@ -9,19 +9,21 @@
         - transformations
         - conditions
 """
-from random import randint
-
 import mock
+from random import randint
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth.models import User
 from django.db import models
 from django.test import override_settings
 from rest_framework import serializers
 from rest_framework.test import APITestCase
 from universal_notifications.models import Device, UnsubscribedUser
-from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
-                                                   SMSNotification, WSNotification)
+from universal_notifications.notifications import (EmailNotification,
+                                                   NotificationBase,
+                                                   PushNotification,
+                                                   SMSNotification,
+                                                   WSNotification)
 
 
 class SampleA(NotificationBase):
