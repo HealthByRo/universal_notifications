@@ -24,6 +24,7 @@ class UnsubscribedSerializer(serializers.Serializer):
         request = self.context.get("request", None)
         if request and is_authenticated(request.user):
             return NotificationBase.get_mapped_user_notifications_types_and_categories(request.user)
+        return None
 
     def to_representation(self, obj):
         result = {
