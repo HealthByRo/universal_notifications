@@ -227,9 +227,10 @@ class BaseTest(APITestCase):
 
         # test EmailNotifications
         with mock.patch("tests.test_base.SampleF.send_inner") as mocked_send_inner:
-            SampleF(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {}).send()
+            SampleF(self.object_item, [self.object_receiver, self.all_unsubscribed_receiver], {"param": "val"}).send()
             mocked_send_inner.assert_called_with({self.object_receiver}, {
                 "item": self.object_item,
+                "param": "val"
             })
 
         # test System EmailNotifications

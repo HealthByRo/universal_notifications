@@ -1,0 +1,7 @@
+[paths]
+source =
+    universal_notifications/
+
+[report]
+omit =
+    universal_notifications/docs.py

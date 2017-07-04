@@ -100,8 +100,9 @@ if __name__ == "__main__":
             pytest_args = [
                 "--cov-report",
                 "xml",
-                "--cov",
-                "universal_notifications"] + pytest_args
+                "--cov=universal_notifications",
+                "--cov-config",
+                ".coveragerc"] + pytest_args
 
         if first_arg.startswith("-"):
             # `runtests.py [flags]`
