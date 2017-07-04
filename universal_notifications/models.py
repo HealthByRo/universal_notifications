@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.encoding import force_text
@@ -22,6 +24,9 @@ class NotificationHistory(models.Model):
     receiver = models.CharField(max_length=255)
     details = models.TextField()
     category = models.CharField(max_length=255)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    source = GenericForeignKey("content_type", "object_id")
 
 
 class Device(models.Model):
