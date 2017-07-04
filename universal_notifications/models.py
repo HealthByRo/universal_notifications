@@ -24,7 +24,7 @@ class NotificationHistory(models.Model):
     receiver = models.CharField(max_length=255)
     details = models.TextField()
     category = models.CharField(max_length=255)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    content_type = models.ForeignKey(ContentType, null=True, on_delete=models.SET_NULL)
     object_id = models.PositiveIntegerField(null=True)
     source = GenericForeignKey("content_type", "object_id")
 
