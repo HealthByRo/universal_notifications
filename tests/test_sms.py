@@ -2,7 +2,7 @@
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.backends.sms.abstract import SMSEngineAbtract
-from universal_notifications.models import PhoneReceivedRaw, PhoneSent, PhonePendingMessages
+from universal_notifications.models import PhonePendingMessages, PhoneReceivedRaw, PhoneSent
 
 
 class SNSTestsCase(APIBaseTestCase):
