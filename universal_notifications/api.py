@@ -41,7 +41,6 @@ class UniversalNotificationsDocsView(APIView):
 
     def get(self, request):
         links = {}
-        NotificationsDocs.autodiscover()
         for path in NotificationsDocs.get_types():
             links.update(NotificationsDocs.generate_notifications_docs(path))
 
