@@ -88,6 +88,7 @@ Supported platforms:
 Settings
     * UNIVERSAL_NOTIFICATIONS_SMS_ENGINE - set engine
     * UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE (bool)
+    * UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK (bool, default True)
 
 Engine settinsgs:
     * Twilio
@@ -112,6 +113,9 @@ Simple example of use:
 
         def prepare_receivers(self):
             return {x.shipping_address.phone for x in self.receivers}
+
+    class SyncOrderShippedSMS(OrderShippedSMS):
+        async = False  # by default taken from UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK
 
     # ... somewhere in a view
     OrderShippedSMS(item=order, receivers=[user], context={}).send(

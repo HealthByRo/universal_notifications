@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-    # TODO: fill readme & TODO
-    # TODO (Pawel): processors filtering (email/sms) - mail/sms history + limiters
-    # TODO (Pawel): sample transformations / conditions
+"""Universal Notifications
 
-    Sample usage:
-        WSNotification(item, receivers, context).send()
+Sample usage:
+    WSNotification(item, receivers, context).send()
 
-    Chaining example:
-        chaining = (
-            {
-                "class": PushNotification,  # required, must be a subclass of NotificationBase
-                "delay": 0,  # required, [in seconds]
-                "transform_func": None,  # optional, should take as parameters (item, receivers, context)
-                                         # and return transformed item, receivers, context - see Transformations
-                                         # if empty or missing - no transformation is applied
-                "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
-                                         # and returns True if notification should be send and False if not
-                                         # if function is None,
-                },
-        )
+Chaining example:
+    chaining = (
+        {
+            "class": PushNotification,  # required, must be a subclass of NotificationBase
+            "delay": 0,  # required, [in seconds]
+            "transform_func": None,  # optional, should take as parameters (item, receivers, context)
+                                     # and return transformed item, receivers, context - see Transformations
+                                     # if empty or missing - no transformation is applied
+            "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
+                                     # and returns True if notification should be send and False if not
+                                     # if function is None,
+            },
+    )
 """
 import importlib
 
@@ -56,10 +53,10 @@ class NotificationBase(object):
 
     @classmethod
     def get_mapped_user_notifications_types_and_categories(cls, user):
-        """
-            Returns a dictionary for given user type:
-            {"notificaiton_type": [categries list]}
-            TODO: use this one in serializer.
+        """Returns a dictionary for given user type:
+
+        {"notificaiton_type": [categries list]}
+        TODO: use this one in serializer.
         """
         if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
             notifications = {}
@@ -72,10 +69,10 @@ class NotificationBase(object):
                     return settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING[user_type]
 
     def get_user_categories_for_type(self, user):
-        """
-            Check categories available for given user type and this notification type.
-            If no mapping present we assume all are allowed.
-            Raises ImproperlyConfigured if no categories for given user availaible
+        """Check categories available for given user type and this notification type.
+
+        If no mapping present we assume all are allowed.
+        Raises ImproperlyConfigured if no categories for given user availaible
         """
         categories = self.get_mapped_user_notifications_types_and_categories(user)
         if categories:
@@ -121,9 +118,7 @@ class NotificationBase(object):
                     % (self.get_type(), self.category))
 
     def verify_and_filter_receivers_subscriptions(self):
-        """
-            returns new list of only receivers that are subscribed for given notification type/category
-        """
+        """Returns new list of only receivers that are subscribed for given notification type/category."""
         if not self.check_subscription or self.category == self.PRIORITY_CATEGORY:
             return self.receivers
 
@@ -156,7 +151,7 @@ class NotificationBase(object):
             }
 
             if hasattr(self.item, "id"):
-                if type(self.item.id) == int:
+                if isinstance(self.item.id, int):
                     content_type = ContentType.objects.get_for_model(self.item)
                     data["content_type"] = content_type
                     data["object_id"] = self.item.id
@@ -212,6 +207,7 @@ class WSNotification(NotificationBase):
 
 class SMSNotification(NotificationBase):
     message = None  # required, django template string
+    async = getattr(settings, "UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK", True)
 
     def prepare_receivers(self):
         return {x.phone for x in self.receivers}
@@ -221,7 +217,7 @@ class SMSNotification(NotificationBase):
 
     def send_inner(self, prepared_receivers, prepared_message):
         for receiver in prepared_receivers:
-            send_sms(receiver, prepared_message)
+            send_sms(receiver, prepared_message, self.async)
 
     def get_notification_history_details(self):
         return self.prepare_message()
