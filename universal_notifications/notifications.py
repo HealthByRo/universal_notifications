@@ -207,7 +207,7 @@ class WSNotification(NotificationBase):
 
 class SMSNotification(NotificationBase):
     message = None  # required, django template string
-    async = getattr(settings, "UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK", True)
+    send_async = getattr(settings, "UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK", True)
 
     def prepare_receivers(self):
         return {x.phone for x in self.receivers}
@@ -217,7 +217,7 @@ class SMSNotification(NotificationBase):
 
     def send_inner(self, prepared_receivers, prepared_message):
         for receiver in prepared_receivers:
-            send_sms(receiver, prepared_message, self.async)
+            send_sms(receiver, prepared_message, self.send_async)
 
     def get_notification_history_details(self):
         return self.prepare_message()

@@ -115,7 +115,7 @@ Simple example of use:
             return {x.shipping_address.phone for x in self.receivers}
 
     class SyncOrderShippedSMS(OrderShippedSMS):
-        async = False  # by default taken from UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK
+        send_async = False  # by default taken from UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK
 
     # ... somewhere in a view
     OrderShippedSMS(item=order, receivers=[user], context={}).send(

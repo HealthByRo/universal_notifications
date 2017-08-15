@@ -94,7 +94,7 @@ class SampleE(SMSNotification):
 
 
 class SyncSampleE(SampleE):
-    async = False
+    send_async = False
 
 
 class SampleF(EmailNotification):
