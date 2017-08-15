@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.9.0] - 2017-08-14
+### Added
+- sending SMS as sync or async is now configurable
+
 ## [0.8.5] - 2017-07-04
 ### Added
 - source as generic relation to NotificationHistory
