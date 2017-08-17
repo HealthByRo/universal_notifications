@@ -217,7 +217,7 @@ class SMSNotification(NotificationBase):
 
     def send_inner(self, prepared_receivers, prepared_message):
         for receiver in prepared_receivers:
-            send_sms(receiver, prepared_message, self.send_async)
+            send_sms(receiver, prepared_message, send_async=self.send_async)
 
     def get_notification_history_details(self):
         return self.prepare_message()

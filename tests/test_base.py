@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-""" base tests:
-    - sending
-        - receiver list preparation
-        - message serialization
-        - sending
+"""base tests:
 
-    - chaining
-        - transformations
-        - conditions
+- sending
+    - receiver list preparation
+    - message serialization
+    - sending
+
+- chaining
+    - transformations
+    - conditions
 """
 from random import randint
 
@@ -225,11 +226,11 @@ class BaseTest(APITestCase):
         # test send_inner
         with mock.patch("universal_notifications.notifications.send_sms") as mocked_send_sms:
             SampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, True)
+            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, send_async=True)
 
         with mock.patch("universal_notifications.notifications.send_sms") as mocked_send_sms:
             SyncSampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, False)
+            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, send_async=False)
 
         # test EmailNotifications
         with mock.patch("tests.test_base.SampleF.send_inner") as mocked_send_inner:

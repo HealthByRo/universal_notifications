@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.9.1] - 2017-08-17
+### Fixed
+- sending SMS synchronously
+
 ## [0.9.0] - 2017-08-14
 ### Added
 - sending SMS as sync or async is now configurable
