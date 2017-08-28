@@ -10,6 +10,7 @@
     - transformations
     - conditions
 """
+import json
 from random import randint
 
 import mock
@@ -328,9 +329,13 @@ class BaseTest(APITestCase):
         self.assertEqual(NotificationHistory.objects.count(), 0)
         with mock.patch("universal_notifications.notifications.logger.info") as mocked_logger:
             SampleD(self.object_item, [self.object_receiver], {}).send()
-            mocked_logger.assert_called_with(
-                "Notification sent: {'group': 'WebSocket', 'klass': 'SampleD', 'receiver': 'foo@bar.com', 'details': "
-                "'message: WebSocket, serializer: SampleSerializer', 'category': 'default'}")
+            mocked_logger.assert_called()
+            message = mocked_logger.call_args[0][0].replace("'", "\"")
+            message_dict = json.loads(message.split("Notification sent: ")[1])
+            self.assertEqual(message_dict, {
+                'group': 'WebSocket', 'klass': 'SampleD', 'receiver': 'foo@bar.com',
+                'details': 'message: WebSocket, serializer: SampleSerializer', 'category': 'default'
+            })
         self.assertEqual(NotificationHistory.objects.count(), 1)
 
     def test_chaining(self):
