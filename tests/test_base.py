@@ -20,7 +20,7 @@ from django.db import models
 from django.test import override_settings
 from rest_framework import serializers
 from rest_framework.test import APITestCase
-from universal_notifications.models import Device, UnsubscribedUser
+from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
 from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
                                                    SMSNotification, WSNotification)
 
@@ -323,6 +323,15 @@ class BaseTest(APITestCase):
         for key in settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES.keys():
             expected_result[key] = settings.UNIVERSAL_NOTIFICATIONS_CATEGORIES[key].keys()
         self.assertDictEqual(result, expected_result)
+
+    def test_history(self):
+        self.assertEqual(NotificationHistory.objects.count(), 0)
+        with mock.patch("universal_notifications.notifications.logger.info") as mocked_logger:
+            SampleD(self.object_item, [self.object_receiver], {}).send()
+            mocked_logger.assert_called_with(
+                "Notification sent: {'group': 'WebSocket', 'klass': 'SampleD', 'receiver': 'foo@bar.com', 'details': "
+                "'message: WebSocket, serializer: SampleSerializer', 'category': 'default'}")
+        self.assertEqual(NotificationHistory.objects.count(), 1)
 
     def test_chaining(self):
         pass
