@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.10.0] - 2017-08-29
+### Added
+- setting to disable notification history
+
 ## [0.9.1] - 2017-08-17
 ### Fixed
 - sending SMS synchronously
