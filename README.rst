@@ -28,6 +28,7 @@ Basic usage
 -  `Unsubscriber`_
 -  `Unsubscriber API`_
 -  `FakeEmailSend view`_
+-  `Notification history`_
 
 WebSocket notifications
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,3 +299,13 @@ to your urls.py, and specify receiver email address using ``UNIVERSAL_NOTIFICATI
 After that you can make a request to the new url with **template** parameter, for instance:
 ``http://localhost:8000/emails/?template=reset_password``, which  will send an email using
 ``emails/email_reset_password.html`` as the template.
+
+
+Notification history
+~~~~~~~~~~~~~~~~~~~~
+By default all notifications that have been sent are stored in the **NotificationHistory** object in the database, but
+this behavior can be changed, and therefore the database will not be used to store notification history (but you will
+still receive notification history in your app log, on the **info** level).
+
+To disable using database, set ``UNIVERSAL_NOTIFICATIONS_HISTORY_USE_DATABASE`` to **False** (default: **True**),
+and to disable any history tracking, set ``UNIVERSAL_NOTIFICATIONS_HISTORY`` to **False** (default: **True**).

@@ -19,6 +19,7 @@ Chaining example:
     )
 """
 import importlib
+import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -29,6 +30,8 @@ from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
 from universal_notifications.tasks import process_chained_notification
+
+logger = logging.getLogger(__name__)
 
 user_definitions = None
 if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE") and \
@@ -156,7 +159,11 @@ class NotificationBase(object):
                     data["content_type"] = content_type
                     data["object_id"] = self.item.id
 
-            NotificationHistory.objects.create(**data)
+            if getattr(settings, "UNIVERSAL_NOTIFICATIONS_HISTORY", True):
+                if getattr(settings, "UNIVERSAL_NOTIFICATIONS_HISTORY_USE_DATABASE", True):
+                    NotificationHistory.objects.create(**data)
+
+                logger.info("Notification sent: {}".format(data))
 
     def send(self):
         self.check_category()
