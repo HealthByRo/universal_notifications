@@ -20,6 +20,7 @@ Chaining example:
 """
 import importlib
 import logging
+from email.utils import formataddr
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -241,7 +242,7 @@ class EmailNotification(NotificationBase):
 
     @classmethod
     def format_receiver(cls, receiver):
-        return "%s %s <%s>" % (receiver.first_name, receiver.last_name, receiver.email)
+        return formataddr(("%s %s" % (receiver.first_name, receiver.last_name), receiver.email))
 
     def prepare_receivers(self):
         return set(self.receivers)
