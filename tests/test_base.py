@@ -159,6 +159,7 @@ class BaseTest(APITestCase):
 
         self.object_item = SampleModel("sample")
         self.object_receiver = SampleReceiver("foo@bar.com", "123456789")
+        self.object_second_receiver = SampleReceiver("foo@bar.com", "123456789", first_name="foo@bar.com")
         self.superuser_object_receiver = SampleReceiver("super_foo@bar.com", "123456789", is_superuser=True)
 
         self.regular_user = User.objects.create_user(
@@ -261,6 +262,15 @@ class BaseTest(APITestCase):
             mocked_send_inner.assert_called_with({self.object_receiver, self.all_unsubscribed_receiver}, {
                 "item": self.object_item,
             })
+
+        with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
+            SampleF(self.object_item, [self.object_second_receiver], {}).send()
+            mocked_send_email.assert_called_with(
+                SampleF.email_name, "{last_name} <{email}>".format(**self.object_second_receiver.__dict__),
+                "subject", {
+                    "item": self.object_item,
+                    "receiver": self.object_second_receiver
+                }, sender=None)
 
         with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
             SampleF(self.object_item, [self.object_receiver], {}).send()
