@@ -20,6 +20,7 @@ Chaining example:
 """
 import importlib
 import logging
+import re
 from email.utils import formataddr
 
 from django.conf import settings
@@ -242,7 +243,9 @@ class EmailNotification(NotificationBase):
 
     @classmethod
     def format_receiver(cls, receiver):
-        return formataddr(("%s %s" % (receiver.first_name, receiver.last_name), receiver.email))
+        receiver_name = "%s %s" % (receiver.first_name, receiver.last_name)
+        receiver_name = re.sub(r"\S*@\S*\s?", "", receiver_name).strip()
+        return formataddr((receiver_name, receiver.email))
 
     def prepare_receivers(self):
         return set(self.receivers)
