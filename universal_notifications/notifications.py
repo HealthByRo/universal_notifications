@@ -20,8 +20,8 @@ Chaining example:
 """
 import importlib
 import logging
-from email.utils import formataddr
 import re
+from email.utils import formataddr
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
