@@ -16,6 +16,7 @@ from random import randint
 import mock
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import override_settings
@@ -270,7 +271,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_second_receiver
-                }, sender=None)
+                }, sender=None, attachments=[])
 
         with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
             SampleF(self.object_item, [self.object_receiver], {}).send()
@@ -279,7 +280,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_receiver
-                }, sender=None)
+                }, sender=None, attachments=[])
 
         with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
             notification = SampleF(self.object_item, [self.object_receiver], {})
@@ -290,7 +291,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_receiver
-                }, sender="Overriden Sender <overriden@sender.com>")
+                }, sender="Overriden Sender <overriden@sender.com>", attachments=[])
 
         # test PushNotifications
         with mock.patch("tests.test_base.SampleG.send_inner") as mocked_send_inner:
@@ -325,6 +326,19 @@ class BaseTest(APITestCase):
         with mock.patch("tests.test_base.SampleNotExistingCategory.send_inner") as mocked_send_inner:
             with self.assertRaises(ImproperlyConfigured):
                 SampleNotExistingCategory(self.object_item, [self.object_receiver], {}).send()
+
+    @mock.patch("universal_notifications.backends.emails.send.render_to_string")
+    def test_email_attachments(self, mocked_render):
+        mocked_render.return_value = "Text"
+        mail.outbox = []
+        attachments = [
+            ("first.txt", "first file", "text/plain"),
+            ("second.txt", "second file", "text/plain")
+        ]
+        SampleF(self.object_item, [self.object_receiver], {}, attachments=attachments).send()
+        self.assertEqual(len(mail.outbox), 1)
+        last_mail = mail.outbox[0]
+        self.assertEqual(last_mail.attachments, attachments)
 
     @override_settings()
     def test_mapping(self):
