@@ -9,6 +9,6 @@ except ImportError:
 try:
     __path, __symbol = getattr(settings, 'PHONE_RECEIVED_POST_SAVE_FUNC').rsplit('.', 1)
     phone_received_post_save = getattr(import_module(__path), __symbol)
-except:
+except (AttributeError, ImportError):
     def phone_received_post_save(sender, instance, created, **kwargs):
         pass

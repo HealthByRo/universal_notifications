@@ -241,6 +241,10 @@ class EmailNotification(NotificationBase):
     email_subject = None  # required
     sender = None  # optional
 
+    def __init__(self, item, receivers, context, attachments=None):
+        self.attachments = attachments or []
+        super(EmailNotification, self).__init__(item, receivers, context)
+
     @classmethod
     def format_receiver(cls, receiver):
         receiver_name = "%s %s" % (receiver.first_name, receiver.last_name)
@@ -270,7 +274,8 @@ class EmailNotification(NotificationBase):
         for receiver in prepared_receivers:
             prepared_message["receiver"] = receiver
             send_email(
-                self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message, sender=self.sender
+                self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message,
+                sender=self.sender, attachments=self.attachments
             )
 
     def get_notification_history_details(self):

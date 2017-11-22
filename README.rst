@@ -72,7 +72,11 @@ E-mail notifications
         email_subject = _('Order no. {{item.pk}} has been shipped.')
 
     # ... somewhere in a view
-    OrderShippedEmail(item=order, receivers=[user], context={}).send()
+    OrderShippedEmail(item=order, receivers=[user], context={}, attachments=[
+        ("invoice.pdf", open("invoice.pdf").read(), "application/pdf")
+    ]).send()
+
+Attachements parameter has to be a list of `(filename, content, mime_type)` triples.
 
 Settings
     * UNIVERSAL_NOTIFICATIONS_IS_SECURE (bool, default: False) - set https protocol and `is_secure` variable
