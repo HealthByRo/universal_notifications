@@ -7,7 +7,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.template import RequestContext, TemplateDoesNotExist, TemplateSyntaxError
 from django.utils import six
 from django.utils.safestring import mark_safe
 from django.views.generic import View
@@ -105,7 +105,7 @@ class EmailDocGenerator(BaseGenerator):
         try:
             source, dummy = template_loader.load_template_source(template_name)
             return source
-        except:
+        except (TemplateDoesNotExist, TemplateSyntaxError):
             return ""
     # --
 
@@ -170,7 +170,7 @@ class NotificationsDocs(object):
                             if serializer:
                                 cls._serializers.add(serializer)
                             cls._registry[notification_type][item_key] = {"cls": item, "path": item_path}
-            except:
+            except Exception:
                 pass
 
         # serializers

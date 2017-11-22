@@ -21,7 +21,7 @@ except ImportError:
 try:
     __path, __symbol = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_SEND_SMS_FUNC').rsplit('.', 1)
     send_sms = getattr(import_module(__path), __symbol)
-except:
+except (AttributeError, ImportError):
     def send_sms(to_number, text, media=None, priority=9999, send_async=True):
         """Send SMS/MMS
 

@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 - improved formatting of email addresses
 
+## [0.11.0] - 2017-11-22
+### Added
+- applying attachments to EmailNotifications
+
 ## [0.10.0] - 2017-08-29
 ### Added
 - setting to disable notification history
