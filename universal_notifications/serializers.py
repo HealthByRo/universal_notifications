@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from rest_framework import serializers
-from rest_framework.compat import is_authenticated
 from universal_notifications.models import Device
 from universal_notifications.notifications import NotificationBase
 
@@ -22,7 +21,7 @@ class UnsubscribedSerializer(serializers.Serializer):
 
     def get_configuration(self):
         request = self.context.get("request", None)
-        if request and is_authenticated(request.user):
+        if request and request.user.is_authenticated:
             return NotificationBase.get_mapped_user_notifications_types_and_categories(request.user)
         return None
 
