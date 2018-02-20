@@ -1,4 +1,4 @@
-djangorestframework>=3.7,<3.8
+djangorestframework>=3.7
 django-rest-swagger>=2.1,<2.2
 django-websocket-redis
 redis
