@@ -70,6 +70,7 @@ E-mail notifications
     class OrderShippedEmail(EmailNotification):
         email_name = 'order_shipped'
         email_subject = _('Order no. {{item.pk}} has been shipped.')
+        categories = ["newsletter"]
 
     # ... somewhere in a view
     OrderShippedEmail(item=order, receivers=[user], context={}, attachments=[
@@ -77,6 +78,7 @@ E-mail notifications
     ]).send()
 
 Attachements parameter has to be a list of `(filename, content, mime_type)` triples.
+The **categories** field is optional, it can be used with `django-sendgrid <https://github.com/sklarsa/django-sendgrid-v5>`_ to enable metrics by category.
 
 Settings
     * UNIVERSAL_NOTIFICATIONS_IS_SECURE (bool, default: False) - set https protocol and `is_secure` variable

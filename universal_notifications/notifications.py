@@ -240,6 +240,7 @@ class EmailNotification(NotificationBase):
     email_name = None  # required
     email_subject = None  # required
     sender = None  # optional
+    categories = []  # optional
 
     def __init__(self, item, receivers, context, attachments=None):
         self.attachments = attachments or []
@@ -275,7 +276,7 @@ class EmailNotification(NotificationBase):
             prepared_message["receiver"] = receiver
             send_email(
                 self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message,
-                sender=self.sender, attachments=self.attachments
+                sender=self.sender, attachments=self.attachments, categories=self.categories
             )
 
     def get_notification_history_details(self):

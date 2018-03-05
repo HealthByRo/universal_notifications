@@ -103,6 +103,7 @@ class SyncSampleE(SampleE):
 class SampleF(EmailNotification):
     email_name = "name"
     email_subject = "subject"
+    categories = ["cars", "newsletter"]
 
 
 class SampleG(PushNotification):
@@ -271,7 +272,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_second_receiver
-                }, sender=None, attachments=[])
+                }, sender=None, attachments=[], categories=["cars", "newsletter"])
 
         with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
             SampleF(self.object_item, [self.object_receiver], {}).send()
@@ -280,7 +281,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_receiver
-                }, sender=None, attachments=[])
+                }, sender=None, attachments=[], categories=["cars", "newsletter"])
 
         with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
             notification = SampleF(self.object_item, [self.object_receiver], {})
@@ -291,7 +292,7 @@ class BaseTest(APITestCase):
                 "subject", {
                     "item": self.object_item,
                     "receiver": self.object_receiver
-                }, sender="Overriden Sender <overriden@sender.com>", attachments=[])
+                }, sender="Overriden Sender <overriden@sender.com>", attachments=[], categories=["cars", "newsletter"])
 
         # test PushNotifications
         with mock.patch("tests.test_base.SampleG.send_inner") as mocked_send_inner:
@@ -339,6 +340,13 @@ class BaseTest(APITestCase):
         self.assertEqual(len(mail.outbox), 1)
         last_mail = mail.outbox[0]
         self.assertEqual(last_mail.attachments, attachments)
+
+    @mock.patch("universal_notifications.backends.emails.send.render_to_string")
+    def test_email_categories(self, mocked_render):
+        mocked_render.return_value = "Text"
+        SampleF(self.object_item, [self.object_receiver], {}).send()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].categories, ["cars", "newsletter"])
 
     @override_settings()
     def test_mapping(self):
