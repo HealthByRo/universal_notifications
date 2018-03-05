@@ -8,7 +8,7 @@ from premailer import Premailer
 
 
 def send_email(template, to, subject, variables=None, fail_silently=False, cms=False, replace_variables=None,
-               sender=None, attachments=None):
+               sender=None, attachments=None, categories=None):
     attachments = attachments or []
     if variables is None:
         variables = {}
@@ -44,5 +44,7 @@ def send_email(template, to, subject, variables=None, fail_silently=False, cms=F
                          cssutils_logging_level=logging.CRITICAL,
                          base_url=base).transform()
     email = EmailMessage(subject, html, sender, [to], attachments=attachments)
+    if categories:
+        email.categories = categories
     email.content_subtype = "html"
     email.send(fail_silently=fail_silently)
