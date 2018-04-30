@@ -1,5 +1,5 @@
 djangorestframework>=3.7
-django-rest-swagger>=2.1,<2.2
+django-rest-swagger>=2.2,<2.3
 django-websocket-redis
 redis
 premailer>=3.1.0
