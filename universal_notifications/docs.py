@@ -56,15 +56,18 @@ class WSDocGenerator(BaseGenerator):
         return self._obj.message
 
     def get_type(self):
-        return self._obj.serializer_class.__name__
+        return self.get_serializer().__name__
 
     def get_class_specific_notes(self):
-        data = self._obj.serializer_class.__name__
+        data = self.get_serializer().__name__
         if self._obj.serializer_many:
             data = "[%s*]" % data
         return "<b>Message</b><br/>%s<br/><br/><b>Data</b><br/>%s" % (self._obj.message, data)
 
     def get_serializer(self):
+        if self._obj.serializer_class is None:
+            # handling scase when serializer_class is defined during __init__
+            return self._obj().serializer_class
         return self._obj.serializer_class
 
     def skip(self):

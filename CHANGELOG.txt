@@ -1,5 +1,8 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.13.1] - 2018-03-05
+### Fixed
+- fixed 500 in notifications docs when serializers_class is added on __init__ to WSNotification
 
 ## [0.13.0] - 2018-03-05
 ### Added
