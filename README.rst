@@ -80,6 +80,8 @@ E-mail notifications
 Attachements parameter has to be a list of `(filename, content, mime_type)` triples.
 The **categories** field is optional, it can be used with `django-sendgrid <https://github.com/sklarsa/django-sendgrid-v5>`_ to enable metrics by category.
 
+Email subject will be taken from the `<title></title>` tags in the template if it is not set in notification class.
+
 Settings
     * UNIVERSAL_NOTIFICATIONS_IS_SECURE (bool, default: False) - set https protocol and `is_secure` variable
     * UNIVERSAL_NOTIFICATIONS_USE_PREMAILER (bool, default: True) - use premailer to append CSS styles inline (speedup tests a lot when False)

@@ -101,7 +101,7 @@ class SyncSampleE(SampleE):
 
 
 class SampleF(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     categories = ["cars", "newsletter"]
 
@@ -111,7 +111,7 @@ class SampleG(PushNotification):
 
 
 class SampleH(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     category = "system"
 
@@ -121,25 +121,25 @@ class SampleI(SampleH):
 
 
 class SampleJ(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     check_subscription = False
 
 
 class SampleNoCategory(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     category = ""
 
 
 class SampleChatNotification(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     category = "chat"
 
 
 class SampleNotExistingCategory(EmailNotification):
-    email_name = "name"
+    email_name = "test"
     email_subject = "subject"
     category = "some_weird_one"
 
@@ -265,34 +265,19 @@ class BaseTest(APITestCase):
                 "item": self.object_item,
             })
 
-        with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
-            SampleF(self.object_item, [self.object_second_receiver], {}).send()
-            mocked_send_email.assert_called_with(
-                SampleF.email_name, "{last_name} <{email}>".format(**self.object_second_receiver.__dict__),
-                "subject", {
-                    "item": self.object_item,
-                    "receiver": self.object_second_receiver
-                }, sender=None, attachments=[], categories=["cars", "newsletter"])
+        mail.outbox = []
+        SampleF(self.object_item, [self.object_second_receiver], {}).send()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "subject")
+        self.assertEqual(mail.outbox[0].to, ["{last_name} <{email}>".format(**self.object_second_receiver.__dict__)])
+        self.assertEqual(mail.outbox[0].categories, ["cars", "newsletter"])
 
-        with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
-            SampleF(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_email.assert_called_with(
-                SampleF.email_name, "{first_name} {last_name} <{email}>".format(**self.object_receiver.__dict__),
-                "subject", {
-                    "item": self.object_item,
-                    "receiver": self.object_receiver
-                }, sender=None, attachments=[], categories=["cars", "newsletter"])
-
-        with mock.patch("universal_notifications.notifications.send_email") as mocked_send_email:
-            notification = SampleF(self.object_item, [self.object_receiver], {})
-            notification.sender = "Overriden Sender <overriden@sender.com>"
-            notification.send()
-            mocked_send_email.assert_called_with(
-                SampleF.email_name, "{first_name} {last_name} <{email}>".format(**self.object_receiver.__dict__),
-                "subject", {
-                    "item": self.object_item,
-                    "receiver": self.object_receiver
-                }, sender="Overriden Sender <overriden@sender.com>", attachments=[], categories=["cars", "newsletter"])
+        mail.outbox = []
+        notification = SampleF(self.object_item, [self.object_receiver], {})
+        notification.sender = "Overriden Sender <overriden@sender.com>"
+        notification.send()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].from_email, "Overriden Sender <overriden@sender.com>")
 
         # test PushNotifications
         with mock.patch("tests.test_base.SampleG.send_inner") as mocked_send_inner:
@@ -328,9 +313,7 @@ class BaseTest(APITestCase):
             with self.assertRaises(ImproperlyConfigured):
                 SampleNotExistingCategory(self.object_item, [self.object_receiver], {}).send()
 
-    @mock.patch("universal_notifications.backends.emails.send.render_to_string")
-    def test_email_attachments(self, mocked_render):
-        mocked_render.return_value = "Text"
+    def test_email_attachments(self):
         mail.outbox = []
         attachments = [
             ("first.txt", "first file", "text/plain"),
@@ -341,9 +324,7 @@ class BaseTest(APITestCase):
         last_mail = mail.outbox[0]
         self.assertEqual(last_mail.attachments, attachments)
 
-    @mock.patch("universal_notifications.backends.emails.send.render_to_string")
-    def test_email_categories(self, mocked_render):
-        mocked_render.return_value = "Text"
+    def test_email_categories(self):
         SampleF(self.object_item, [self.object_receiver], {}).send()
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].categories, ["cars", "newsletter"])
@@ -370,5 +351,17 @@ class BaseTest(APITestCase):
             })
         self.assertEqual(NotificationHistory.objects.count(), 1)
 
-    def test_chaining(self):
-        pass
+    def test_getting_subject_from_html(self):
+        # when subject is not provided in notification definition, the subject is taken from <title></title> tags
+        notification = SampleF(self.object_item, [self.object_receiver], {})
+        notification.email_subject = None
+        notification.send()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Email template used in tests")
+
+        # should raise ImproperlyConfigured when the title tags cannot be found
+        notification.email_name = "test_empty"
+        notification.email_subject = None
+        with self.assertRaises(ImproperlyConfigured):
+            notification.send()
+        self.assertEqual(len(mail.outbox), 1)
