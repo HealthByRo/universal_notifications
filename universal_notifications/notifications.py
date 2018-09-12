@@ -339,7 +339,7 @@ class EmailNotification(NotificationBase):
     def __get_title_from_html(self, html):
         m = re.search(r"<title>(.*?)</title>", html, re.MULTILINE | re.IGNORECASE)
         if not m:
-            raise ImproperlyConfigured("Email noticiation {} does not provide email_subject nor "
+            raise ImproperlyConfigured("Email notification {} does not provide email_subject nor "
                                        "<title></title> in the template".format(self.email_name))
 
         return m.group(1)
