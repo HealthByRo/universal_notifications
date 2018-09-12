@@ -25,9 +25,12 @@ from email.utils import formataddr
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.core.mail import EmailMessage
 from django.template import Context, Template
-from universal_notifications.backends.emails.send import send_email
+from django.template.loader import get_template
+from premailer import Premailer
 from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
@@ -51,10 +54,10 @@ class NotificationBase(object):
     def get_type(cls):
         raise NotImplementedError
 
-    def __init__(self, item, receivers, context):
+    def __init__(self, item, receivers, context=None):
         self.item = item
         self.receivers = receivers
-        self.context = context
+        self.context = context or {}
 
     @classmethod
     def get_mapped_user_notifications_types_and_categories(cls, user):
@@ -238,11 +241,11 @@ class SMSNotification(NotificationBase):
 
 class EmailNotification(NotificationBase):
     email_name = None  # required
-    email_subject = None  # required
+    email_subject = None  # if not provided, will try to extract "<title>" tag from email template
     sender = None  # optional
     categories = []  # optional
 
-    def __init__(self, item, receivers, context, attachments=None):
+    def __init__(self, item, receivers, context=None, attachments=None):
         self.attachments = attachments or []
         super(EmailNotification, self).__init__(item, receivers, context)
 
@@ -268,16 +271,8 @@ class EmailNotification(NotificationBase):
         return receiver.email
 
     def prepare_subject(self):
-        return Template(self.email_subject).render(Context(self.get_context()))
-
-    def send_inner(self, prepared_receivers, prepared_message):
-        prepared_subject = self.prepare_subject()
-        for receiver in prepared_receivers:
-            prepared_message["receiver"] = receiver
-            send_email(
-                self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message,
-                sender=self.sender, attachments=self.attachments, categories=self.categories
-            )
+        if self.email_subject:
+            return Template(self.email_subject).render(Context(self.get_context()))
 
     def get_notification_history_details(self):
         return self.email_name
@@ -285,6 +280,69 @@ class EmailNotification(NotificationBase):
     @classmethod
     def get_type(cls):
         return "Email"
+
+    def get_full_template_context(self):
+        is_secure = getattr(settings, "UNIVERSAL_NOTIFICATIONS_IS_SECURE", False)
+        protocol = "https://" if is_secure else "http://"
+        site = Site.objects.get_current()
+        return {
+            "site": site,
+            "STATIC_URL": settings.STATIC_URL,
+            "is_secure": is_secure,
+            "protocol": protocol,
+            "domain": site.domain
+        }
+
+    def get_template(self):
+        return get_template("emails/email_%s.html" % self.email_name)
+
+    def send_email(self, subject, receiver):
+        context = self.get_full_template_context()
+        context.update(self.get_context())
+        template = self.get_template()
+        html = template.render(context)
+        # update paths
+        base = context["protocol"] + context["domain"]
+        sender = self.sender or settings.DEFAULT_FROM_EMAIL
+        if getattr(settings, "UNIVERSAL_NOTIFICATIONS_USE_PREMAILER", True):
+            html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
+                                "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
+            html = Premailer(html,
+                             remove_classes=False,
+                             exclude_pseudoclasses=False,
+                             keep_style_tags=True,
+                             include_star_selectors=True,
+                             strip_important=False,
+                             cssutils_logging_level=logging.CRITICAL,
+                             base_url=base).transform()
+
+        # if subject is not provided, try to extract it from <title> tag
+        if not subject:
+            self.email_subject = self.__get_title_from_html(html)
+            subject = self.prepare_subject()
+
+        email = EmailMessage(subject, html, sender, [receiver], attachments=self.attachments)
+        if self.categories:
+            email.categories = self.categories
+        email.content_subtype = "html"
+        email.send(fail_silently=False)
+
+    def send_inner(self, prepared_receivers, prepared_message):
+        subject = self.email_subject
+        if subject:
+            subject = self.prepare_subject()
+
+        for receiver in prepared_receivers:
+            prepared_message["receiver"] = receiver
+            self.send_email(subject, self.format_receiver(receiver))
+
+    def __get_title_from_html(self, html):
+        m = re.search(r"<title>(.*?)</title>", html, re.MULTILINE | re.IGNORECASE)
+        if not m:
+            raise ImproperlyConfigured("Email notification {} does not provide email_subject nor "
+                                       "<title></title> in the template".format(self.email_name))
+
+        return m.group(1)
 
 
 class PushNotification(NotificationBase):

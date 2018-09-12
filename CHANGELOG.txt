@@ -1,5 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.14.0] - 2018-09-12
+### Changed
+- EmailNotification class is now more expandable and configurable
+- context param is not optional (defaults to {})
+### Added
+- Taking email subject from template's <title></title> tags if email_subject is not provided
+### Removed
+- universal_notifications.backends.emails.send.send_email function (moved to EmailNotification class)
+
 ## [0.13.1] - 2018-03-05
 ### Fixed
 - fixed 500 in notifications docs when serializers_class is added on __init__ to WSNotification

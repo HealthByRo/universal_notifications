@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __title__ = "Universal Notifications"
-__version__ = "0.13.1"
+__version__ = "0.14.0"
 __author__ = "Pawel Krzyzaniak"
 __license__ = "MIT"
 __copyright__ = "Copyright 2017 Arabella"
