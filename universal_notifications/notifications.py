@@ -299,6 +299,7 @@ class EmailNotification(NotificationBase):
     def send_email(self, subject, receiver):
         context = self.get_full_template_context()
         context.update(self.get_context())
+        context["receiver"] = receiver
         template = self.get_template()
         html = template.render(context)
         # update paths
