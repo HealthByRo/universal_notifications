@@ -296,10 +296,7 @@ class EmailNotification(NotificationBase):
     def get_template(self):
         return get_template("emails/email_%s.html" % self.email_name)
 
-    def send_email(self, subject, receiver):
-        context = self.get_full_template_context()
-        context.update(self.get_context())
-        context["receiver"] = receiver
+    def send_email(self, subject, context, receiver):
         template = self.get_template()
         html = template.render(context)
         # update paths
@@ -333,9 +330,11 @@ class EmailNotification(NotificationBase):
         if subject:
             subject = self.prepare_subject()
 
+        context = self.get_full_template_context()
+        context.update(prepared_message)
         for receiver in prepared_receivers:
-            prepared_message["receiver"] = receiver
-            self.send_email(subject, self.format_receiver(receiver))
+            context["receiver"] = receiver
+            self.send_email(subject, context, self.format_receiver(receiver))
 
     def __get_title_from_html(self, html):
         m = re.search(r"<title>(.*?)</title>", html, re.MULTILINE | re.IGNORECASE)
