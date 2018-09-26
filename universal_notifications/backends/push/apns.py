@@ -47,7 +47,7 @@ def _apns_create_socket(address_tuple, app_id):
         )
 
     try:
-        with open(certfile, "rb") as f:
+        with open(certfile, "r") as f:
             f.read()
     except Exception as e:
         raise ImproperlyConfigured("The APNS certificate file at %r is not readable: %s" % (certfile, e))

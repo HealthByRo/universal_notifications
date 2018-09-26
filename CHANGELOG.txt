@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.14.4] - 2018-09-26
+### Fixed
+- previous release
+
 ## [0.14.3] - 2018-09-26
 ### Fixed
 - sending notifications through APNS
