@@ -143,7 +143,7 @@ Supported platforms:
 
 To make push notifications work on all supported platforms, a few properties need to be set:
  * UNIVERSAL_NOTIFICATIONS_MOBILE_APPS[app_id]
-    * APNS_CERTIFICATE - APNS certificate file
+    * APNS_CERTIFICATE - APNS certificate file (.pem)
     * FCM_API_KEY - Firebase API key
     * GCM_API_KEY - Google Cloud Messaging API key
  * GCM_POST_URL - Google Cloud Messaging post url
@@ -161,7 +161,8 @@ Simple example of use:
 .. code:: python
 
     class OrderShippedPush(PushNotification):
-        message = _('Order no. {{item.pk}} has been shipped.')
+        title = _('Order no. {{item.pk}} has been shipped.')
+        description = _('This can also use {{item.pk}}')  # optional
 
     # ... somewhere in a view
     OrderShippedPush(item=order, receivers=[user], context={}).send()

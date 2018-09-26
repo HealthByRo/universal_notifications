@@ -15,7 +15,7 @@ class DeviceTest(APIBaseTestCase):
         self.unknown_device = Device(user=self.user, app_id="app1", platform="UNKNOWN")
 
     def test_send_message(self):
-        message = {"message": "msg", "field": "f1"}
+        message = {"message": "msg", "description": "desc", "field": "f1"}
 
         # test using inactive device
         self.assertFalse(self.inactive_device.send_message(**message))
@@ -43,7 +43,7 @@ class DeviceTest(APIBaseTestCase):
         # test using apns device
         with mock.patch("universal_notifications.models.apns_send_message") as mocked_send_message:
             self.apns_device.send_message(**message)
-            mocked_send_message.assert_called_with(self.apns_device, message["message"],
+            mocked_send_message.assert_called_with(self.apns_device, message["message"], message["description"],
                                                    {"field": message["field"]})
 
 

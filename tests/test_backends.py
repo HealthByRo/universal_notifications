@@ -1,7 +1,7 @@
+import json
 import os
 
 import mock
-import six
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import override_settings
@@ -181,6 +181,7 @@ class PushTests(APITestCase):
         message = {
             "device": self.apns_device,
             "message": "msg",
+            "description": "desc",
             "data": {
                 "category": "info",
                 "content_available": True,
@@ -196,14 +197,37 @@ class PushTests(APITestCase):
                 "extra": {"custom_data": 12345}
             }
         }
+        expected_payload = {
+            "aps": {
+                "alert": {
+                    "action-loc-key": "key",
+                    "body": "desc",
+                    "loc-args": "args",
+                    "loc-key": "TEST_LOCK_KEY",
+                    "title": "msg"
+                },
+                "badge": 1,
+                "category": "info",
+                "content-available": 1,
+                "sound": "chime"
+            },
+            "custom_data": 12345
+        }
+        expected_payload = json.dumps(expected_payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
         # test rich payload
         apns_send_message(**message)
         mock_pack_frame.assert_called_with(
-            self.apns_device.notification_token,
-            six.b('{"aps":{"alert":{"action-loc-key":"key","body":"msg","loc-args":"args","loc-key":"TEST_LOCK_KEY"},'
-                  '"badge":1,"category":"info","content-available":1,"sound":"chime"},"custom_data":12345}'),
+            self.apns_device.notification_token, expected_payload,
             message["data"]["identifier"], message["data"]["expiration"], message["data"]["priority"]
         )
 
+        # test sending without description
+        with mock.patch("universal_notifications.backends.push.apns._apns_send") as mocked_send:
+            apns_send_message(self.apns_device, message="msg", description="")
+            mocked_send.assert_called_with(self.apns_device.app_id, self.apns_device.notification_token, {
+                "body": "msg"
+            })
+
         # test oversizing
-        self.assertRaises(APNSDataOverflow, apns_send_message, self.apns_device, "_" * 2049, {})
+        with self.assertRaises(APNSDataOverflow):
+            apns_send_message(self.apns_device, "_" * 2049)
