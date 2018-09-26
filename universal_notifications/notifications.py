@@ -346,7 +346,8 @@ class EmailNotification(NotificationBase):
 
 
 class PushNotification(NotificationBase):
-    message = None  # required, django template string
+    title = None  # required, django template string
+    description = ""  # optional, django template string
 
     @classmethod
     def get_type(cls):
@@ -360,7 +361,8 @@ class PushNotification(NotificationBase):
 
     def prepare_message(self):
         return {
-            "message": Template(self.message).render(Context({"item": self.item})),
+            "title": Template(self.title).render(Context({"item": self.item})),
+            "description": Template(self.description).render(Context({"item": self.item})),
             "data": self.prepare_body()
         }
 
@@ -370,7 +372,7 @@ class PushNotification(NotificationBase):
     def send_inner(self, prepared_receivers, prepared_message):  # TODO
         for receiver in prepared_receivers:
             for d in Device.objects.filter(user=receiver, is_active=True):
-                d.send_message(prepared_message["message"], **prepared_message["data"])
+                d.send_message(prepared_message["title"], prepared_message["description"], **prepared_message["data"])
 
     def get_notification_history_details(self):
         return self.prepare_message()

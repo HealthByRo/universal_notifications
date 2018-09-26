@@ -1,5 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.15.0] - 2018-09-26
+### Added
+- support for description in push notifications for APNS
+### Changed
+- PushNotification.message was renamed to "title"
+
 ## [0.14.4] - 2018-09-26
 ### Fixed
 - previous release

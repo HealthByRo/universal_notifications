@@ -112,7 +112,7 @@ def _apns_send(app_id, token, alert, badge=None, sound=None, category=None, cont
     aps_data = {}
 
     if action_loc_key or loc_key or loc_args:
-        alert = {"body": alert} if alert else {}
+        alert = alert or {}
         if action_loc_key:
             alert["action-loc-key"] = action_loc_key
         if loc_key:
@@ -158,7 +158,7 @@ def _apns_send(app_id, token, alert, badge=None, sound=None, category=None, cont
             _apns_check_errors(socket)
 
 
-def apns_send_message(device, message=None, data=None):
+def apns_send_message(device, message=None, description=None, data=None):
     """
     Sends an APNS notification to a single registration_id.
     This will send the notification as form data.
@@ -167,4 +167,15 @@ def apns_send_message(device, message=None, data=None):
     it won't be included in the notification. You will need to pass None
     to this for silent notifications.
     """
-    _apns_send(device.app_id, device.notification_token, message, **data)
+    alert = {
+        "title": message,
+        "body": description
+    }
+    # do not send title if description is not provided (notification must contain the body param)
+    if not description:
+        alert = {
+            "body": message
+        }
+
+    data = data or {}
+    _apns_send(device.app_id, device.notification_token, alert, **data)

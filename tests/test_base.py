@@ -107,7 +107,8 @@ class SampleF(EmailNotification):
 
 
 class SampleG(PushNotification):
-    message = "{{item.name}}"
+    title = "{{item.name}}"
+    description = "desc"
 
 
 class SampleH(EmailNotification):
@@ -283,7 +284,8 @@ class BaseTest(APITestCase):
         with mock.patch("tests.test_base.SampleG.send_inner") as mocked_send_inner:
             SampleG(self.object_item, [self.object_receiver], {}).send()
             expected_message = {
-                "message": self.object_item.name,
+                "title": self.object_item.name,
+                "description": SampleG.description,
                 "data": {}
             }
             mocked_send_inner.assert_called_with({self.object_receiver}, expected_message)
@@ -291,7 +293,7 @@ class BaseTest(APITestCase):
         # test send_inner
         with mock.patch("tests.test_base.Device.send_message") as mocked_send_message:
             SampleG(self.object_item, [self.regular_user], {"item": self.object_item}).send()
-            mocked_send_message.assert_called_with(self.object_item.name)
+            mocked_send_message.assert_called_with(self.object_item.name, SampleG.description)
 
         # test w/o category - should fail
         with mock.patch("tests.test_base.SampleNoCategory.send_inner") as mocked_send_inner:

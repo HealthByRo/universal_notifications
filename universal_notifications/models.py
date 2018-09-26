@@ -49,11 +49,12 @@ class Device(models.Model):
     def __unicode__(self):
         return "%s (%s)" % (self.user.email or "unknown user", self.device_id)
 
-    def send_message(self, message, **data):
+    def send_message(self, message, description="", **data):
         """Send message to device
 
         Args:
             message (string): Message string
+            description (string): Optional description
             **data (dict, optional): Extra data
 
         Returns:
@@ -63,14 +64,13 @@ class Device(models.Model):
             return False
 
         message = force_text(message)
-        args = self, message, data
-
+        description = force_text(description)
         if self.platform == Device.PLATFORM_GCM:
-            return gcm_send_message(*args)
+            return gcm_send_message(self, message, data)
         elif self.platform == Device.PLATFORM_IOS:
-            return apns_send_message(*args)
+            return apns_send_message(self, message, description, data)
         elif self.platform == Device.PLATFORM_FCM:
-            return fcm_send_message(*args)
+            return fcm_send_message(self, message, data)
         else:
             return False
 
