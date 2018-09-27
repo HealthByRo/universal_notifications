@@ -15,7 +15,7 @@ class DeviceDetailsAPI(DestroyAPIView):
     serializer_class = DeviceSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        return super(DeviceDetailsAPI, self).get_queryset().filter(user=self.request.user)
 
 
 class SubscriptionsAPI(RetrieveModelMixin, UpdateModelMixin, GenericAPIView):  # we don't want patch here
