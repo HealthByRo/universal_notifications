@@ -159,3 +159,24 @@ class NotificationApiTestCase(APIBaseTestCase):
             "newsletter": True,
             "unsubscribed_from_all": False
         })
+
+
+class DeviceDetailsAPITestCase(APIBaseTestCase):
+    def setUp(self):
+        self.user = self._create_user(i=34)
+        self.second_user = self._create_user(i=2, set_self=False)
+        self.first_device = Device.objects.create(user=self.user, platform=Device.PLATFORM_IOS,
+                                                  notification_token="abc", device_id="iphone5,2", app_id="com.abc")
+        self.second_device = Device.objects.create(user=self.second_user, platform=Device.PLATFORM_IOS,
+                                                   notification_token="abc", device_id="iphone5,2", app_id="com.abc")
+
+    def test_api(self):
+        # try deleting other user's device
+        url = reverse("device-details", args=[self.second_device.id])
+        self._login(self.user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 404)
+
+        url = reverse("device-details", args=[self.first_device.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)

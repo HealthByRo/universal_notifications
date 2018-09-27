@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.16.0] - 2018-09-27
+### Added
+- endpoint to delete devices
+
 ## [0.15.0] - 2018-09-26
 ### Added
 - support for description in push notifications for APNS
