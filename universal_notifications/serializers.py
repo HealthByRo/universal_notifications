@@ -13,7 +13,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ["platform", "notification_token", "device_id", "app_id"]
+        fields = ["id", "platform", "notification_token", "device_id", "app_id"]
 
 
 class UnsubscribedSerializer(serializers.Serializer):

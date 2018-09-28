@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.16.1] - 2018-09-28
+### Added
+- missing "id" field to DeviceCreateAPI
+
 ## [0.16.0] - 2018-09-27
 ### Added
 - endpoint to delete devices
