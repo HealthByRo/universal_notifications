@@ -35,6 +35,7 @@ class NotificationApiTestCase(APIBaseTestCase):
         data["platform"] = "ios"
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
+        first_device_id = response.data["id"]
         devices = Device.objects.all()
         self.assertEqual(devices.count(), 1)
         self.assertEqual(devices[0].user, self.user)
@@ -42,6 +43,12 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertEqual(devices[0].notification_token, "foo")
         self.assertEqual(devices[0].device_id, "bar")
         self.assertTrue(devices[0].is_active)
+
+        # make sure that adding the same device will not duplicate devices
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(devices.count(), 1)
+        self.assertEqual(response.data["id"], first_device_id)
 
     def test_notifications_categories_api(self):
         self._create_user()

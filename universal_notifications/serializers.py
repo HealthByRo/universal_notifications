@@ -9,6 +9,14 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         data["user"] = self.context["request"].user
+
+        # do not allow duplicating devices
+        matching_device = data["user"].devices.filter(
+            is_active=True, notification_token=data["notification_token"]).first()
+        if matching_device:
+            self.context["view"]._matching_device = matching_device
+            return matching_device
+
         return super(DeviceSerializer, self).create(data)
 
     class Meta:
