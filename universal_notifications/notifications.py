@@ -89,6 +89,11 @@ class NotificationBase(object):
         raise ImproperlyConfigured(
             "UNIVERSAL NOTIFICATIONS USER CATEGORIES MAPPING: No categories for given user: %s" % user)
 
+    def get_context(self):
+        context = self.context
+        context["item"] = self.item
+        return context
+
     def prepare_receivers(self):
         raise NotImplementedError
 
@@ -199,7 +204,7 @@ class WSNotification(NotificationBase):
     def prepare_message(self):
         return {
             "message": self.message,
-            "data": self.serializer_class(self.item, context=self.context, many=self.serializer_many).data
+            "data": self.serializer_class(self.item, context=self.get_context(), many=self.serializer_many).data
         }
 
     def format_receiver_for_notification_history(self, receiver):
@@ -222,14 +227,22 @@ class SMSNotification(NotificationBase):
     send_async = getattr(settings, "UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK", True)
 
     def prepare_receivers(self):
-        return {x.phone for x in self.receivers}
+        """Filter out duplicated phone numbers"""
+        receivers = set()
+        phone_numbers = set()
+        for r in self.receivers:
+            if r.phone not in phone_numbers:
+                receivers.add(r)
+
+        return receivers
 
     def prepare_message(self):
-        return Template(self.message).render(Context({"item": self.item}))
+        return Template(self.message).render(Context(self.get_context()))
 
     def send_inner(self, prepared_receivers, prepared_message):
         for receiver in prepared_receivers:
-            send_sms(receiver, prepared_message, send_async=self.send_async)
+            self.context["receiver"] = receiver
+            send_sms(receiver, self.prepare_message(), send_async=self.send_async)
 
     def get_notification_history_details(self):
         return self.prepare_message()
@@ -257,12 +270,6 @@ class EmailNotification(NotificationBase):
 
     def prepare_receivers(self):
         return set(self.receivers)
-
-    def get_context(self):
-        result = {"item": self.item}
-        if self.context:
-            result.update(self.context)
-        return result
 
     def prepare_message(self):
         return self.get_context()
@@ -360,9 +367,10 @@ class PushNotification(NotificationBase):
         return {}
 
     def prepare_message(self):
+        context = Context(self.get_context())
         return {
-            "title": Template(self.title).render(Context({"item": self.item})),
-            "description": Template(self.description).render(Context({"item": self.item})),
+            "title": Template(self.title).render(context),
+            "description": Template(self.description).render(context),
             "data": self.prepare_body()
         }
 

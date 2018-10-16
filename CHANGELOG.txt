@@ -1,5 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.17.0] - 2018-10-16
+### Added
+- receiver object to SMS notifications' context
+### Changed
+- SMSNotification.prepare_receivers now returns a list of receiver objects - not a list of phone numbers
+
 ## [0.16.2] - 2018-10-08
 ### Fixed
 - duplicating devices when added via API

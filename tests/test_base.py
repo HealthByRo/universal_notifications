@@ -93,7 +93,7 @@ class SampleD(WSNotification):
 
 
 class SampleE(SMSNotification):
-    message = "{{item.name}}"
+    message = "{{receiver.email}}: {{item.name}}"
 
 
 class SyncSampleE(SampleE):
@@ -160,7 +160,7 @@ class BaseTest(APITestCase):
         self.item = {"content": "whateva", "is_read": False}
         self.receivers = ["  a  ", "b "]
 
-        self.object_item = SampleModel("sample")
+        self.object_item = SampleModel(name="sample")
         self.object_receiver = SampleReceiver("foo@bar.com", "123456789")
         self.object_second_receiver = SampleReceiver("foo@bar.com", "123456789", first_name="foo@bar.com")
         self.superuser_object_receiver = SampleReceiver("super_foo@bar.com", "123456789", is_superuser=True)
@@ -224,18 +224,14 @@ class BaseTest(APITestCase):
             mocked_publish.assert_called_with(self.object_receiver, additional_data=expected_message)
 
         # test SMSNotifications
-        with mock.patch("tests.test_base.SampleE.send_inner") as mocked_send_inner:
-            SampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_inner.assert_called_with({self.object_receiver.phone}, self.object_item.name)
-
-        # test send_inner
+        sms_message = "{}: {}".format(self.object_receiver.email, self.object_item.name)
         with mock.patch("universal_notifications.notifications.send_sms") as mocked_send_sms:
             SampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, send_async=True)
+            mocked_send_sms.assert_called_with(self.object_receiver, sms_message, send_async=True)
+            mocked_send_inner.reset_mock()
 
-        with mock.patch("universal_notifications.notifications.send_sms") as mocked_send_sms:
             SyncSampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver.phone, self.object_item.name, send_async=False)
+            mocked_send_sms.assert_called_with(self.object_receiver, sms_message, send_async=False)
 
         # test EmailNotifications
         with mock.patch("tests.test_base.SampleF.send_inner") as mocked_send_inner:
