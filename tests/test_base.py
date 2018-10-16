@@ -227,11 +227,11 @@ class BaseTest(APITestCase):
         sms_message = "{}: {}".format(self.object_receiver.email, self.object_item.name)
         with mock.patch("universal_notifications.notifications.send_sms") as mocked_send_sms:
             SampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver, sms_message, send_async=True)
+            mocked_send_sms.assert_called_with(self.object_receiver.phone, sms_message, send_async=True)
             mocked_send_inner.reset_mock()
 
             SyncSampleE(self.object_item, [self.object_receiver], {}).send()
-            mocked_send_sms.assert_called_with(self.object_receiver, sms_message, send_async=False)
+            mocked_send_sms.assert_called_with(self.object_receiver.phone, sms_message, send_async=False)
 
         # test EmailNotifications
         with mock.patch("tests.test_base.SampleF.send_inner") as mocked_send_inner:
