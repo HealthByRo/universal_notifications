@@ -118,7 +118,7 @@ Simple example of use:
 .. code:: python
 
     class OrderShippedSMS(SMSNotification):
-        message = _('Order no. {{item.pk}} has been shipped.')
+        message = _('{{receiver.first_name}}, order no. {{item.pk}} has been shipped.')
 
         def prepare_receivers(self):
             return {x.shipping_address.phone for x in self.receivers}
