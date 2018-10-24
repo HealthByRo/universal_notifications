@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.17.2] - 2018-10-24
+### Fixed
+- Discover Celery
+
 ## [0.17.1] - 2018-10-16
 ### Fixed
 - SMS notifications
