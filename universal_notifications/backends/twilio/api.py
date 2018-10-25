@@ -33,10 +33,10 @@ class TwilioAPI(GenericAPIView):
         if data.get('Direction') == 'inbound':
             if data.get('CallStatus') == 'ringing':  # incoming voice call
                 text = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_TWILIO_CALL_RESPONSE_DEFAULT',
-                               '<?xml version="1.0" encoding="UTF-8"?>' +
-                               '<Response>' +
-                               '<Say>Hello, thanks for calling. ' +
-                               'To leave a message wait for the tone.</Say>' +
+                               '<?xml version="1.0" encoding="UTF-8"?>'
+                               '<Response>'
+                               '<Say>Hello, thanks for calling. '
+                               'To leave a message wait for the tone.</Say>'
                                '<Record timeout="30" />'
                                '</Response>')
                 return Response(SafeString(text), content_type='text/xml')

@@ -19,7 +19,6 @@ if CELERY_APP_PATH:
     __path, __symbol = CELERY_APP_PATH.rsplit(".", 1)
     app = getattr(import_module(__path), __symbol)
 
-
     @app.task()
     def process_chained_notification(conf, item, receivers, context, parent_result):
         """ conf - configuration of chained notification
@@ -42,7 +41,6 @@ if CELERY_APP_PATH:
         # sending out notification
         notification_class(item, receivers, context).send()
 
-
     @app.task(ignore_result=True)
     def parse_received_message_task(message_id):
         try:
@@ -59,7 +57,6 @@ if CELERY_APP_PATH:
             raw.status = PhoneReceivedRaw.STATUS_FAIL
             raw.exception = traceback.format_exc()
             raw.save()
-
 
     @app.task(ignore_result=True)
     def send_message_task(to_number, text, media, priority):
@@ -90,7 +87,6 @@ if CELERY_APP_PATH:
             "message": obj,
         }
         PhonePendingMessages.objects.create(**data)
-
 
     @app.task(ignore_result=True)
     def ws_received_send_signal_task(message_data, channel_emails):
