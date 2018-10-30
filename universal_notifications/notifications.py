@@ -1,37 +1,42 @@
 # -*- coding: utf-8 -*-
-"""
-    # TODO: fill readme & TODO
-    # TODO (Pawel): processors filtering (email/sms) - mail/sms history + limiters
-    # TODO (Pawel): sample transformations / conditions
+"""Universal Notifications
 
-    Sample usage:
-        WSNotification(item, receivers, context).send()
+Sample usage:
+    WSNotification(item, receivers, context).send()
 
-    Chaining example:
-        chaining = (
-            {
-                "class": PushNotification,  # required, must be a subclass of NotificationBase
-                "delay": 0,  # required, [in seconds]
-                "transform_func": None,  # optional, should take as parameters (item, receivers, context)
-                                         # and return transformed item, receivers, context - see Transformations
-                                         # if empty or missing - no transformation is applied
-                "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
-                                         # and returns True if notification should be send and False if not
-                                         # if function is None,
-                },
-        )
+Chaining example:
+    chaining = (
+        {
+            "class": PushNotification,  # required, must be a subclass of NotificationBase
+            "delay": 0,  # required, [in seconds]
+            "transform_func": None,  # optional, should take as parameters (item, receivers, context)
+                                     # and return transformed item, receivers, context - see Transformations
+                                     # if empty or missing - no transformation is applied
+            "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
+                                     # and returns True if notification should be send and False if not
+                                     # if function is None,
+            },
+    )
 """
 import importlib
+import logging
+import re
+from email.utils import formataddr
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.core.mail import EmailMessage
 from django.template import Context, Template
-from universal_notifications.backends.emails.send import send_email
+from django.template.loader import get_template
+from premailer import Premailer
 from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
 from universal_notifications.tasks import process_chained_notification
+
+logger = logging.getLogger(__name__)
 
 user_definitions = None
 if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE") and \
@@ -49,17 +54,17 @@ class NotificationBase(object):
     def get_type(cls):
         raise NotImplementedError
 
-    def __init__(self, item, receivers, context):
+    def __init__(self, item, receivers, context=None):
         self.item = item
         self.receivers = receivers
-        self.context = context
+        self.context = context or {}
 
     @classmethod
     def get_mapped_user_notifications_types_and_categories(cls, user):
-        """
-            Returns a dictionary for given user type:
-            {"notificaiton_type": [categries list]}
-            TODO: use this one in serializer.
+        """Returns a dictionary for given user type:
+
+        {"notificaiton_type": [categries list]}
+        TODO: use this one in serializer.
         """
         if not hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING"):
             notifications = {}
@@ -72,10 +77,10 @@ class NotificationBase(object):
                     return settings.UNIVERSAL_NOTIFICATIONS_USER_CATEGORIES_MAPPING[user_type]
 
     def get_user_categories_for_type(self, user):
-        """
-            Check categories available for given user type and this notification type.
-            If no mapping present we assume all are allowed.
-            Raises ImproperlyConfigured if no categories for given user availaible
+        """Check categories available for given user type and this notification type.
+
+        If no mapping present we assume all are allowed.
+        Raises ImproperlyConfigured if no categories for given user availaible
         """
         categories = self.get_mapped_user_notifications_types_and_categories(user)
         if categories:
@@ -83,6 +88,11 @@ class NotificationBase(object):
 
         raise ImproperlyConfigured(
             "UNIVERSAL NOTIFICATIONS USER CATEGORIES MAPPING: No categories for given user: %s" % user)
+
+    def get_context(self):
+        context = self.context
+        context["item"] = self.item
+        return context
 
     def prepare_receivers(self):
         raise NotImplementedError
@@ -121,9 +131,7 @@ class NotificationBase(object):
                     % (self.get_type(), self.category))
 
     def verify_and_filter_receivers_subscriptions(self):
-        """
-            returns new list of only receivers that are subscribed for given notification type/category
-        """
+        """Returns new list of only receivers that are subscribed for given notification type/category."""
         if not self.check_subscription or self.category == self.PRIORITY_CATEGORY:
             return self.receivers
 
@@ -156,12 +164,16 @@ class NotificationBase(object):
             }
 
             if hasattr(self.item, "id"):
-                if type(self.item.id) == int:
+                if isinstance(self.item.id, int):
                     content_type = ContentType.objects.get_for_model(self.item)
                     data["content_type"] = content_type
                     data["object_id"] = self.item.id
 
-            NotificationHistory.objects.create(**data)
+            if getattr(settings, "UNIVERSAL_NOTIFICATIONS_HISTORY", True):
+                if getattr(settings, "UNIVERSAL_NOTIFICATIONS_HISTORY_USE_DATABASE", True):
+                    NotificationHistory.objects.create(**data)
+
+                logger.info("Notification sent: {}".format(data))
 
     def send(self):
         self.check_category()
@@ -192,7 +204,7 @@ class WSNotification(NotificationBase):
     def prepare_message(self):
         return {
             "message": self.message,
-            "data": self.serializer_class(self.item, context=self.context, many=self.serializer_many).data
+            "data": self.serializer_class(self.item, context=self.get_context(), many=self.serializer_many).data
         }
 
     def format_receiver_for_notification_history(self, receiver):
@@ -212,16 +224,25 @@ class WSNotification(NotificationBase):
 
 class SMSNotification(NotificationBase):
     message = None  # required, django template string
+    send_async = getattr(settings, "UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK", True)
 
     def prepare_receivers(self):
-        return {x.phone for x in self.receivers}
+        """Filter out duplicated phone numbers"""
+        receivers = set()
+        phone_numbers = set()
+        for r in self.receivers:
+            if r.phone not in phone_numbers:
+                receivers.add(r)
+
+        return receivers
 
     def prepare_message(self):
-        return Template(self.message).render(Context({"item": self.item}))
+        return Template(self.message).render(Context(self.get_context()))
 
     def send_inner(self, prepared_receivers, prepared_message):
         for receiver in prepared_receivers:
-            send_sms(receiver, prepared_message)
+            self.context["receiver"] = receiver
+            send_sms(receiver.phone, self.prepare_message(), send_async=self.send_async)
 
     def get_notification_history_details(self):
         return self.prepare_message()
@@ -233,21 +254,22 @@ class SMSNotification(NotificationBase):
 
 class EmailNotification(NotificationBase):
     email_name = None  # required
-    email_subject = None  # required
+    email_subject = None  # if not provided, will try to extract "<title>" tag from email template
     sender = None  # optional
+    categories = []  # optional
+
+    def __init__(self, item, receivers, context=None, attachments=None):
+        self.attachments = attachments or []
+        super(EmailNotification, self).__init__(item, receivers, context)
 
     @classmethod
     def format_receiver(cls, receiver):
-        return "%s %s <%s>" % (receiver.first_name, receiver.last_name, receiver.email)
+        receiver_name = "%s %s" % (receiver.first_name, receiver.last_name)
+        receiver_name = re.sub(r"\S*@\S*\s?", "", receiver_name).strip()
+        return formataddr((receiver_name, receiver.email))
 
     def prepare_receivers(self):
         return set(self.receivers)
-
-    def get_context(self):
-        result = {"item": self.item}
-        if self.context:
-            result.update(self.context)
-        return result
 
     def prepare_message(self):
         return self.get_context()
@@ -256,15 +278,8 @@ class EmailNotification(NotificationBase):
         return receiver.email
 
     def prepare_subject(self):
-        return Template(self.email_subject).render(Context(self.get_context()))
-
-    def send_inner(self, prepared_receivers, prepared_message):
-        prepared_subject = self.prepare_subject()
-        for receiver in prepared_receivers:
-            prepared_message["receiver"] = receiver
-            send_email(
-                self.email_name, self.format_receiver(receiver), prepared_subject, prepared_message, sender=self.sender
-            )
+        if self.email_subject:
+            return Template(self.email_subject).render(Context(self.get_context()))
 
     def get_notification_history_details(self):
         return self.email_name
@@ -273,9 +288,73 @@ class EmailNotification(NotificationBase):
     def get_type(cls):
         return "Email"
 
+    def get_full_template_context(self):
+        is_secure = getattr(settings, "UNIVERSAL_NOTIFICATIONS_IS_SECURE", False)
+        protocol = "https://" if is_secure else "http://"
+        site = Site.objects.get_current()
+        return {
+            "site": site,
+            "STATIC_URL": settings.STATIC_URL,
+            "is_secure": is_secure,
+            "protocol": protocol,
+            "domain": site.domain
+        }
+
+    def get_template(self):
+        return get_template("emails/email_%s.html" % self.email_name)
+
+    def send_email(self, subject, context, receiver):
+        template = self.get_template()
+        html = template.render(context)
+        # update paths
+        base = context["protocol"] + context["domain"]
+        sender = self.sender or settings.DEFAULT_FROM_EMAIL
+        if getattr(settings, "UNIVERSAL_NOTIFICATIONS_USE_PREMAILER", True):
+            html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
+                                "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
+            html = Premailer(html,
+                             remove_classes=False,
+                             exclude_pseudoclasses=False,
+                             keep_style_tags=True,
+                             include_star_selectors=True,
+                             strip_important=False,
+                             cssutils_logging_level=logging.CRITICAL,
+                             base_url=base).transform()
+
+        # if subject is not provided, try to extract it from <title> tag
+        if not subject:
+            self.email_subject = self.__get_title_from_html(html)
+            subject = self.prepare_subject()
+
+        email = EmailMessage(subject, html, sender, [receiver], attachments=self.attachments)
+        if self.categories:
+            email.categories = self.categories
+        email.content_subtype = "html"
+        email.send(fail_silently=False)
+
+    def send_inner(self, prepared_receivers, prepared_message):
+        subject = self.email_subject
+        if subject:
+            subject = self.prepare_subject()
+
+        context = self.get_full_template_context()
+        context.update(prepared_message)
+        for receiver in prepared_receivers:
+            context["receiver"] = receiver
+            self.send_email(subject, context, self.format_receiver(receiver))
+
+    def __get_title_from_html(self, html):
+        m = re.search(r"<title>(.*?)</title>", html, re.MULTILINE | re.IGNORECASE)
+        if not m:
+            raise ImproperlyConfigured("Email notification {} does not provide email_subject nor "
+                                       "<title></title> in the template".format(self.email_name))
+
+        return m.group(1)
+
 
 class PushNotification(NotificationBase):
-    message = None  # required, django template string
+    title = None  # required, django template string
+    description = ""  # optional, django template string
 
     @classmethod
     def get_type(cls):
@@ -288,8 +367,10 @@ class PushNotification(NotificationBase):
         return {}
 
     def prepare_message(self):
+        context = Context(self.get_context())
         return {
-            "message": Template(self.message).render(Context({"item": self.item})),
+            "title": Template(self.title).render(context),
+            "description": Template(self.description).render(context),
             "data": self.prepare_body()
         }
 
@@ -299,7 +380,7 @@ class PushNotification(NotificationBase):
     def send_inner(self, prepared_receivers, prepared_message):  # TODO
         for receiver in prepared_receivers:
             for d in Device.objects.filter(user=receiver, is_active=True):
-                d.send_message(prepared_message["message"], **prepared_message["data"])
+                d.send_message(prepared_message["title"], prepared_message["description"], **prepared_message["data"])
 
     def get_notification_history_details(self):
         return self.prepare_message()

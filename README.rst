@@ -28,6 +28,7 @@ Basic usage
 -  `Unsubscriber`_
 -  `Unsubscriber API`_
 -  `FakeEmailSend view`_
+-  `Notification history`_
 
 WebSocket notifications
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,9 +70,17 @@ E-mail notifications
     class OrderShippedEmail(EmailNotification):
         email_name = 'order_shipped'
         email_subject = _('Order no. {{item.pk}} has been shipped.')
+        categories = ["newsletter"]
 
     # ... somewhere in a view
-    OrderShippedEmail(item=order, receivers=[user], context={}).send()
+    OrderShippedEmail(item=order, receivers=[user], context={}, attachments=[
+        ("invoice.pdf", open("invoice.pdf").read(), "application/pdf")
+    ]).send()
+
+Attachements parameter has to be a list of `(filename, content, mime_type)` triples.
+The **categories** field is optional, it can be used with `django-sendgrid <https://github.com/sklarsa/django-sendgrid-v5>`_ to enable metrics by category.
+
+Email subject will be taken from the `<title></title>` tags in the template if it is not set in notification class.
 
 Settings
     * UNIVERSAL_NOTIFICATIONS_IS_SECURE (bool, default: False) - set https protocol and `is_secure` variable
@@ -88,6 +97,7 @@ Supported platforms:
 Settings
     * UNIVERSAL_NOTIFICATIONS_SMS_ENGINE - set engine
     * UNIVERSAL_NOTIFICATIONS_VALIDATE_MOBILE (bool)
+    * UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK (bool, default True)
 
 Engine settinsgs:
     * Twilio
@@ -108,10 +118,13 @@ Simple example of use:
 .. code:: python
 
     class OrderShippedSMS(SMSNotification):
-        message = _('Order no. {{item.pk}} has been shipped.')
+        message = _('{{receiver.first_name}}, order no. {{item.pk}} has been shipped.')
 
         def prepare_receivers(self):
             return {x.shipping_address.phone for x in self.receivers}
+
+    class SyncOrderShippedSMS(OrderShippedSMS):
+        send_async = False  # by default taken from UNIVERSAL_NOTIFICATIONS_SMS_SEND_IN_TASK
 
     # ... somewhere in a view
     OrderShippedSMS(item=order, receivers=[user], context={}).send(
@@ -130,7 +143,7 @@ Supported platforms:
 
 To make push notifications work on all supported platforms, a few properties need to be set:
  * UNIVERSAL_NOTIFICATIONS_MOBILE_APPS[app_id]
-    * APNS_CERTIFICATE - APNS certificate file
+    * APNS_CERTIFICATE - APNS certificate file (.pem)
     * FCM_API_KEY - Firebase API key
     * GCM_API_KEY - Google Cloud Messaging API key
  * GCM_POST_URL - Google Cloud Messaging post url
@@ -148,7 +161,8 @@ Simple example of use:
 .. code:: python
 
     class OrderShippedPush(PushNotification):
-        message = _('Order no. {{item.pk}} has been shipped.')
+        title = _('Order no. {{item.pk}} has been shipped.')
+        description = _('This can also use {{item.pk}}')  # optional
 
     # ... somewhere in a view
     OrderShippedPush(item=order, receivers=[user], context={}).send()
@@ -294,3 +308,13 @@ to your urls.py, and specify receiver email address using ``UNIVERSAL_NOTIFICATI
 After that you can make a request to the new url with **template** parameter, for instance:
 ``http://localhost:8000/emails/?template=reset_password``, which  will send an email using
 ``emails/email_reset_password.html`` as the template.
+
+
+Notification history
+~~~~~~~~~~~~~~~~~~~~
+By default all notifications that have been sent are stored in the **NotificationHistory** object in the database, but
+this behavior can be changed, and therefore the database will not be used to store notification history (but you will
+still receive notification history in your app log, on the **info** level).
+
+To disable using database, set ``UNIVERSAL_NOTIFICATIONS_HISTORY_USE_DATABASE`` to **False** (default: **True**),
+and to disable any history tracking, set ``UNIVERSAL_NOTIFICATIONS_HISTORY`` to **False** (default: **True**).

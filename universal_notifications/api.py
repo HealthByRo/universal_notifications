@@ -1,18 +1,34 @@
 # -*- coding: utf-8 -*-
 import coreapi
-from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, DestroyAPIView, GenericAPIView
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_swagger.renderers import OpenAPIRenderer
 from universal_notifications.docs import NotificationsDocs
-from universal_notifications.models import UnsubscribedUser
+from universal_notifications.models import Device, UnsubscribedUser
 from universal_notifications.serializers import DeviceSerializer, UnsubscribedSerializer
 
 
 class DevicesAPI(CreateAPIView):
     serializer_class = DeviceSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super(DevicesAPI, self).create(request, *args, **kwargs)
+        if getattr(self, "_matching_device", None):
+            response.status_code = status.HTTP_200_OK
+
+        return response
+
+
+class DeviceDetailsAPI(DestroyAPIView):
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
+
+    def get_queryset(self):
+        return super(DeviceDetailsAPI, self).get_queryset().filter(user=self.request.user)
 
 
 class SubscriptionsAPI(RetrieveModelMixin, UpdateModelMixin, GenericAPIView):  # we don't want patch here

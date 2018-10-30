@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from rest_framework import serializers
-from rest_framework.compat import is_authenticated
 from universal_notifications.models import Device
 from universal_notifications.notifications import NotificationBase
 
@@ -10,11 +9,19 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         data["user"] = self.context["request"].user
+
+        # do not allow duplicating devices
+        matching_device = data["user"].devices.filter(
+            is_active=True, notification_token=data["notification_token"]).first()
+        if matching_device:
+            self.context["view"]._matching_device = matching_device
+            return matching_device
+
         return super(DeviceSerializer, self).create(data)
 
     class Meta:
         model = Device
-        fields = ["platform", "notification_token", "device_id", "app_id"]
+        fields = ["id", "platform", "notification_token", "device_id", "app_id"]
 
 
 class UnsubscribedSerializer(serializers.Serializer):
@@ -22,7 +29,7 @@ class UnsubscribedSerializer(serializers.Serializer):
 
     def get_configuration(self):
         request = self.context.get("request", None)
-        if request and is_authenticated(request.user):
+        if request and request.user.is_authenticated:
             return NotificationBase.get_mapped_user_notifications_types_and_categories(request.user)
         return None
 

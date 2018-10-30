@@ -35,6 +35,7 @@ class NotificationApiTestCase(APIBaseTestCase):
         data["platform"] = "ios"
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
+        first_device_id = response.data["id"]
         devices = Device.objects.all()
         self.assertEqual(devices.count(), 1)
         self.assertEqual(devices[0].user, self.user)
@@ -42,6 +43,12 @@ class NotificationApiTestCase(APIBaseTestCase):
         self.assertEqual(devices[0].notification_token, "foo")
         self.assertEqual(devices[0].device_id, "bar")
         self.assertTrue(devices[0].is_active)
+
+        # make sure that adding the same device will not duplicate devices
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(devices.count(), 1)
+        self.assertEqual(response.data["id"], first_device_id)
 
     def test_notifications_categories_api(self):
         self._create_user()
@@ -159,3 +166,24 @@ class NotificationApiTestCase(APIBaseTestCase):
             "newsletter": True,
             "unsubscribed_from_all": False
         })
+
+
+class DeviceDetailsAPITestCase(APIBaseTestCase):
+    def setUp(self):
+        self.user = self._create_user(i=34)
+        self.second_user = self._create_user(i=2, set_self=False)
+        self.first_device = Device.objects.create(user=self.user, platform=Device.PLATFORM_IOS,
+                                                  notification_token="abc", device_id="iphone5,2", app_id="com.abc")
+        self.second_device = Device.objects.create(user=self.second_user, platform=Device.PLATFORM_IOS,
+                                                   notification_token="abc", device_id="iphone5,2", app_id="com.abc")
+
+    def test_api(self):
+        # try deleting other user's device
+        url = reverse("device-details", args=[self.second_device.id])
+        self._login(self.user)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 404)
+
+        url = reverse("device-details", args=[self.first_device.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)

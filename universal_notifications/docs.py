@@ -2,6 +2,11 @@
 from importlib import import_module
 
 from django.apps import apps
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render_to_response
+from django.template import RequestContext, TemplateDoesNotExist, TemplateSyntaxError
+from django.utils import six
 from django.utils.safestring import mark_safe
 from rest_framework.compat import coreapi
 from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
@@ -43,15 +48,18 @@ class WSDocGenerator(BaseGenerator):
         return self._obj.message
 
     def get_type(self):
-        return self._obj.serializer_class.__name__
+        return self.get_serializer().__name__
 
     def get_class_specific_notes(self):
-        data = self._obj.serializer_class.__name__
+        data = self.get_serializer().__name__
         if self._obj.serializer_many:
             data = "[%s*]" % data
         return "<b>Message</b><br/>%s<br/><br/><b>Data</b><br/>%s" % (self._obj.message, data)
 
     def get_serializer(self):
+        if self._obj.serializer_class is None:
+            # handling scase when serializer_class is defined during __init__
+            return self._obj().serializer_class
         return self._obj.serializer_class
 
     def skip(self):
@@ -92,7 +100,7 @@ class EmailDocGenerator(BaseGenerator):
         try:
             source, dummy = template_loader.load_template_source(template_name)
             return source
-        except:
+        except (TemplateDoesNotExist, TemplateSyntaxError):
             return ""
     # --
 
@@ -151,7 +159,7 @@ class NotificationsDocs(object):
                             if serializer:
                                 cls._serializers.add(serializer)
                             cls._registry[notification_type][item_key] = {"cls": item, "path": item_path}
-            except:
+            except Exception:
                 pass
 
     @classmethod

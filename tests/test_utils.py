@@ -44,14 +44,19 @@ class BaseTestCase(TestCase):
         }
         return context
 
-    def _login(self):
-        self.client.login(email="joe+1@doe.com", password=self.password)
+    def _login(self, user=None):
+        email = "joe+1@doe.com"
+        if user:
+            email = user.email
+
+        self.client.login(email=email, password=self.password)
 
     def _new_user(self, i, is_active=True, **kwargs):
         user = UserModel(
             first_name="Joe%i" % i,
             last_name="Doe",
             email="joe+%s@doe.com" % i,
+            username="joe%i" % i,
             is_active=is_active,
             **kwargs
         )
@@ -59,16 +64,20 @@ class BaseTestCase(TestCase):
         user.save()
         return user
 
-    def _create_user(self, i=1, **kwargs):
-        self.user = self._new_user(i, **kwargs)
-        return self.user
+    def _create_user(self, i=1, set_self=True, **kwargs):
+        user = self._new_user(i, **kwargs)
+        if set_self:
+            self.user = user
+
+        return user
 
 
 class APIBaseTestCase(BaseTestCase, APITestCase):
 
-    def _login(self):
-        email = "joe+1@doe.com"
-        user = UserModel.objects.get(email=email)
+    def _login(self, user=None):
+        if not user:
+            user = UserModel.objects.get(email="joe+1@doe.com")
+
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        return self.client.login(email=email, password=self.password)
+        return self.client.login(email=user.email, password=self.password)

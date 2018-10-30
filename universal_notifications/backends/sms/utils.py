@@ -21,8 +21,8 @@ except ImportError:
 try:
     __path, __symbol = getattr(settings, 'UNIVERSAL_NOTIFICATIONS_SEND_SMS_FUNC').rsplit('.', 1)
     send_sms = getattr(import_module(__path), __symbol)
-except:
-    def send_sms(to_number, text, media=None, priority=9999):
+except (AttributeError, ImportError):
+    def send_sms(to_number, text, media=None, priority=9999, send_async=True):
         """Send SMS/MMS
 
         Send SMS/MMS
@@ -36,7 +36,11 @@ except:
             priority {number} -- sending order if queued, ascending order (default: {9999})
         """
         from universal_notifications.tasks import send_message_task
-        send_message_task.delay(to_number, text, media, priority)
+
+        if send_async:
+            send_message_task.delay(to_number, text, media, priority)
+        else:
+            send_message_task(to_number, text, media, priority)
 
 try:
     # Wide UCS-4 build

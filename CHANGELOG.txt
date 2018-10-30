@@ -1,5 +1,96 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [0.17.2] - 2018-10-24
+### Fixed
+- Discover Celery
+
+## [0.17.1] - 2018-10-16
+### Fixed
+- SMS notifications
+
+## [0.17.0] - 2018-10-16
+### Added
+- receiver object to SMS notifications' context
+### Changed
+- SMSNotification.prepare_receivers now returns a list of receiver objects - not a list of phone numbers
+
+## [0.16.2] - 2018-10-08
+### Fixed
+- duplicating devices when added via API
+
+## [0.16.1] - 2018-09-28
+### Added
+- missing "id" field to DeviceCreateAPI
+
+## [0.16.0] - 2018-09-27
+### Added
+- endpoint to delete devices
+
+## [0.15.0] - 2018-09-26
+### Added
+- support for description in push notifications for APNS
+### Changed
+- PushNotification.message was renamed to "title"
+
+## [0.14.4] - 2018-09-26
+### Fixed
+- previous release
+
+## [0.14.3] - 2018-09-26
+### Fixed
+- sending notifications through APNS
+
+## [0.14.2] - 2018-09-14
+### Fixed
+- missing receiver in email context
+
+## [0.14.0] - 2018-09-12
+### Changed
+- EmailNotification class is now more expandable and configurable
+- context param is not optional (defaults to {})
+### Added
+- Taking email subject from template's <title></title> tags if email_subject is not provided
+### Removed
+- universal_notifications.backends.emails.send.send_email function (moved to EmailNotification class)
+
+## [0.13.1] - 2018-03-05
+### Fixed
+- fixed 500 in notifications docs when serializers_class is added on __init__ to WSNotification
+
+## [0.13.0] - 2018-03-05
+### Added
+- support for categories in django-sendgrid-v5
+
+## [0.12.0] - 2018-02-19
+### Added
+- support for Django 2.0
+### Removed
+- support for Django 1.8, 1.9, 1.10
+
+## [0.10.2] - 2017-09-08
+### Added
+- improved formatting of email addresses
+
+## [0.10.1] - 2017-09-08
+### Added
+- improved formatting of email addresses
+
+## [0.11.0] - 2017-11-22
+### Added
+- applying attachments to EmailNotifications
+
+## [0.10.0] - 2017-08-29
+### Added
+- setting to disable notification history
+
+## [0.9.1] - 2017-08-17
+### Fixed
+- sending SMS synchronously
+
+## [0.9.0] - 2017-08-14
+### Added
+- sending SMS as sync or async is now configurable
+
 ## [0.8.5] - 2017-07-04
 ### Added
 - source as generic relation to NotificationHistory
