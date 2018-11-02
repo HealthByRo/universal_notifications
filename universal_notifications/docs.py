@@ -2,11 +2,7 @@
 from importlib import import_module
 
 from django.apps import apps
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import render_to_response
-from django.template import RequestContext, TemplateDoesNotExist, TemplateSyntaxError
-from django.utils import six
+from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.utils.safestring import mark_safe
 from rest_framework.compat import coreapi
 from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
