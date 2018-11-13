@@ -253,10 +253,22 @@ class SMSNotification(NotificationBase):
 
 
 class EmailNotification(NotificationBase):
+    """Email notification
+
+    Attributes:
+        email_name      required
+        email_subject   if not provided, will try to extract "<title>" tag from email template
+        sender          optional sender
+        categories      optional categories which are added to EmailMessage (can be used with SendGrid)
+        sendgrid_asm    SendGrid unsubscribe groups configuration, available properties:
+                        * group_id - ID of an unsubscribe group
+                        * groups_to_display - Unsubscribe groups to display
+    """
     email_name = None  # required
     email_subject = None  # if not provided, will try to extract "<title>" tag from email template
     sender = None  # optional
     categories = []  # optional
+    sendgrid_asm = {}
 
     def __init__(self, item, receivers, context=None, attachments=None):
         self.attachments = attachments or []
@@ -329,6 +341,10 @@ class EmailNotification(NotificationBase):
         email = EmailMessage(subject, html, sender, [receiver], attachments=self.attachments)
         if self.categories:
             email.categories = self.categories
+
+        if self.sendgrid_asm:
+            email.asm = self.sendgrid_asm
+
         email.content_subtype = "html"
         email.send(fail_silently=False)
 

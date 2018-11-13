@@ -104,6 +104,10 @@ class SampleF(EmailNotification):
     email_name = "test"
     email_subject = "subject"
     categories = ["cars", "newsletter"]
+    sendgrid_asm = {
+        "group_id": 1,
+        "groups_to_display": [1, 2]
+    }
 
 
 class SampleG(PushNotification):
@@ -268,6 +272,10 @@ class BaseTest(APITestCase):
         self.assertEqual(mail.outbox[0].subject, "subject")
         self.assertEqual(mail.outbox[0].to, ["{last_name} <{email}>".format(**self.object_second_receiver.__dict__)])
         self.assertEqual(mail.outbox[0].categories, ["cars", "newsletter"])
+        self.assertEqual(mail.outbox[0].asm, {
+            "group_id": 1,
+            "groups_to_display": [1, 2]
+        })
 
         mail.outbox = []
         notification = SampleF(self.object_item, [self.object_receiver], {})
