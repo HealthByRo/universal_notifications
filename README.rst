@@ -74,6 +74,7 @@ E-mail notifications
         sendgrid_asm = {
             "group_id": 1
         }
+        use_premailer = False  # disable Premailer for this email
 
     # ... somewhere in a view
     OrderShippedEmail(item=order, receivers=[user], context={}, attachments=[
@@ -81,7 +82,7 @@ E-mail notifications
     ]).send()
 
 Attachements parameter has to be a list of `(filename, content, mime_type)` triples.
-**categories**, **sendgrid_asm** fields are optional, they can be used with `django-sendgrid <https://github.com/sklarsa/django-sendgrid-v5>`_ to enable metrics by category and unsubscribe groups.
+**categories**, **sendgrid_asm**, **use_premailer** fields are optional, they can be used with `django-sendgrid <https://github.com/sklarsa/django-sendgrid-v5>`_ to enable metrics by category and unsubscribe groups.
 
 Email subject will be taken from the `<title></title>` tags in the template if it is not set in notification class.
 

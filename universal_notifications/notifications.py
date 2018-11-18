@@ -269,6 +269,7 @@ class EmailNotification(NotificationBase):
     sender = None  # optional
     categories = []  # optional
     sendgrid_asm = {}
+    use_premailer = None
 
     def __init__(self, item, receivers, context=None, attachments=None):
         self.attachments = attachments or []
@@ -321,7 +322,7 @@ class EmailNotification(NotificationBase):
         # update paths
         base = context["protocol"] + context["domain"]
         sender = self.sender or settings.DEFAULT_FROM_EMAIL
-        if getattr(settings, "UNIVERSAL_NOTIFICATIONS_USE_PREMAILER", True):
+        if getattr(settings, "UNIVERSAL_NOTIFICATIONS_USE_PREMAILER", True) and self.use_premailer is not False:
             html = html.replace("{settings.STATIC_URL}CACHE/".format(settings=settings),
                                 "{settings.STATIC_ROOT}/CACHE/".format(settings=settings))  # get local file
             html = Premailer(html,

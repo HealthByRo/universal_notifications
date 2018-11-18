@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [1.2.0] - 2018-11-18
+### Added
+- Support for disabling premailer per email
+
 ## [1.1.0] - 2018-11-13
 ### Added
 - EmailNotification.sendgrid_asm to pass unsubscribe groups to django-sendgrid-v5
