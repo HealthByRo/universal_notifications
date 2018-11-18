@@ -6,8 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
-# Sublime Text
+# editors
 *.sublime*
+settings.json
 
 # Distribution / packaging
 .Python
