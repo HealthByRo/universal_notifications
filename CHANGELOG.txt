@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [1.2.1] - 2018-11-18
+### Fixed
+- "coreapi" requirements
+
 ## [1.2.0] - 2018-11-18
 ### Added
 - Support for disabling premailer per email
