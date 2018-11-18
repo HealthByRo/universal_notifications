@@ -63,7 +63,7 @@ setup(
     description="High-level framework for notifications",
     long_description=read_file("README.rst"),
     author="Pawel Krzyzaniak",
-    author_email="pawelk@ro",
+    author_email="pawelk@ro.co",
     packages=get_packages("universal_notifications"),
     package_data=get_package_data("universal_notifications"),
     zip_safe=False,
