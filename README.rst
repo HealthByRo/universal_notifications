@@ -138,7 +138,7 @@ Push notifications
 
 First of all, to use push notifications, you must provide a list of available **devices** linked to users.
 For more information, please check out
-`sources <https://github.com/ArabellaTech/universal_notifications/blob/master/universal_notifications/models.py#L20>`_.
+`sources <https://github.com/HealthByRo/universal_notifications/blob/master/universal_notifications/models.py#L20>`_.
 
 Supported platforms:
  * `FCM <https://firebase.google.com/docs/cloud-messaging/>`_ - Android, iOS, Web
@@ -177,17 +177,17 @@ Simple example of use:
 .. _Push notifications: #push-notifications
 .. _SMSAPI: https://github.com/smsapi/smsapi-python-client
 
-.. |travis| image:: https://secure.travis-ci.org/ArabellaTech/universal_notifications.svg?branch=master
-.. _travis: http://travis-ci.org/ArabellaTech/universal_notifications?branch=master
+.. |travis| image:: https://secure.travis-ci.org/HealthByRo/universal_notifications.svg?branch=master
+.. _travis: http://travis-ci.org/HealthByRo/universal_notifications?branch=master
 
 .. |pypi| image:: https://img.shields.io/pypi/v/universal_notifications.svg
 .. _pypi: https://pypi.python.org/pypi/universal_notifications
 
-.. |codecov| image:: https://img.shields.io/codecov/c/github/ArabellaTech/universal_notifications/master.svg
-.. _codecov: http://codecov.io/github/ArabellaTech/universal_notifications?branch=master
+.. |codecov| image:: https://img.shields.io/codecov/c/github/HealthByRo/universal_notifications/master.svg
+.. _codecov: http://codecov.io/github/HealthByRo/universal_notifications?branch=master
 
-.. |requiresio| image:: https://requires.io/github/ArabellaTech/universal_notifications/requirements.svg?branch=requires-io-master
-.. _requiresio: https://requires.io/github/ArabellaTech/universal_notifications/requirements/?branch=requires-io-master
+.. |requiresio| image:: https://requires.io/github/HealthByRo/universal_notifications/requirements.svg?branch=requires-io-master
+.. _requiresio: https://requires.io/github/HealthByRo/universal_notifications/requirements/?branch=requires-io-master
 
 Unsubscriber
 ~~~~~~~~~~~~
