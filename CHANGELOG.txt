@@ -1,5 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+## [1.2.2] - 2019-10-01
+### Fixed
+- regexp in url
+
 ## [1.2.1] - 2018-11-18
 ### Fixed
 - "coreapi" requirements

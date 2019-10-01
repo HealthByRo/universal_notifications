@@ -6,10 +6,10 @@ from universal_notifications.backends.twilio.api import TwilioAPI
 
 urlpatterns = [
     url(r"^devices$", DevicesAPI.as_view(), name="notifications-devices"),
-    url(r"^devices/(?P<pk>[\d]+)$", DeviceDetailsAPI.as_view(), name="device-details"),
+    url(r"^devices/(?P<pk>\d+)$", DeviceDetailsAPI.as_view(), name="device-details"),
     url(r"^twilio$", TwilioAPI.as_view(), name="twilio-callback"),
     url(r"^subscriptions$", SubscriptionsAPI.as_view(), name="notifications-subscriptions"),
-    url(r"^api-docs/", UniversalNotificationsDocsView.as_view(), name="notifications-docs")
+    url(r"^api-docs/", UniversalNotificationsDocsView.as_view(), name="notifications-docs"),
 ]
 
 router = DefaultRouter()
