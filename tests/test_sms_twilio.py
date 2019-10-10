@@ -136,6 +136,20 @@ class ReceivedTests(TwilioTestsCase):
         self.assertEqual(PhoneReceived.objects.count(), 1)
         self.assertEqual(PhoneReceivedRaw.objects.count(), 2)
 
+    def test_parse_same_number_and_different_service_number(self):
+        pr = PhoneReceiver.objects.create(number="+11111111111", service_number="+22222222222")
+        data = self.create_raw_data(u"yes😄", From="+11111111111", To="+33333333333")
+        r = self.client.post(self.twilio_callback_url, data=data)
+        self.assertEqual(r.status_code, 202)
+
+        raw = PhoneReceivedRaw.objects.get()
+        assert raw.status == PhoneReceivedRaw.STATUS_PASS
+
+        self.assertEqual(PhoneReceiver.objects.count(), 1)
+        pr = PhoneReceiver.objects.get()
+        self.assertEqual(pr.number, "+11111111111")
+        self.assertEqual(pr.service_number, "+33333333333")
+
     def test_special_words(self):
         # stop
         data = self.create_raw_data(u"QuiT")
