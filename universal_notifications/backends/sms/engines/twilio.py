@@ -87,9 +87,10 @@ class Engine(SMSEngineAbtract):
                 #     send_email('voice_mail', user.email, 'Patient leaved a voice mail', variables)
                 pass
         elif raw.data.get('SmsStatus') == 'received':
-            receiver, c = PhoneReceiver.objects.update_or_create(number=raw.data.get('From'),
-                                                              defaults={"service_number": raw.data.get('To')})
-            created = c
+            receiver, created = PhoneReceiver.objects.update_or_create(
+                number=raw.data.get('From'),
+                defaults={"service_number": raw.data.get('To')}
+            )
             if raw.data.get('SmsMessageSid', ''):
                 try:
                     PhoneReceived.objects.get(sms_id=raw.data.get('SmsMessageSid', ''))
