@@ -18,6 +18,7 @@ from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.template.loader import get_template
 from premailer import Premailer
+
 from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser

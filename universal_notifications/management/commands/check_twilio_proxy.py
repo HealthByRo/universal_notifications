@@ -3,9 +3,10 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from redis import StrictRedis
 from rest_framework.renderers import JSONRenderer
-from universal_notifications.models import PhonePendingMessages
 from ws4redis import settings as private_settings
 from ws4redis.redis_store import RedisMessage
+
+from universal_notifications.models import PhonePendingMessages
 
 
 class Command(BaseCommand):

@@ -3,6 +3,7 @@ import traceback
 
 import six
 from django.conf import settings
+
 from universal_notifications.backends.sms.base import SMS
 from universal_notifications.backends.sms.utils import clean_text
 from universal_notifications.models import PhonePendingMessages, PhoneReceivedRaw, PhoneReceiver, PhoneSent

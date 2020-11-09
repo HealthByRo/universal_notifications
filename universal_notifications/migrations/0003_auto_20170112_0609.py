@@ -3,8 +3,9 @@
 from __future__ import unicode_literals
 
 import django.db.models.deletion
-import universal_notifications.backends.twilio.fields
 from django.db import migrations, models
+
+import universal_notifications.backends.twilio.fields
 
 
 class Migration(migrations.Migration):
