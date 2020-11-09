@@ -5,10 +5,6 @@
     - receiver list preparation
     - message serialization
     - sending
-
-- chaining
-    - transformations
-    - conditions
 """
 import json
 from random import randint
@@ -23,58 +19,8 @@ from django.test import override_settings
 from rest_framework import serializers
 from rest_framework.test import APITestCase
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
-from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
-                                                   SMSNotification, WSNotification)
-
-
-class SampleA(NotificationBase):
-    check_subscription = False
-    category = "system"
-
-    @classmethod
-    def get_type(cls):
-        return "Test"
-
-    def prepare_receivers(self):
-        return list(map(lambda x: x.strip(), self.receivers))
-
-    def prepare_message(self):
-        return self.item["content"]
-
-    def send_inner(self, prepared_receivers, prepared_message):
-        pass
-
-    def get_notification_history_details(self):
-        return "whatever"
-
-
-class SampleB(SampleA):
-    chaining = (
-        {"class": SampleA, "delay": 0},
-        {"class": SampleA, "delay": 90},
-    )
-
-    def send_inner(self, prepared_receivers, prepared_message):
-        pass  # overwrite, so calls to this method are not counted
-
-
-def set_as_read(item, receivers, context):
-    item["is_read"] = True
-    return item, receivers, context
-
-
-def only_not_read(item, receivers, context, parent_result):
-    return not item["is_read"]
-
-
-class SampleC(SampleA):
-    chaining = (
-        {"class": SampleA, "delay": 0, "condition_func": only_not_read},
-        {"class": SampleA, "delay": 90, "transform_func": set_as_read, "condition_func": only_not_read},
-    )
-
-    def send_inner(self, prepared_receivers, prepared_message):
-        pass  # overwrite, so calls to this method are not counted
+from universal_notifications.notifications import (EmailNotification, PushNotification, SMSNotification,
+                                                   WSNotification)
 
 
 class SampleModel(models.Model):
@@ -198,19 +144,6 @@ class BaseTest(APITestCase):
             user=self.regular_user, platform=Device.PLATFORM_FCM)
 
     def test_sending(self):
-        with mock.patch("tests.test_base.SampleA.send_inner") as mocked_send_inner:
-            mocked_send_inner.return_value = None
-
-            SampleB(self.item, self.receivers, {}).send()
-            mocked_send_inner.assert_called_with(["a", "b"], "whateva")
-            self.assertEqual(mocked_send_inner.call_count, 2)
-
-            mocked_send_inner.reset_mock()
-
-            SampleC(self.item, self.receivers, {}).send()
-            mocked_send_inner.assert_called_with(["a", "b"], "whateva")
-            self.assertEqual(mocked_send_inner.call_count, 1)
-
         # test WSNotifications
         with mock.patch("tests.test_base.SampleD.send_inner") as mocked_send_inner:
             SampleD(self.object_item, [self.object_receiver], {}).send()
@@ -345,6 +278,7 @@ class BaseTest(APITestCase):
         self.assertDictEqual(result, expected_result)
 
     def test_history(self):
+        print(NotificationHistory.objects.all())
         self.assertEqual(NotificationHistory.objects.count(), 0)
         with mock.patch("universal_notifications.notifications.logger.info") as mocked_logger:
             SampleD(self.object_item, [self.object_receiver], {}).send()

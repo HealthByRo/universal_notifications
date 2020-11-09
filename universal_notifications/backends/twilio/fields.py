@@ -18,21 +18,12 @@ import json
 import warnings
 
 import six
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
 
 def dumps(value):
     return DjangoJSONEncoder().encode(value)
-
-
-def loads(txt):
-    value = json.loads(
-        txt,
-        encoding=settings.DEFAULT_CHARSET
-    )
-    return value
 
 
 class JSONDict(dict):
@@ -79,7 +70,7 @@ class JSONField(models.TextField):
             return {}
 
         if isinstance(value, six.string_types):
-            res = loads(value)
+            res = json.loads(value)
         else:
             res = value
 
@@ -95,7 +86,7 @@ class JSONField(models.TextField):
             return dumps(value)
         return super(models.TextField, self).get_prep_value(value)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection, context=None):
         return self.to_python(value)
 
     def get_db_prep_save(self, value, connection, **kwargs):

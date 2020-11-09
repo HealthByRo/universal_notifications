@@ -17,7 +17,7 @@ PYTEST_ARGS = {
 FLAKE8_ARGS = ["universal_notifications", "tests", "--ignore=E501"]
 
 ISORT_ARGS = ["--recursive", "--check-only", "-p", "tests", "universal_notifications", "-sd", "THIRDPARTY", "-m", "0",
-              "-w", "120"]
+              "-w", "120", "-s", "venv", "-s", ".tox",]
 
 sys.path.append(os.path.dirname(__file__))
 

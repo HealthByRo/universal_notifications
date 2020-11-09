@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+##[1.4.0]
+### Removed
+- Removed chaining support (it was not documented)
+### Added
+- Added support for python 3.7-3.9
+- Added support for Django 3.0 and 3.
+
 ## [1.3.0] - 2019-10-11
 ### Fixed
 - issue at twilio engine when receiver already exists for a given number

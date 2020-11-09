@@ -81,6 +81,7 @@ class ProxyTests(TwilioTestsCase):
 
 class ReceivedTests(TwilioTestsCase):
 
+    @override_settings(ADMINS=(("Admin", "foo@bar.com"),))
     def test_verification(self):
         data = self.create_raw_data("foo")
         r = self.client.post(self.twilio_callback_url, data=data)
