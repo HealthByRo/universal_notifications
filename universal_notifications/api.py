@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_swagger.renderers import OpenAPIRenderer
+
 from universal_notifications.docs import NotificationsDocs
 from universal_notifications.models import Device, UnsubscribedUser
 from universal_notifications.serializers import DeviceSerializer, UnsubscribedSerializer

@@ -9,8 +9,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from raven.contrib.django import DjangoClient
 from redis import StrictRedis
-from universal_notifications.models import Phone, PhonePendingMessages
 from ws4redis import settings as private_settings
+
+from universal_notifications.models import Phone, PhonePendingMessages
 
 
 class Queue(threading.Thread):

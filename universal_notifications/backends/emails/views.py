@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.views.generic import TemplateView
+
 from universal_notifications.notifications import EmailNotification
 
 

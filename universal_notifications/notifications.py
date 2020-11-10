@@ -4,19 +4,6 @@
 Sample usage:
     WSNotification(item, receivers, context).send()
 
-Chaining example:
-    chaining = (
-        {
-            "class": PushNotification,  # required, must be a subclass of NotificationBase
-            "delay": 0,  # required, [in seconds]
-            "transform_func": None,  # optional, should take as parameters (item, receivers, context)
-                                     # and return transformed item, receivers, context - see Transformations
-                                     # if empty or missing - no transformation is applied
-            "condition_func": None,  # optional, should take as parameters (item, receivers, context, parent_result)
-                                     # and returns True if notification should be send and False if not
-                                     # if function is None,
-            },
-    )
 """
 import importlib
 import logging
@@ -31,10 +18,10 @@ from django.core.mail import EmailMessage
 from django.template import Context, Template
 from django.template.loader import get_template
 from premailer import Premailer
+
 from universal_notifications.backends.sms.utils import send_sms
 from universal_notifications.backends.websockets import publish
 from universal_notifications.models import Device, NotificationHistory, UnsubscribedUser
-from universal_notifications.tasks import process_chained_notification
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +32,6 @@ if hasattr(settings, "UNIVERSAL_NOTIFICATIONS_USER_DEFINITIONS_FILE") and \
 
 
 class NotificationBase(object):
-    chaining = None
     check_subscription = True
     category = "default"
     PRIORITY_CATEGORY = "system"  # this category will be always sent
@@ -182,13 +168,6 @@ class NotificationBase(object):
         prepared_message = self.prepare_message()
         result = self.send_inner(prepared_receivers, prepared_message)
         self.save_notifications(prepared_receivers)
-        if self.chaining:
-            for conf in self.chaining:
-                args = [conf, self.item, self.receivers, self.context, result]
-                if conf["delay"] > 0:
-                    process_chained_notification.apply_async(args, countdown=conf["delay"])
-                else:  # no delay, so execute function directly, not as task
-                    process_chained_notification(*args)
         return result
 
 

@@ -7,11 +7,12 @@ from rest_framework.renderers import JSONRenderer
 from twilio.base.exceptions import TwilioException
 from twilio.rest import Client
 from twilio.rest.lookups import Lookups
+from ws4redis import settings as private_settings
+from ws4redis.redis_store import RedisMessage
+
 from universal_notifications.backends.sms.abstract import SMSEngineAbtract
 from universal_notifications.backends.sms.utils import report_admins
 from universal_notifications.models import Phone, PhoneReceived, PhoneReceivedRaw, PhoneReceiver, PhoneSent
-from ws4redis import settings as private_settings
-from ws4redis.redis_store import RedisMessage
 
 
 def get_twilio_client(lookups=False):

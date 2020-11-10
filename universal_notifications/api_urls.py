@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
+
 from universal_notifications.api import DeviceDetailsAPI, DevicesAPI, SubscriptionsAPI, UniversalNotificationsDocsView
 from universal_notifications.backends.twilio.api import TwilioAPI
 

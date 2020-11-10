@@ -5,6 +5,7 @@ from django.apps import apps
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.utils.safestring import mark_safe
 from rest_framework.compat import coreapi
+
 from universal_notifications.notifications import (EmailNotification, NotificationBase, PushNotification,
                                                    SMSNotification, WSNotification)
 
@@ -83,8 +84,8 @@ class EmailDocGenerator(BaseGenerator):
     @classmethod
     def get_template_loader(cls):
         if not cls.template_loader:
-            from django.template.loaders.filesystem import Loader
             from django.template.engine import Engine
+            from django.template.loaders.filesystem import Loader
 
             default_template_engine = Engine.get_default()
             cls.template_loader = Loader(default_template_engine)
