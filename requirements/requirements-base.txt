@@ -12,5 +12,5 @@ pyfcm
 
 # sms/phone
 phonenumbers>=7.7.3
-twilio>=6.0.0,<7.0.0
+twilio>=6.0.0,<8.0.0
 boto3>1.4.0,<2.0.0
