@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+##[1.5.0]
+### Changed
+- Updated the twilio-python dependency to allow >=6.0.0 and <8.0.0
+
 ##[1.4.0]
 ### Removed
 - Removed chaining support (it was not documented)
