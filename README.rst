@@ -1,3 +1,11 @@
+UNMAINTAINED
+============
+
+**PLEASE NOTE**: this library is not actively maintained and receives
+only minimal updates necessary to make tests pass with newer versions
+of Python and Django.  Most of it is no longer in active use at Ro.
+
+
 universal\_notifications
 ========================
 |travis|_ |pypi|_ |codecov|_

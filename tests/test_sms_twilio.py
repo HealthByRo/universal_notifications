@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import mock
+from unittest import mock
 from django.core import mail
 from django.core.management import call_command
 from django.test.utils import override_settings

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import mock
+from unittest import mock
 from django.test.utils import override_settings
 from tests.test_utils import APIBaseTestCase
 from universal_notifications.backends.sms.utils import send_sms

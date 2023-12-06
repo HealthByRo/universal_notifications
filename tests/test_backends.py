@@ -1,7 +1,7 @@
 import json
 import os
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import override_settings
