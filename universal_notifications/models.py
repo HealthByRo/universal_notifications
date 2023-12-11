@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import post_save
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from phonenumbers import NumberParseException
 
 from universal_notifications.backends.push.apns import apns_send_message
@@ -64,8 +64,8 @@ class Device(models.Model):
         if not self.is_active:
             return False
 
-        message = force_text(message)
-        description = force_text(description)
+        message = force_str(message)
+        description = force_str(description)
         if self.platform == Device.PLATFORM_GCM:
             return gcm_send_message(self, message, data)
         elif self.platform == Device.PLATFORM_IOS:
